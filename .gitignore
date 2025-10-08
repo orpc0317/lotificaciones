@@ -1,0 +1,37 @@
+# Archivos de entorno
+.env
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Logs y caché
+*.log
+cache/
+tmp/
+*.bak
+
+# Visual Studio Code
+.vscode/
+
+# Archivos de subida
+public/assets/img/empleados/
+
+# Dependencias (si se usan en el futuro)
+vendor/
+node_modules/
+
+# Archivos compilados
+*.class
+*.exe
+*.dll
+*.so
+*.o
+*.pyc
+
+# Archivos de exportación
+*.pdf
+*.xls
+*.xlsx
+*.csv
+*.txt
