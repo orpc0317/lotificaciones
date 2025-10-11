@@ -1,6 +1,4 @@
 <?php
-require_once '../core/EnvLoader.php';
-require_once '../core/Router.php';
 
-$router = new Router();
-$router->route();
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../routes/web.php';
