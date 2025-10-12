@@ -318,8 +318,172 @@ $(document).ready(function () {
     });
 
         // showToast using SweetAlert2 toast
+        // Export ficha modal to PDF (uses html2canvas + jsPDF)
+        $(document).on('click', '#exportPdfBtn', function () {
+            const codigo = $('#ficha_codigo').text().trim() || 'empleado';
+            const imgSrc = $('#ficha_foto').attr('src') || '';
+            const hasImage = imgSrc && !imgSrc.includes('placeholder.png');
+
+            // Build a clean container for PDF rendering
+            const $container = $('<div id="pdfContainer">').css({
+                position: 'absolute',
+                left: '-9999px',
+                top: '0',
+                width: '800px',
+                background: '#ffffff',
+                color: '#000',
+                padding: '20px',
+                'font-family': 'Arial, Helvetica, sans-serif',
+                'font-size': '12px',
+                'line-height': '1.4'
+            });
+
+            // Header
+            $container.append($('<h2>').text('Ficha de Empleado').css({ 'margin-top': 0 }));
+
+            // Row: image left, fields right
+            const $row = $('<div>').css({ display: 'flex', 'align-items': 'flex-start' });
+
+            if (hasImage) {
+                const $imgWrap = $('<div>').css({ 'flex': '0 0 160px', 'margin-right': '20px' });
+                const $img = $('<img>').attr('src', imgSrc).css({ width: '150px', height: 'auto', display: 'block' });
+                $imgWrap.append($img);
+                $row.append($imgWrap);
+            }
+
+            const $fields = $('<div>').css({ 'flex': '1 1 auto' });
+            const addField = (label, value) => {
+                const $p = $('<p>').css({ margin: '4px 0' });
+                $p.append($('<strong>').text(label + ': ')).append(document.createTextNode(value || ''));
+                $fields.append($p);
+            };
+
+            addField('Código', $('#ficha_codigo').text().trim());
+            addField('Nombres', $('#ficha_nombres').text().trim());
+            addField('Apellidos', $('#ficha_apellidos').text().trim());
+            addField('Edad', $('#ficha_edad').text().trim());
+            addField('Género', $('#ficha_genero').text().trim());
+            addField('Puesto', $('#ficha_puesto').text().trim());
+            addField('Departamento', $('#ficha_departamento').text().trim());
+
+            $row.append($fields);
+            $container.append($row);
+
+            // Comentarios section below
+            const comentarios = $('#ficha_comentarios').text().trim();
+            if (comentarios) {
+                $container.append($('<h3>').text('Comentarios').css({ 'margin-top': '16px' }));
+                $container.append($('<p>').text(comentarios).css({ 'white-space': 'pre-wrap' }));
+            }
+
+            $('body').append($container);
+
+            Swal.fire({ title: 'Generando PDF', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            const renderAndSave = () => {
+                html2canvas($container[0], { scale: 2 }).then(canvas => {
+                    try {
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        const pdfConstructor = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (typeof jsPDF !== 'undefined' ? jsPDF : null);
+                        if (!pdfConstructor) throw new Error('jsPDF not available');
+                        const pdf = new pdfConstructor('p', 'mm', 'a4');
+                        const pageWidth = pdf.internal.pageSize.getWidth();
+                        const pageHeight = pdf.internal.pageSize.getHeight();
+                        const margin = 10; // mm
+                        const pdfInnerWidth = pageWidth - margin * 2;
+                        const pdfInnerHeight = pageHeight - margin * 2;
+
+                        // Full image size in mm when scaled to pdfInnerWidth
+                        const fullImgHeightMm = (canvas.height * pdfInnerWidth) / canvas.width;
+
+                        if (fullImgHeightMm <= pdfInnerHeight) {
+                            // Single page
+                            pdf.addImage(imgData, 'JPEG', margin, margin, pdfInnerWidth, fullImgHeightMm);
+                        } else {
+                            // Multi-page: slice canvas vertically into page-sized chunks
+                            // Calculate how many px correspond to one PDF inner page height
+                            const pxPerPage = Math.floor((canvas.width * pdfInnerHeight) / pdfInnerWidth);
+                            let y = 0;
+                            while (y < canvas.height) {
+                                const sliceHeight = Math.min(pxPerPage, canvas.height - y);
+                                // Create a temporary canvas to hold the slice
+                                const sliceCanvas = document.createElement('canvas');
+                                sliceCanvas.width = canvas.width;
+                                sliceCanvas.height = sliceHeight;
+                                const ctx = sliceCanvas.getContext('2d');
+                                // draw the slice from the original canvas
+                                ctx.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+                                const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+                                const sliceHeightMm = (sliceHeight * pdfInnerWidth) / canvas.width;
+                                if (y > 0) pdf.addPage();
+                                pdf.addImage(sliceData, 'JPEG', margin, margin, pdfInnerWidth, sliceHeightMm);
+                                y += sliceHeight;
+                            }
+                        }
+
+                        // Prepare blob URL for optional print preview
+                        const blobUrl = pdf.output('bloburl');
+
+                        Swal.close();
+                        Swal.fire({
+                            title: 'PDF listo',
+                            text: '¿Deseas descargar o imprimir la ficha?',
+                            icon: 'success',
+                            showCancelButton: true,
+                            showDenyButton: true,
+                            confirmButtonText: 'Descargar',
+                            denyButtonText: 'Imprimir',
+                            cancelButtonText: 'Cancelar'
+                        }).then((choice) => {
+                            if (choice.isConfirmed) {
+                                pdf.save('ficha_' + codigo.replace(/[^a-z0-9_-]/gi, '_') + '.pdf');
+                                $container.remove();
+                            } else if (choice.isDenied) {
+                                const w = window.open(blobUrl, '_blank');
+                                if (w) {
+                                    setTimeout(() => { try { w.focus(); w.print(); } catch (e) { console.warn('Print failed', e); } }, 700);
+                                } else {
+                                    window.location.href = blobUrl;
+                                }
+                                $container.remove();
+                            } else {
+                                $container.remove();
+                            }
+                        });
+                    } catch (err) {
+                        console.error('Error generating PDF', err);
+                        Swal.close();
+                        $container.remove();
+                        showToast('Error', 'Error al generar el PDF', 'danger');
+                    }
+                }).catch(err => {
+                    console.error('html2canvas error', err);
+                    Swal.close();
+                    $container.remove();
+                    showToast('Error', 'Error al renderizar PDF', 'danger');
+                });
+            };
+
+            // If there's an image, wait for it to load before rendering
+            if (hasImage) {
+                const $img = $container.find('img');
+                if ($img.length) {
+                    if ($img[0].complete) {
+                        renderAndSave();
+                    } else {
+                        $img.on('load error', function () { renderAndSave(); });
+                    }
+                } else {
+                    renderAndSave();
+                }
+            } else {
+                renderAndSave();
+            }
+        });
+
+        // showToast using SweetAlert2 toast
         function showToast(title, message, type) {
-                const icon = type === 'success' ? 'success' : (type === 'danger' ? 'error' : 'warning');
-                Swal.fire({ toast: true, position: 'top-end', icon: icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
+            const icon = type === 'success' ? 'success' : (type === 'danger' ? 'error' : 'warning');
+            Swal.fire({ toast: true, position: 'top-end', icon: icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
         }
 });
