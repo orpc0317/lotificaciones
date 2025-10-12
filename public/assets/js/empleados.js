@@ -7,13 +7,14 @@ $(document).ready(function () {
                 },
                 columns: [
                         { data: 'id' },
-                        { data: 'thumbnail', render: function (d) { return d ? `<img src="${d}" class="thumb-sm" alt="thumb">` : `<img src="uploads/placeholder.png" class="thumb-sm" alt="thumb">`; } },
+                        { data: 'thumbnail', className: 'no-export', render: function (d) { return d ? `<img src="${d}" class="thumb-sm" alt="thumb">` : `<img src="uploads/placeholder.png" class="thumb-sm" alt="thumb">`; } },
                         { data: 'nombres' },
                         { data: 'apellidos' },
                         { data: 'edad' },
-                        {
-                                data: null,
-                                render: function (data, type, row) {
+            {
+                data: null,
+                className: 'no-export',
+                render: function (data, type, row) {
                                         return `
                         <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}">
                             <i class="bi bi-person-lines-fill"></i>
@@ -32,15 +33,15 @@ $(document).ready(function () {
     colReorder: true,
     stateSave: true,
         buttons: [
-            { extend: 'copy', text: 'Copiar' },
+            { extend: 'copy', text: 'Copiar', exportOptions: { columns: ':visible:not(.no-export)' } },
             { extend: 'colvis', text: 'Columnas' },
             // Excel: use excelHtml5 and set extension to xls for compatibility
-            { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible' } },
+            { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible:not(.no-export)' } },
             // CSV (comma separated)
-            { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible' } },
+            { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible:not(.no-export)' } },
             // TXT (tab separated values)
-            { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible' } },
-            { extend: 'print', text: 'Imprimir' },
+            { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible:not(.no-export)' } },
+            { extend: 'print', text: 'Imprimir', exportOptions: { columns: ':visible:not(.no-export)' } },
             {
                 text: 'Reset columns',
                 action: function (e, dt, node, config) {
