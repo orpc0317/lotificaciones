@@ -31,6 +31,7 @@ $(document).ready(function () {
         dom: 'Bfrtip',
         buttons: [
             { extend: 'copy', text: 'Copiar' },
+            { extend: 'colvis', text: 'Columnas' },
             // Excel: use excelHtml5 and set extension to xls for compatibility
             { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible' } },
             // CSV (comma separated)
