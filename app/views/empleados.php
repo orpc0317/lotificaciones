@@ -141,10 +141,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="assets/js/empleados.js"></script>
 
-</body>
-
-</html>
-
 <!-- Modal para ver ficha -->
 <div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -248,3 +244,7 @@
 
 <!-- Modal de confirmación de borrado -->
 <!-- confirmDeleteModal removed: handled by SweetAlert2 -->
+    
+</body>
+
+</html>
