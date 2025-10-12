@@ -224,9 +224,7 @@
                                 <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
                             </div>
                             <div class="mb-3">
-                                <label for="edit_genero" class="form-label">G e9nero</label>
-                                <div class="mb-3">
-                                    <label for="edit_genero" class="form-label">Género</label>
+                                <label for="edit_genero" class="form-label">Género</label>
                                 <select name="genero" id="edit_genero" class="form-select">
                                     <option value="">Seleccione</option>
                                     <option value="Masculino">Masculino</option>

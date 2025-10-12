@@ -139,6 +139,8 @@ $(document).ready(function () {
                     // Set genero if provided
                     $('#edit_genero').val(e.genero || '');
                     $('#edit_foto_actual').val(e.foto || '');
+                    // Set comentarios in edit modal
+                    $('#edit_comentarios').val(e.comentarios || '');
                     // set photo preview
                     if (e.thumbnail) {
                         $('#edit_foto_preview').attr('src', e.thumbnail);
