@@ -25,6 +25,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check PSR-4 namespace casing
+        run: php scripts/check_namespace_case.php
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
