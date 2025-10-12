@@ -105,13 +105,13 @@
                                 <form id="formEmpleado" enctype="multipart/form-data">
                                     <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
+                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
+                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
+                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
                                         </li>
                                     </ul>
                                     <div class="tab-content pt-2" id="newFormTabsContent">
@@ -203,7 +203,23 @@
                         <h5 class="mb-0">Lista de Empleados</h5>
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                         <div class="ms-auto d-flex align-items-center">
-                            <button id="darkModeToggle" class="me-2" title="Modo Oscuro">🌙</button>
+                            <button id="darkModeToggle" class="me-2" title="Modo Oscuro" aria-label="Toggle Dark Mode">
+                                <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="4" fill="currentColor" />
+                                        <g id="rays" opacity="0.9">
+                                            <path d="M12 2v2" />
+                                            <path d="M12 20v2" />
+                                            <path d="M4.93 4.93l1.41 1.41" />
+                                            <path d="M17.66 17.66l1.41 1.41" />
+                                            <path d="M2 12h2" />
+                                            <path d="M20 12h2" />
+                                            <path d="M4.93 19.07l1.41-1.41" />
+                                            <path d="M17.66 6.34l1.41-1.41" />
+                                        </g>
+                                    </g>
+                                </svg>
+                            </button>
                             <div id="palettePicker" class="d-flex align-items-center">
                                 <div class="palette-swatch" data-palette="blue" title="Blue" style="background:var(--primary-600);"></div>
                                 <div class="palette-swatch" data-palette="teal" title="Teal" style="background:#0d9488;"></div>
@@ -296,13 +312,13 @@
                             <div class="card-header" style="padding:0;">
                                 <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
+                                            <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="ficha-generals" style="display:none;"></span></button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
+                                            <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="ficha-puesto" style="display:none;"></span></button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
+                                            <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="ficha-others" style="display:none;"></span></button>
                                     </li>
                                 </ul>
                             </div>
@@ -365,13 +381,13 @@
                                 <div class="card-header" style="padding:0;">
                                     <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
+                                            <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="edit-generals" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
+                                            <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="edit-puesto" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
+                                            <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="edit-others" style="display:none;"></span></button>
                                         </li>
                                     </ul>
                                 </div>

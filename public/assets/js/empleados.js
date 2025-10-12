@@ -552,4 +552,110 @@ $(document).ready(function () {
             const icon = type === 'success' ? 'success' : (type === 'danger' ? 'error' : 'warning');
             Swal.fire({ toast: true, position: 'top-end', icon: icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
         }
+
+        // -- Persist last-open tab per modal/form and per-tab validation badges --
+        (function(){
+            const LS_PREFIX = 'lotificaciones_last_tab_';
+
+            // Save shown tab to localStorage; works for buttons with data-bs-toggle="tab"
+            document.addEventListener('shown.bs.tab', function (e) {
+                try {
+                    const target = e.target; // the activated tab button
+                    const tabSelector = target.getAttribute('data-bs-target') || target.getAttribute('href');
+                    if (!tabSelector) return;
+                    // find enclosing modal id or 'page' for the new form
+                    let container = target.closest('.modal');
+                    let key = LS_PREFIX + (container ? container.id : 'newform');
+                    // normalize selector to pane id (remove leading #)
+                    const paneId = (tabSelector.charAt(0) === '#') ? tabSelector.substring(1) : tabSelector;
+                    localStorage.setItem(key, paneId);
+                } catch (err) { /* ignore storage errors */ }
+            }, false);
+
+            // Restore tab when modal opens
+            ['modalFicha','modalEditar'].forEach(function(modalId){
+                const modalEl = document.getElementById(modalId);
+                if (!modalEl) return;
+                modalEl.addEventListener('show.bs.modal', function () {
+                    try {
+                        const saved = localStorage.getItem(LS_PREFIX + modalId);
+                        if (saved) {
+                            const tabBtn = modalEl.querySelector('[data-bs-target="#' + saved + '"]');
+                            if (tabBtn) new bootstrap.Tab(tabBtn).show();
+                        }
+                    } catch (err) { }
+                });
+            });
+
+            // Restore tab for new employee form on page load
+            try {
+                const savedNew = localStorage.getItem(LS_PREFIX + 'newform');
+                if (savedNew) {
+                    const btn = document.querySelector('[data-bs-target="#' + savedNew + '"]');
+                    if (btn) new bootstrap.Tab(btn).show();
+                }
+            } catch (err) { }
+
+            // Per-tab validation: show badge if tab contains invalid required fields
+            function updateTabBadges(formEl) {
+                const badges = document.querySelectorAll('.badge-tab');
+                badges.forEach(b => { b.style.display = 'none'; b.textContent = ''; b.classList.remove('bg-danger','text-white','rounded-pill','px-1'); });
+
+                // find all tab panes inside the form/modal
+                const tabPanes = (formEl || document).querySelectorAll('.tab-pane');
+                tabPanes.forEach(function(pane){
+                    const paneId = pane.id;
+                    if (!paneId) return;
+                    // look for required inputs inside pane
+                    const invalidElems = pane.querySelectorAll('input[required]:invalid, textarea[required]:invalid, select[required]:invalid');
+                    if (invalidElems && invalidElems.length > 0) {
+                        const badge = document.querySelector('.badge-tab[data-tab="' + paneId + '"]');
+                        if (badge) {
+                            badge.style.display = 'inline-block';
+                            badge.classList.add('bg-danger','text-white','rounded-pill','px-1');
+                            badge.textContent = '¡' + invalidElems.length + '!';
+                        }
+                        // mark tab link
+                        const tabLink = document.querySelector('[data-bs-target="#' + paneId + '"]');
+                        if (tabLink) tabLink.classList.add('text-danger');
+                    } else {
+                        const tabLink = document.querySelector('[data-bs-target="#' + paneId + '"]');
+                        if (tabLink) tabLink.classList.remove('text-danger');
+                    }
+                });
+            }
+
+            // Validate on submit for create and edit forms
+            ['#formEmpleado','#formEditar'].forEach(function(selector){
+                const form = document.querySelector(selector);
+                if (!form) return;
+                form.addEventListener('submit', function(e){
+                    // run HTML5 validity checks grouped by tab
+                    const panes = form.querySelectorAll('.tab-pane');
+                    let firstInvalid = null;
+                    panes.forEach(function(pane){
+                        const invalid = pane.querySelectorAll('input[required]:invalid, textarea[required]:invalid, select[required]:invalid');
+                        if (!firstInvalid && invalid.length) firstInvalid = invalid[0];
+                    });
+                    updateTabBadges(form);
+                    if (firstInvalid) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // switch to the tab containing the first invalid
+                        const pane = firstInvalid.closest('.tab-pane');
+                        if (pane) {
+                            const btn = document.querySelector('[data-bs-target="#' + pane.id + '"]');
+                            if (btn) new bootstrap.Tab(btn).show();
+                        }
+                        firstInvalid.focus();
+                        showToast('Error', 'Por favor corrige los campos marcados en la pestaña seleccionada.', 'danger');
+                        return false;
+                    }
+                    // otherwise allow submission to proceed
+                }, false);
+
+                // live update on input change
+                form.addEventListener('input', function(){ updateTabBadges(form); }, true);
+            });
+        })();
 });
