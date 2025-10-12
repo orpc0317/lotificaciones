@@ -18,8 +18,8 @@ class EmpleadoModel
             $this->db = new PDO($dsn, $env['DB_USER'], $env['DB_PASS']);
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
-              // Lanzamos la excepción para que el controlador la maneje y retorne JSON de error
-              throw new Exception('Error de conexión a la base de datos: ' . $e->getMessage(), 0, $e);
+            // Lanzamos la excepción para que el controlador la maneje y retorne JSON de error
+            throw new Exception('Error de conexión a la base de datos: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -264,4 +264,5 @@ class EmpleadoModel
         imagedestroy($src);
         return true;
     }
+
 }
