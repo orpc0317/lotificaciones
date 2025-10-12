@@ -17,14 +17,46 @@
     <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Modern font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
     <style>
+        /* Color system and themes */
+        :root{
+            --bg: #f5f7fb;
+            --card-bg: #ffffff;
+            --text: #0f1724;
+            --muted: #6b7280;
+            --primary-600: #0b63d3; /* deep blue */
+            --primary-400: #3b82f6; /* medium blue */
+            --accent: #94a3b8;
+            --border: #e6edf6;
+        }
+        [data-theme="dark"]{
+            --bg: #0b1220;
+            --card-bg: #071025;
+            --text: #e6eef8;
+            --muted: #9aa6b2;
+            --primary-600: #1e90ff;
+            --primary-400: #60a5fa;
+            --accent: #334155;
+            --border: #122233;
+        }
+
+        html,body{height:100%;}
+        body{background:var(--bg); color:var(--text); font-family: 'Inter', 'Segoe UI', Roboto, Arial, Helvetica, sans-serif;}
+
+        .card{background:var(--card-bg); border:1px solid var(--border);}
+        .card-header{background:transparent; border-bottom:1px solid var(--border);}
+        .btn-primary{background:var(--primary-600); border-color:var(--primary-600);}
+        .btn-outline-primary{color:var(--primary-600); border-color:var(--primary-600);}
+
         /* Fixed tab pane height: use the generals pane height as reference */
         .tab-fixed-height { overflow-y: auto; }
 
         /* Modal and card typography & spacing tweaks */
-        .modal .modal-content { font-family: 'Segoe UI', Roboto, Arial, Helvetica, sans-serif; }
+        .modal .modal-content { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, Helvetica, sans-serif; }
         .modal .modal-body { padding: 1rem 1.25rem; }
         .card .card-body { padding: 0.75rem; }
 
@@ -32,11 +64,18 @@
         .nav-tabs .nav-link.rounded-0 { border-radius: 0 !important; }
 
         /* Tighter list group items for compact look */
-        .list-group-item { padding: 0.5rem 0.75rem; }
+        .list-group-item { padding: 0.5rem 0.75rem; background: transparent; border: none; }
 
         /* Ensure tab card header and content align */
         .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
         .tab-card .card-body { padding-top: 0.5rem; }
+
+        /* Dark-mode toggle button */
+        #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px }
+
+        /* Tab icon spacing */
+        .nav-tabs .nav-link i { margin-right:6px; }
+
     </style>
 </head>
 
@@ -54,13 +93,13 @@
                                 <form id="formEmpleado" enctype="multipart/form-data">
                                     <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true">Generals</button>
+                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false">Puesto</button>
+                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false">Others</button>
+                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
                                         </li>
                                     </ul>
                                     <div class="tab-content pt-2" id="newFormTabsContent">
@@ -136,9 +175,12 @@
             <!-- Tabla -->
             <div class="col-md-8">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-secondary text-white d-flex align-items-center">
+                    <div class="card-header d-flex align-items-center">
                         <h5 class="mb-0">Lista de Empleados</h5>
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
+                        <div class="ms-auto d-flex align-items-center">
+                            <button id="darkModeToggle" class="me-2" title="Modo Oscuro">🌙</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <table id="tablaEmpleados" class="table table-striped table-bordered">

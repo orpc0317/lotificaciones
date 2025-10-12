@@ -93,6 +93,29 @@ $(document).ready(function () {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (el) { new bootstrap.Tooltip(el); });
 
+    // Dark mode toggle: persist in localStorage and apply data-theme on <html>
+    function applyTheme(theme) {
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        else document.documentElement.removeAttribute('data-theme');
+        try { localStorage.setItem('lotificaciones_theme', theme); } catch (e) { }
+        // update toggle button icon
+        const btn = document.getElementById('darkModeToggle');
+        if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // Initialize from storage
+    (function(){
+        let t = 'light';
+        try { t = localStorage.getItem('lotificaciones_theme') || 'light'; } catch (e) { }
+        applyTheme(t);
+        const btn = document.getElementById('darkModeToggle');
+        if (btn) btn.addEventListener('click', function(){
+            const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+        });
+    })();
+
     // Calcular edad al seleccionar fecha
     $(document).on('change', '#fecha_nacimiento', function () {
         const fecha = new Date($(this).val());
