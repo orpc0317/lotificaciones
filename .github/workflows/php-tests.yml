@@ -51,5 +51,13 @@ jobs:
       - name: Run API tests
         run: |
           php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
-          sleep 1
+          # wait up to 15s for the server to accept connections on 127.0.0.1:8000
+          for i in {1..15}; do
+            if curl --silent --fail http://127.0.0.1:8000/ > /dev/null 2>&1; then
+              echo "Server is up (attempt $i)";
+              break
+            fi
+            echo "Waiting for server... (attempt $i)";
+            sleep 1
+          done
           php scripts/tests/api_tests.php
