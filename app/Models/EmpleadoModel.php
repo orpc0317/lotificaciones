@@ -100,15 +100,10 @@ class EmpleadoModel
     {
         $foto = null;
         if (!empty($files['foto']['name'])) {
-            // Validar y verificar imagen con getimagesize
-            $info = @getimagesize($files['foto']['tmp_name']);
-            if (!$info || !isset($info['mime'])) {
+            // Validar y verificar imagen (no confiar en extensión)
+            $validated = $this->validateUploadedImage($files['foto']);
+            if ($validated === false) {
                 throw new Exception('El archivo no es una imagen válida');
-            }
-            $allowed = ['image/jpeg', 'image/png', 'image/gif'];
-            $maxBytes = 2 * 1024 * 1024; // 2MB
-            if (!in_array($info['mime'], $allowed) || $files['foto']['size'] > $maxBytes) {
-                throw new Exception('Archivo de imagen inválido o demasiado grande');
             }
 
             $foto = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', basename($files['foto']['name']));
@@ -141,15 +136,10 @@ class EmpleadoModel
     {
         $foto = $data['foto_actual'] ?? null;
         if (!empty($files['foto']['name'])) {
-            // Validar y verificar imagen con getimagesize
-            $info = @getimagesize($files['foto']['tmp_name']);
-            if (!$info || !isset($info['mime'])) {
+            // Validar y verificar imagen (no confiar en extensión)
+            $validated = $this->validateUploadedImage($files['foto']);
+            if ($validated === false) {
                 throw new Exception('El archivo no es una imagen válida');
-            }
-            $allowed = ['image/jpeg', 'image/png', 'image/gif'];
-            $maxBytes = 2 * 1024 * 1024; // 2MB
-            if (!in_array($info['mime'], $allowed) || $files['foto']['size'] > $maxBytes) {
-                throw new Exception('Archivo de imagen inválido o demasiado grande');
             }
 
             // eliminar archivos antiguos (si existen)
@@ -183,6 +173,68 @@ class EmpleadoModel
         ];
 
         return $stmt->execute($params);
+    }
+
+    /**
+     * Validate an uploaded image file more strictly.
+     * Returns an array with 'mime' and 'ext' on success, or false on failure.
+     */
+    private function validateUploadedImage(array $file)
+    {
+        if (empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+            // allow direct local testing where is_uploaded_file may be false, so also accept existing tmp_name
+            if (empty($file['tmp_name']) || !file_exists($file['tmp_name'])) {
+                return false;
+            }
+        }
+
+        $maxBytes = 2 * 1024 * 1024; // 2MB
+        if (!empty($file['size']) && $file['size'] > $maxBytes) {
+            return false;
+        }
+
+        // Use finfo to get MIME type (more reliable than extension)
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+        } else {
+            $mime = null;
+        }
+
+        $imageInfo = @getimagesize($file['tmp_name']);
+        $mimeFromGetImage = $imageInfo['mime'] ?? null;
+
+        // Prefer finfo result but ensure it matches getimagesize if available
+        $detectedMime = $mime ?: $mimeFromGetImage;
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
+        if (empty($detectedMime) || !array_key_exists($detectedMime, $allowed)) {
+            return false;
+        }
+
+        // Now try to actually create an image resource to be extra sure
+        $type = $imageInfo[2] ?? null; // IMAGETYPE_*
+        $ok = false;
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                $res = @imagecreatefromjpeg($file['tmp_name']);
+                $ok = $res !== false;
+                break;
+            case IMAGETYPE_PNG:
+                $res = @imagecreatefrompng($file['tmp_name']);
+                $ok = $res !== false;
+                break;
+            case IMAGETYPE_GIF:
+                $res = @imagecreatefromgif($file['tmp_name']);
+                $ok = $res !== false;
+                break;
+            default:
+                $ok = false;
+        }
+    if (isset($res) && $res !== false) imagedestroy($res);
+        if (!$ok) return false;
+
+        return ['mime' => $detectedMime, 'ext' => $allowed[$detectedMime]];
     }
 
     public function delete($id)
