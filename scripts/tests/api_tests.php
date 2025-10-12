@@ -47,8 +47,16 @@ echo "Running quick API tests...\n";
 
 // Wait for server to be ready
 $base = base_url();
-if (!wait_for_server($base, 20)) {
-    echo "[FAIL] Server did not respond at {$base} within timeout\n";
+// Wait for the JSON endpoint the tests expect
+$base = base_url();
+$healthEndpoint = $base . 'empleados/ajax';
+if (!wait_for_server($healthEndpoint, 30)) {
+    echo "[FAIL] Server did not respond at {$healthEndpoint} within timeout\n";
+    // try to fetch raw output for debug
+    $raw = @file_get_contents($base);
+    if ($raw !== false) {
+        echo "[DEBUG] Raw / response snippet:\n" . substr($raw,0,1000) . "\n";
+    }
     exit(1);
 }
 
