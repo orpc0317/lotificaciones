@@ -21,9 +21,22 @@
     <link href="assets/css/style.css" rel="stylesheet">
     <style>
         /* Fixed tab pane height: use the generals pane height as reference */
-        .tab-fixed-height {
-            overflow-y: auto;
-        }
+        .tab-fixed-height { overflow-y: auto; }
+
+        /* Modal and card typography & spacing tweaks */
+        .modal .modal-content { font-family: 'Segoe UI', Roboto, Arial, Helvetica, sans-serif; }
+        .modal .modal-body { padding: 1rem 1.25rem; }
+        .card .card-body { padding: 0.75rem; }
+
+        /* Square corners for tabs */
+        .nav-tabs .nav-link.rounded-0 { border-radius: 0 !important; }
+
+        /* Tighter list group items for compact look */
+        .list-group-item { padding: 0.5rem 0.75rem; }
+
+        /* Ensure tab card header and content align */
+        .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
+        .tab-card .card-body { padding-top: 0.5rem; }
     </style>
 </head>
 
@@ -207,19 +220,23 @@
                         <img id="ficha_foto" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded" style="max-height:250px;">
                     </div>
                     <div class="col-md-8">
-                        <!-- Tabs: Generals | Puesto | Others -->
-                        <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true">Generals</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false">Puesto</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false">Others</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content pt-2" id="fichaTabsContent">
+                        <!-- Tabs: Generals | Puesto | Others (wrapped in card) -->
+                        <div class="tab-card card">
+                            <div class="card-header" style="padding:0;">
+                                <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content pt-2" id="fichaTabsContent">
                             <div class="tab-pane fade show active" id="ficha-generals" role="tabpanel" aria-labelledby="ficha-generals-tab">
                                 <ul class="list-group">
                                     <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
@@ -242,6 +259,8 @@
                                         <h6>Comentarios</h6>
                                         <div id="ficha_comentarios" style="white-space:pre-wrap;"></div>
                                     </div>
+                                </div>
+                            </div>
                                 </div>
                             </div>
                         </div>
@@ -271,18 +290,22 @@
                         </div>
                         <div class="col-md-8">
                             <!-- Tabs for edit form -->
-                            <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true">Generals</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false">Puesto</button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false">Others</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content pt-2" id="editFormTabsContent">
+                            <div class="tab-card card">
+                                <div class="card-header" style="padding:0;">
+                                    <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content pt-2" id="editFormTabsContent">
                                 <div class="tab-pane fade show active" id="edit-generals" role="tabpanel" aria-labelledby="edit-generals-tab">
                                     <div class="mb-3">
                                         <label for="edit_nombres" class="form-label">Nombres</label>
@@ -324,6 +347,8 @@
                                             <label for="edit_foto" class="form-label">Actualizar foto</label>
                                             <input type="file" name="foto" id="edit_foto" accept="image/*" class="form-control">
                                         </div>
+                                </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
