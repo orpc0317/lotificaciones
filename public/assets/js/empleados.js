@@ -149,6 +149,7 @@ $(document).ready(function () {
                     $('#ficha_codigo').text(e.codigo || '');
                     $('#ficha_nombres').text(e.nombres || '');
                     $('#ficha_apellidos').text(e.apellidos || '');
+                    $('#ficha_fecha_nacimiento').text(e.fecha_nacimiento || '');
                     $('#ficha_edad').text(e.edad || '');
                     $('#ficha_genero').text(e.genero || '');
                     $('#ficha_puesto').text(e.puesto_nombre || '');
@@ -163,6 +164,8 @@ $(document).ready(function () {
                     }
                     var modal = new bootstrap.Modal(document.getElementById('modalFicha'));
                     modal.show();
+                    // Ensure the Generals tab is active when opening the ficha
+                    try { var fichaTabEl = document.querySelector('#ficha-generals-tab'); if (fichaTabEl) new bootstrap.Tab(fichaTabEl).show(); } catch (e) { }
                 } else if (json.error) {
                     showToast('Error', json.error, 'danger');
                 }
@@ -210,6 +213,8 @@ $(document).ready(function () {
 
                     var modal = new bootstrap.Modal(document.getElementById('modalEditar'));
                     modal.show();
+                    // Ensure the Generals tab is active when opening the edit modal
+                    try { var editTabEl = document.querySelector('#edit-generals-tab'); if (editTabEl) new bootstrap.Tab(editTabEl).show(); } catch (e) { }
                 } else if (json.error) {
                     showToast('Error', json.error, 'danger');
                 }

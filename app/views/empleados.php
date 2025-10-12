@@ -142,14 +142,20 @@
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <!-- pdf export libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="assets/js/empleados.js"></script>
 
 <!-- Modal para ver ficha -->
 <div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header d-flex align-items-center">
                 <h5 class="modal-title">Ficha de Empleado</h5>
+                <div class="ms-auto me-2">
+                    <button id="exportPdfBtn" type="button" class="btn btn-sm btn-outline-primary">Exportar PDF</button>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -158,16 +164,44 @@
                         <img id="ficha_foto" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded" style="max-height:250px;">
                     </div>
                     <div class="col-md-8">
-                        <ul class="list-group">
-                            <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
-                            <li class="list-group-item"><strong>Nombres:</strong> <span id="ficha_nombres"></span></li>
-                            <li class="list-group-item"><strong>Apellidos:</strong> <span id="ficha_apellidos"></span></li>
-                            <li class="list-group-item"><strong>Edad:</strong> <span id="ficha_edad"></span></li>
-                            <li class="list-group-item"><strong>Género:</strong> <span id="ficha_genero"></span></li>
-                            <li class="list-group-item"><strong>Puesto:</strong> <span id="ficha_puesto"></span></li>
-                            <li class="list-group-item"><strong>Departamento:</strong> <span id="ficha_departamento"></span></li>
-                            <li class="list-group-item"><strong>Comentarios:</strong> <div id="ficha_comentarios"></div></li>
+                        <!-- Tabs: Generals | Puesto | Others -->
+                        <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true">Generals</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false">Puesto</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false">Others</button>
+                            </li>
                         </ul>
+                        <div class="tab-content pt-2" id="fichaTabsContent">
+                            <div class="tab-pane fade show active" id="ficha-generals" role="tabpanel" aria-labelledby="ficha-generals-tab">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
+                                    <li class="list-group-item"><strong>Nombres:</strong> <span id="ficha_nombres"></span></li>
+                                    <li class="list-group-item"><strong>Apellidos:</strong> <span id="ficha_apellidos"></span></li>
+                                    <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> <span id="ficha_fecha_nacimiento"></span></li>
+                                    <li class="list-group-item"><strong>Edad:</strong> <span id="ficha_edad"></span></li>
+                                    <li class="list-group-item"><strong>Género:</strong> <span id="ficha_genero"></span></li>
+                                </ul>
+                            </div>
+                            <div class="tab-pane fade" id="ficha-puesto" role="tabpanel" aria-labelledby="ficha-puesto-tab">
+                                <ul class="list-group">
+                                    <li class="list-group-item"><strong>Puesto:</strong> <span id="ficha_puesto"></span></li>
+                                    <li class="list-group-item"><strong>Departamento:</strong> <span id="ficha_departamento"></span></li>
+                                </ul>
+                            </div>
+                            <div class="tab-pane fade" id="ficha-others" role="tabpanel" aria-labelledby="ficha-others-tab">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Comentarios</h6>
+                                        <div id="ficha_comentarios" style="white-space:pre-wrap;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -196,45 +230,59 @@
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="mb-3">
-                                <label for="edit_nombres" class="form-label">Nombres</label>
-                                <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_apellidos" class="form-label">Apellidos</label>
-                                <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                            <!-- Tabs for edit form -->
+                            <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true">Generals</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false">Puesto</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false">Others</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-2" id="editFormTabsContent">
+                                <div class="tab-pane fade show active" id="edit-generals" role="tabpanel" aria-labelledby="edit-generals-tab">
+                                    <div class="mb-3">
+                                        <label for="edit_nombres" class="form-label">Nombres</label>
+                                        <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edit_apellidos" class="form-label">Apellidos</label>
+                                        <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
+                                    </div>
                                     <div class="mb-3">
                                         <label for="edit_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
                                         <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="edit_genero" class="form-label">Género</label>
+                                        <select name="genero" id="edit_genero" class="form-select">
+                                            <option value="">Seleccione</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="tab-pane fade" id="edit-puesto" role="tabpanel" aria-labelledby="edit-puesto-tab">
                                     <div class="mb-3">
                                         <label for="edit_puesto_id" class="form-label">Puesto</label>
                                         <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="edit_departamento_id" class="form-label">Departamento</label>
+                                        <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
+                                    <div class="mb-3">
+                                        <label for="edit_comentarios" class="form-label">Comentarios</label>
+                                        <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="edit_departamento_id" class="form-label">Departamento</label>
-                                <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_genero" class="form-label">Género</label>
-                                <select name="genero" id="edit_genero" class="form-select">
-                                    <option value="">Seleccione</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Femenino">Femenino</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_comentarios" class="form-label">Comentarios</label>
-                                <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
-                            </div>
-                            <div class="d-grid">
+                            <div class="d-grid mt-2">
                                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                             </div>
                         </div>
