@@ -224,10 +224,7 @@
                     <div class="row">
                         <div class="col-md-4 text-center">
                             <img id="edit_foto_preview" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded mb-2" style="max-height:220px;">
-                            <div class="mb-3">
-                                <label for="edit_foto" class="form-label">Actualizar foto</label>
-                                <input type="file" name="foto" id="edit_foto" accept="image/*" class="form-control">
-                            </div>
+                            <!-- File input moved to Others tab to group media + comments -->
                         </div>
                         <div class="col-md-8">
                             <!-- Tabs for edit form -->
@@ -277,9 +274,13 @@
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
                                     <div class="mb-3">
-                                        <label for="edit_comentarios" class="form-label">Comentarios</label>
-                                        <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
-                                    </div>
+                                            <label for="edit_comentarios" class="form-label">Comentarios</label>
+                                            <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
+                                        </div>
+                                        <div class="mb-3 mt-2">
+                                            <label for="edit_foto" class="form-label">Actualizar foto</label>
+                                            <input type="file" name="foto" id="edit_foto" accept="image/*" class="form-control">
+                                        </div>
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
