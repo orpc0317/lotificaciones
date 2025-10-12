@@ -19,6 +19,20 @@ table.dataTable td img {
     border: 2px solid #ccc;
 }
 
+.thumb-sm {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.toast-container-custom {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+}
+
 body.bg-dark {
     background-color: #121212 !important;
     color: #f1f1f1 !important;

@@ -1,137 +1,265 @@
 $(document).ready(function () {
-    $('#toggleDarkMode').click(function () {
-        $('body').toggleClass('bg-light bg-dark text-dark text-white');
+    // Inicializar DataTable con exportaciones
+        const tabla = $('#tablaEmpleados').DataTable({
+                ajax: {
+                        url: 'empleados/ajax',
+                        dataSrc: 'data'
+                },
+                columns: [
+                        { data: 'id' },
+                        { data: 'thumbnail', render: function (d) { return d ? `<img src="${d}" class="thumb-sm" alt="thumb">` : `<img src="uploads/placeholder.png" class="thumb-sm" alt="thumb">`; } },
+                        { data: 'nombres' },
+                        { data: 'apellidos' },
+                        { data: 'edad' },
+                        {
+                                data: null,
+                                render: function (data, type, row) {
+                                        return `
+                        <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}">
+                            <i class="bi bi-person-lines-fill"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning editar" data-id="${row.id}">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger eliminar" data-id="${row.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    `;
+                                }
+                        }
+                ],
+        dom: 'Bfrtip',
+        buttons: ['copy', 'excel', 'csv', 'print'],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        }
     });
 
-    const departamentos = [
-        { id: 1, nombre: 'Ventas' },
-        { id: 2, nombre: 'Finanzas' },
-        { id: 3, nombre: 'Recursos Humanos' },
-        { id: 4, nombre: 'TI' }
-    ];
-    departamentos.forEach(dep => {
-        $('#departamento_id').append(`<option value="${dep.id}">${dep.nombre}</option>`);
-    });
-
-    $('#fecha_nacimiento').on('change', function () {
+    // Calcular edad al seleccionar fecha
+    $(document).on('change', '#fecha_nacimiento', function () {
         const fecha = new Date($(this).val());
+        if (isNaN(fecha)) {
+            $('#edad').val('');
+            return;
+        }
+
         const hoy = new Date();
         let edad = hoy.getFullYear() - fecha.getFullYear();
         const m = hoy.getMonth() - fecha.getMonth();
         if (m < 0 || (m === 0 && hoy.getDate() < fecha.getDate())) {
             edad--;
         }
+
         $('#edad').val(edad);
     });
 
-    const tabla = $('#tablaEmpleados').DataTable({
-        ajax: {
-            url: '/empleados/ajax',
-            dataSrc: 'data'
-        },
-        columns: [
-            {
-                data: 'foto',
-                render: function (data) {
-                    return `<img src="/uploads/${data}" class="rounded-circle" width="40" height="40">`;
-                }
-            },
-            { data: 'codigo' },
-            {
-                data: null,
-                render: function (data) {
-                    return `${data.nombres} ${data.apellidos}`;
-                }
-            },
-            {
-                data: null,
-                render: function (data) {
-                    return `
-                        <button class="btn btn-sm btn-info me-1 ver" data-id="${data.id}"><i class="bi bi-eye-fill"></i></button>
-                        <button class="btn btn-sm btn-warning me-1 editar" data-id="${data.id}"><i class="bi bi-pencil-fill"></i></button>
-                        <button class="btn btn-sm btn-danger eliminar" data-id="${data.id}"><i class="bi bi-trash-fill"></i></button>
-                    `;
-                }
-            }
-        ],
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'csvHtml5',
-                text: '<i class="bi bi-filetype-csv me-1"></i>CSV',
-                className: 'btn btn-outline-secondary btn-sm'
-            },
-            {
-                extend: 'excelHtml5',
-                text: '<i class="bi bi-file-earmark-excel me-1"></i>XLS',
-                className: 'btn btn-outline-success btn-sm'
-            },
-            {
-                extend: 'copyHtml5',
-                text: '<i class="bi bi-clipboard me-1"></i>Copiar',
-                className: 'btn btn-outline-primary btn-sm'
-            },
-            {
-                extend: 'print',
-                text: '<i class="bi bi-printer me-1"></i>Imprimir',
-                className: 'btn btn-outline-dark btn-sm'
-            }
-        ]
-    });
-
-    $('#formEmpleado').submit(function (e) {
+    // Enviar formulario por AJAX
+    $('#formEmpleado').on('submit', function (e) {
         e.preventDefault();
-        const formData = new FormData(this);
-        const url = $('#id').val() ? '/empleados/update' : '/empleados/create';
+        const form = document.getElementById('formEmpleado');
+        const formData = new FormData(form);
 
-        $.ajax({
-            url: url,
+        fetch('empleados/create', {
             method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function () {
-                tabla.ajax.reload();
+            body: formData
+        }).then(function (resp) {
+            return resp.json();
+        }).then(function (respuesta) {
+            if (respuesta.success) {
+                showToast('Éxito', 'Empleado guardado correctamente', 'success');
                 $('#formEmpleado')[0].reset();
-                $('#id').val('');
-                $('#foto_actual').val('');
+                tabla.ajax.reload();
+            } else if (respuesta.error) {
+                showToast('Error', respuesta.error, 'danger');
+            } else {
+                showToast('Error', 'Respuesta inesperada del servidor', 'warning');
             }
+        }).catch(function (err) {
+            console.error(err);
+            showToast('Error', 'Error al guardar el empleado', 'danger');
         });
     });
 
-    $('#tablaEmpleados').on('click', '.eliminar', function () {
+    // Acciones futuras
+    $(document).on('click', '.ver-ficha', function () {
         const id = $(this).data('id');
-        if (confirm('¿Eliminar este empleado?')) {
-            $.post('/empleados/delete', { id }, function () {
-                tabla.ajax.reload();
+        fetch('empleados/get?id=' + encodeURIComponent(id))
+            .then(r => r.json())
+            .then(json => {
+                    if (json.data) {
+                    const e = json.data;
+                    $('#ficha_codigo').text(e.codigo || '');
+                    $('#ficha_nombres').text(e.nombres || '');
+                    $('#ficha_apellidos').text(e.apellidos || '');
+                    $('#ficha_edad').text(e.edad || '');
+                    $('#ficha_genero').text(e.genero || '');
+                    $('#ficha_puesto').text(e.puesto_nombre || '');
+                    $('#ficha_departamento').text(e.departamento_nombre || '');
+                    $('#ficha_comentarios').text(e.comentarios || '');
+                    if (e.thumbnail) {
+                        $('#ficha_foto').attr('src', e.thumbnail).show();
+                    } else if (e.foto) {
+                        $('#ficha_foto').attr('src', 'uploads/' + e.foto).show();
+                    } else {
+                        $('#ficha_foto').attr('src', 'uploads/placeholder.png').show();
+                    }
+                    var modal = new bootstrap.Modal(document.getElementById('modalFicha'));
+                    modal.show();
+                } else if (json.error) {
+                    showToast('Error', json.error, 'danger');
+                }
+            }).catch(err => {
+                console.error(err);
+                showToast('Error', 'Error al obtener la ficha', 'danger');
             });
+    });
+
+    // Abrir modal de editar cuando se hace click en editar
+    $(document).on('click', '.editar', function () {
+        const id = $(this).data('id');
+        fetch('empleados/get?id=' + encodeURIComponent(id))
+            .then(r => r.json())
+            .then(json => {
+                if (json.data) {
+                    const e = json.data;
+                    $('#edit_id').val(e.id);
+                    $('#edit_nombres').val(e.nombres || '');
+                    $('#edit_apellidos').val(e.apellidos || '');
+                    $('#edit_fecha_nacimiento').val(e.fecha_nacimiento || '');
+                    // Poblar selects de puesto y departamento si están vacíos
+                    if ($('#edit_puesto_id option').length <= 1) {
+                        // copiar opciones del formulario principal
+                        $('#puesto_id option').clone().appendTo('#edit_puesto_id');
+                    }
+                    if ($('#edit_departamento_id option').length <= 1) {
+                        $('#departamento_id option').clone().appendTo('#edit_departamento_id');
+                    }
+                    $('#edit_puesto_id').val(e.puesto_id || '');
+                    $('#edit_departamento_id').val(e.departamento_id || '');
+                    // Set genero if provided
+                    $('#edit_genero').val(e.genero || '');
+                    $('#edit_foto_actual').val(e.foto || '');
+                    // set photo preview
+                    if (e.thumbnail) {
+                        $('#edit_foto_preview').attr('src', e.thumbnail);
+                    } else if (e.foto) {
+                        $('#edit_foto_preview').attr('src', 'uploads/' + e.foto);
+                    } else {
+                        $('#edit_foto_preview').attr('src', 'uploads/placeholder.png');
+                    }
+
+                    var modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+                    modal.show();
+                } else if (json.error) {
+                    showToast('Error', json.error, 'danger');
+                }
+            }).catch(err => {
+                console.error(err);
+                showToast('Error', 'Error al obtener la ficha', 'danger');
+            });
+    });
+
+    // Enviar formulario de edición
+    $('#formEditar').on('submit', function (e) {
+        e.preventDefault();
+        const form = document.getElementById('formEditar');
+        const formData = new FormData(form);
+
+        fetch('empleados/update', {
+            method: 'POST',
+            body: formData
+        }).then(r => r.json()).then(respuesta => {
+            if (respuesta.success) {
+                showToast('Éxito', 'Empleado actualizado correctamente', 'success');
+                tabla.ajax.reload();
+                var modalEl = document.getElementById('modalEditar');
+                var modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } else if (respuesta.error) {
+                showToast('Error', respuesta.error, 'danger');
+            }
+        }).catch(err => {
+            console.error(err);
+            showToast('Error', 'Error al actualizar empleado', 'danger');
+        });
+    });
+
+    // Client-side image validation helper
+    function validateFileInput(file) {
+        if (!file) return { ok: true };
+        const allowed = ['image/jpeg', 'image/png', 'image/gif'];
+        const maxBytes = 2 * 1024 * 1024; // 2MB
+        if (!allowed.includes(file.type)) return { ok: false, msg: 'Tipo de archivo no permitido (solo jpg, png, gif)' };
+        if (file.size > maxBytes) return { ok: false, msg: 'El archivo supera el tamaño máximo (2MB)' };
+        return { ok: true };
+    }
+
+    // Preview de imagen cuando se selecciona un archivo en el modal de edición (con validación)
+    $(document).on('change', '#edit_foto', function () {
+        const input = this;
+        if (input.files && input.files[0]) {
+            const validation = validateFileInput(input.files[0]);
+            if (!validation.ok) {
+                showToast('Error', validation.msg, 'danger');
+                $(this).val('');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#edit_foto_preview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     });
 
-    $('#tablaEmpleados').on('click', '.ver', function () {
+    // Validate and preview for new employee form
+    $(document).on('change', '#foto', function () {
+        const input = this;
+        if (input.files && input.files[0]) {
+            const validation = validateFileInput(input.files[0]);
+            if (!validation.ok) {
+                showToast('Error', validation.msg, 'danger');
+                $(this).val('');
+                return;
+            }
+        }
+    });
+
+    // Delete flow using confirmation modal
+    let deleteIdToConfirm = null;
+    $(document).on('click', '.eliminar', function () {
         const id = $(this).data('id');
-
-        $.getJSON('/empleados/ajax', function (res) {
-            const empleado = res.data.find(e => e.id == id);
-            if (!empleado) return;
-
-            $('#fichaFoto').attr('src', '/uploads/' + empleado.foto);
-            $('#fichaNombre').text(`${empleado.nombres} ${empleado.apellidos}`);
-            $('#fichaCodigo').text(empleado.codigo);
-            $('#fichaEdad').text(empleado.edad);
-            $('#fichaNacimiento').text(empleado.fecha_nacimiento);
-            $('#fichaPuesto').text(empleado.puesto_id);
-            $('#fichaDepartamento').text(empleado.departamento_id);
-            $('#fichaGenero').text(empleado.genero);
-            $('#fichaComentarios').text(empleado.comentarios);
-
-            const modal = new bootstrap.Modal(document.getElementById('modalFicha'));
-            modal.show();
+        Swal.fire({
+            title: '¿Eliminar empleado?',
+            text: 'Esta acción no se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('empleados/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'id=' + encodeURIComponent(id)
+                }).then(r => r.json()).then(res => {
+                    if (res.success) {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Empleado eliminado', showConfirmButton: false, timer: 2000 });
+                        tabla.ajax.reload();
+                    } else {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: res.error || 'Error al eliminar', showConfirmButton: false, timer: 3500 });
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error al eliminar', showConfirmButton: false, timer: 3500 });
+                });
+            }
         });
     });
 
-    $('#tablaEmpleados').on('click', '.editar', function () {
-        const id = $(this).data('id');
-        alert('Función editar aún no implementada. ID: ' + id);
-    });
+        // showToast using SweetAlert2 toast
+        function showToast(title, message, type) {
+                const icon = type === 'success' ? 'success' : (type === 'danger' ? 'error' : 'warning');
+                Swal.fire({ toast: true, position: 'top-end', icon: icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
+        }
 });
