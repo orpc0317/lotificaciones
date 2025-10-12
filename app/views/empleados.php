@@ -19,6 +19,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        /* Fixed tab pane height: use the generals pane height as reference */
+        .tab-fixed-height {
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
@@ -32,68 +38,84 @@
                         <h5 class="mb-0">Nuevo Empleado</h5>
                     </div>
                     <div class="card-body">
-                        <form id="formEmpleado" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <label for="nombres" class="form-label">Nombres</label>
-                                <input type="text" name="nombres" id="nombres" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="apellidos" class="form-label">Apellidos</label>
-                                <input type="text" name="apellidos" id="apellidos" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edad" class="form-label">Edad</label>
-                                <input type="text" id="edad" class="form-control" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="genero" class="form-label">Género</label>
-                                <select name="genero" id="genero" class="form-select" required>
-                                    <option value="">Seleccione</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Femenino">Femenino</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="puesto_id" class="form-label">Puesto</label>
-                                <select name="puesto_id" id="puesto_id" class="form-select">
-                                    <option value="">Seleccione</option>
-                                    <?php if (!empty($puestos)): ?>
-                                        <?php foreach ($puestos as $p): ?>
-                                            <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="departamento_id" class="form-label">Departamento</label>
-                                <select name="departamento_id" id="departamento_id" class="form-select">
-                                    <option value="">Seleccione</option>
-                                    <?php if (!empty($departamentos)): ?>
-                                        <?php foreach ($departamentos as $d): ?>
-                                            <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="foto" class="form-label">Foto</label>
-                                <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="comentarios" class="form-label">Comentarios</label>
-                                <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success">Guardar</button>
-                            </div>
-                        </form>
+                                <form id="formEmpleado" enctype="multipart/form-data">
+                                    <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true">Generals</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false">Puesto</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false">Others</button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content pt-2" id="newFormTabsContent">
+                                        <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
+                                            <div class="mb-3">
+                                                <label for="nombres" class="form-label">Nombres</label>
+                                                <input type="text" name="nombres" id="nombres" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="apellidos" class="form-label">Apellidos</label>
+                                                <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edad" class="form-label">Edad</label>
+                                                <input type="text" id="edad" class="form-control" readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="genero" class="form-label">Género</label>
+                                                <select name="genero" id="genero" class="form-select" required>
+                                                    <option value="">Seleccione</option>
+                                                    <option value="Masculino">Masculino</option>
+                                                    <option value="Femenino">Femenino</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="new-puesto" role="tabpanel" aria-labelledby="new-puesto-tab">
+                                            <div class="mb-3">
+                                                <label for="puesto_id" class="form-label">Puesto</label>
+                                                <select name="puesto_id" id="puesto_id" class="form-select">
+                                                    <option value="">Seleccione</option>
+                                                    <?php if (!empty($puestos)): ?>
+                                                        <?php foreach ($puestos as $p): ?>
+                                                            <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="departamento_id" class="form-label">Departamento</label>
+                                                <select name="departamento_id" id="departamento_id" class="form-select">
+                                                    <option value="">Seleccione</option>
+                                                    <?php if (!empty($departamentos)): ?>
+                                                        <?php foreach ($departamentos as $d): ?>
+                                                            <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="new-others" role="tabpanel" aria-labelledby="new-others-tab">
+                                            <div class="mb-3">
+                                                <label for="comentarios" class="form-label">Comentarios</label>
+                                                <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="foto" class="form-label">Foto</label>
+                                                <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success">Guardar</button>
+                                    </div>
+                                </form>
                     </div>
                 </div>
             </div>
@@ -146,6 +168,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="assets/js/empleados.js"></script>
+    <script>
+    // Ensure tab panes use the same height as the Generals pane
+    (function(){
+        function syncTabHeights() {
+            const generals = document.querySelector('#new-generals, #edit-generals, #ficha-generals');
+            if (!generals) return;
+            // pick the first existing generals pane
+            const el = (generals.length ? generals[0] : generals);
+            const rect = el.getBoundingClientRect();
+            const height = rect.height || 300;
+            document.querySelectorAll('#newFormTabsContent .tab-pane, #editFormTabsContent .tab-pane, #fichaTabsContent .tab-pane').forEach(function(p){
+                p.style.minHeight = height + 'px';
+                p.classList.add('tab-fixed-height');
+            });
+        }
+        window.addEventListener('load', syncTabHeights);
+        window.addEventListener('resize', function(){ setTimeout(syncTabHeights, 120); });
+        // Also run after DOM changes such as AJAX fill
+        document.addEventListener('DOMContentLoaded', function(){ setTimeout(syncTabHeights, 200); });
+    })();
+    </script>
 
 <!-- Modal para ver ficha -->
 <div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
