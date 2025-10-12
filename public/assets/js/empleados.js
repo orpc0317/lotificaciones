@@ -29,7 +29,16 @@ $(document).ready(function () {
                         }
                 ],
         dom: 'Bfrtip',
-        buttons: ['copy', 'excel', 'csv', 'print'],
+        buttons: [
+            { extend: 'copy', text: 'Copiar' },
+            // Excel: use excelHtml5 and set extension to xls for compatibility
+            { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible' } },
+            // CSV (comma separated)
+            { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible' } },
+            // TXT (tab separated values)
+            { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible' } },
+            { extend: 'print', text: 'Imprimir' }
+        ],
         language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         }
