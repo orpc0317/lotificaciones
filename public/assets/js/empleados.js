@@ -1,5 +1,26 @@
 $(document).ready(function () {
     // Inicializar DataTable con exportaciones
+        // Map column header or data key to friendly export header
+        function exportHeader(data, columnIdx) {
+            var key = (data || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
+            var map = {
+                id: 'ID',
+                codigo: 'Código',
+                nombres: 'Nombres',
+                apellidos: 'Apellidos',
+                fecha_de_nacimiento: 'Fecha de Nacimiento',
+                edad: 'Edad',
+                foto: 'Foto',
+                puesto_id: 'Puesto ID',
+                puesto_nombre: 'Puesto',
+                departamento_id: 'Departamento ID',
+                departamento_nombre: 'Departamento',
+                genero: 'Género',
+                comentarios: 'Comentarios'
+            };
+            return map[key] || data;
+        }
+
         const tabla = $('#tablaEmpleados').DataTable({
                 ajax: {
                         url: 'empleados/ajax',
@@ -33,15 +54,15 @@ $(document).ready(function () {
     colReorder: true,
     stateSave: true,
         buttons: [
-            { extend: 'copy', text: 'Copiar', exportOptions: { columns: ':visible:not(.no-export)' } },
+            { extend: 'copy', text: 'Copiar', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
             { extend: 'colvis', text: 'Columnas' },
             // Excel: use excelHtml5 and set extension to xls for compatibility
-            { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible:not(.no-export)' } },
+            { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
             // CSV (comma separated)
-            { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible:not(.no-export)' } },
+            { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
             // TXT (tab separated values)
-            { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible:not(.no-export)' } },
-            { extend: 'print', text: 'Imprimir', exportOptions: { columns: ':visible:not(.no-export)' } },
+            { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
+            { extend: 'print', text: 'Imprimir', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
             {
                 text: 'Reset columns',
                 action: function (e, dt, node, config) {
