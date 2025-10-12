@@ -28,7 +28,9 @@ $(document).ready(function () {
                                 }
                         }
                 ],
-        dom: 'Bfrtip',
+    dom: 'Bfrtip',
+    colReorder: true,
+    stateSave: true,
         buttons: [
             { extend: 'copy', text: 'Copiar' },
             { extend: 'colvis', text: 'Columnas' },
