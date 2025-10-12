@@ -48,6 +48,11 @@ jobs:
       - name: Run DB setup
         run: php scripts/setup_db.php
 
+      - name: Prepare CI logs directory
+        run: |
+          mkdir -p ci-logs
+          echo "placeholder" > ci-logs/.gitkeep
+
       - name: Run API tests
         run: |
           # wait for MySQL to become healthy (service container provides mysqladmin)
@@ -99,6 +104,7 @@ jobs:
           kill $PHP_PID || true
 
       - name: Upload CI logs
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: ci-logs
