@@ -1,0 +1,55 @@
+name: PHP tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: lotificaciones
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, pdo_mysql, gd
+
+      - name: Install composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Create config/.env
+        run: |
+          mkdir -p config
+          cat > config/.env <<EOF
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_NAME=lotificaciones
+          DB_USER=root
+          DB_PASS=root
+          EOF
+
+      - name: Run DB setup
+        run: php scripts/setup_db.php
+
+      - name: Run API tests
+        run: |
+          php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
+          sleep 1
+          php scripts/tests/api_tests.php
