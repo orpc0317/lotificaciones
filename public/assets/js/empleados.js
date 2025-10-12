@@ -40,12 +40,36 @@ $(document).ready(function () {
             { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible' } },
             // TXT (tab separated values)
             { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible' } },
-            { extend: 'print', text: 'Imprimir' }
+            { extend: 'print', text: 'Imprimir' },
+            {
+                text: 'Reset columns',
+                action: function (e, dt, node, config) {
+                    Swal.fire({
+                        title: 'Restaurar columnas',
+                        text: '¿Deseas restaurar el orden y visibilidad de columnas al estado por defecto?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, restaurar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            try { dt.colReorder.reset(); } catch (err) { }
+                            dt.columns().visible(true);
+                            try { dt.state.clear(); } catch (err) { }
+                            location.reload();
+                        }
+                    });
+                }
+            }
         ],
         language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         }
     });
+
+    // Initialize Bootstrap tooltips for help icons
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (el) { new bootstrap.Tooltip(el); });
 
     // Calcular edad al seleccionar fecha
     $(document).on('change', '#fecha_nacimiento', function () {

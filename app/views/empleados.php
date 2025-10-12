@@ -101,8 +101,9 @@
             <!-- Tabla -->
             <div class="col-md-8">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-secondary text-white">
+                    <div class="card-header bg-secondary text-white d-flex align-items-center">
                         <h5 class="mb-0">Lista de Empleados</h5>
+                        <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                     </div>
                     <div class="card-body">
                         <table id="tablaEmpleados" class="table table-striped table-bordered">
