@@ -114,6 +114,22 @@ $(document).ready(function () {
             const next = current === 'dark' ? 'light' : 'dark';
             applyTheme(next);
         });
+        // Palette picker
+        const paletteSwatches = document.querySelectorAll('.palette-swatch');
+        function applyPalette(name){
+            let p600 = '--primary-600';
+            let p400 = '--primary-400';
+            if (name === 'teal') { document.documentElement.style.setProperty('--primary-600','#0d9488'); document.documentElement.style.setProperty('--primary-400','#34d399'); }
+            else if (name === 'indigo') { document.documentElement.style.setProperty('--primary-600','#6366f1'); document.documentElement.style.setProperty('--primary-400','#8b5cf6'); }
+            else { document.documentElement.style.setProperty('--primary-600','#0b63d3'); document.documentElement.style.setProperty('--primary-400','#3b82f6'); }
+            try { localStorage.setItem('lotificaciones_palette', name); } catch (e) {}
+            paletteSwatches.forEach(s => s.classList.toggle('active', s.getAttribute('data-palette') === name));
+        }
+        if (paletteSwatches.length) {
+            const saved = (function(){ try { return localStorage.getItem('lotificaciones_palette') || 'blue' } catch(e){ return 'blue' } })();
+            applyPalette(saved);
+            paletteSwatches.forEach(function(s){ s.addEventListener('click', function(){ applyPalette(s.getAttribute('data-palette')); }); });
+        }
     })();
 
     // Calcular edad al seleccionar fecha

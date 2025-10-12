@@ -24,6 +24,11 @@
     <style>
         /* Color system and themes */
         :root{
+            /* spacing scale */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 20px;
             --bg: #f5f7fb;
             --card-bg: #ffffff;
             --text: #0f1724;
@@ -47,7 +52,10 @@
         html,body{height:100%;}
         body{background:var(--bg); color:var(--text); font-family: 'Inter', 'Segoe UI', Roboto, Arial, Helvetica, sans-serif;}
 
-        .card{background:var(--card-bg); border:1px solid var(--border);}
+        /* smooth transitions for theme/palette changes */
+        body, .card, .modal-content, .btn, .nav-tabs .nav-link { transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease; }
+
+    .card{background:var(--card-bg); border:1px solid var(--border);}
         .card-header{background:transparent; border-bottom:1px solid var(--border);}
         .btn-primary{background:var(--primary-600); border-color:var(--primary-600);}
         .btn-outline-primary{color:var(--primary-600); border-color:var(--primary-600);}
@@ -70,8 +78,12 @@
         .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
         .tab-card .card-body { padding-top: 0.5rem; }
 
-        /* Dark-mode toggle button */
-        #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px }
+    /* Dark-mode toggle button */
+    #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px }
+
+    /* Palette swatches */
+    .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
+    .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
 
         /* Tab icon spacing */
         .nav-tabs .nav-link i { margin-right:6px; }
@@ -104,68 +116,80 @@
                                     </ul>
                                     <div class="tab-content pt-2" id="newFormTabsContent">
                                         <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
-                                            <div class="mb-3">
-                                                <label for="nombres" class="form-label">Nombres</label>
-                                                <input type="text" name="nombres" id="nombres" class="form-control" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="apellidos" class="form-label">Apellidos</label>
-                                                <input type="text" name="apellidos" id="apellidos" class="form-control" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="edad" class="form-label">Edad</label>
-                                                <input type="text" id="edad" class="form-control" readonly>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="genero" class="form-label">Género</label>
-                                                <select name="genero" id="genero" class="form-select" required>
-                                                    <option value="">Seleccione</option>
-                                                    <option value="Masculino">Masculino</option>
-                                                    <option value="Femenino">Femenino</option>
-                                                </select>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label for="nombres" class="form-label">Nombres</label>
+                                                        <input type="text" name="nombres" id="nombres" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="apellidos" class="form-label">Apellidos</label>
+                                                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="edad" class="form-label">Edad</label>
+                                                        <input type="text" id="edad" class="form-control" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="genero" class="form-label">Género</label>
+                                                        <select name="genero" id="genero" class="form-select" required>
+                                                            <option value="">Seleccione</option>
+                                                            <option value="Masculino">Masculino</option>
+                                                            <option value="Femenino">Femenino</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="new-puesto" role="tabpanel" aria-labelledby="new-puesto-tab">
-                                            <div class="mb-3">
-                                                <label for="puesto_id" class="form-label">Puesto</label>
-                                                <select name="puesto_id" id="puesto_id" class="form-select">
-                                                    <option value="">Seleccione</option>
-                                                    <?php if (!empty($puestos)): ?>
-                                                        <?php foreach ($puestos as $p): ?>
-                                                            <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="departamento_id" class="form-label">Departamento</label>
-                                                <select name="departamento_id" id="departamento_id" class="form-select">
-                                                    <option value="">Seleccione</option>
-                                                    <?php if (!empty($departamentos)): ?>
-                                                        <?php foreach ($departamentos as $d): ?>
-                                                            <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </select>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label for="puesto_id" class="form-label">Puesto</label>
+                                                        <select name="puesto_id" id="puesto_id" class="form-select">
+                                                            <option value="">Seleccione</option>
+                                                            <?php if (!empty($puestos)): ?>
+                                                                <?php foreach ($puestos as $p): ?>
+                                                                    <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                                                                <?php endforeach; ?>
+                                                            <?php endif; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="departamento_id" class="form-label">Departamento</label>
+                                                        <select name="departamento_id" id="departamento_id" class="form-select">
+                                                            <option value="">Seleccione</option>
+                                                            <?php if (!empty($departamentos)): ?>
+                                                                <?php foreach ($departamentos as $d): ?>
+                                                                    <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
+                                                                <?php endforeach; ?>
+                                                            <?php endif; ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="new-others" role="tabpanel" aria-labelledby="new-others-tab">
-                                            <div class="mb-3">
-                                                <label for="comentarios" class="form-label">Comentarios</label>
-                                                <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="foto" class="form-label">Foto</label>
-                                                <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label for="comentarios" class="form-label">Comentarios</label>
+                                                        <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="foto" class="form-label">Foto</label>
+                                                        <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-success">Guardar</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Crear</button>
                                     </div>
                                 </form>
                     </div>
@@ -180,6 +204,11 @@
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                         <div class="ms-auto d-flex align-items-center">
                             <button id="darkModeToggle" class="me-2" title="Modo Oscuro">🌙</button>
+                            <div id="palettePicker" class="d-flex align-items-center">
+                                <div class="palette-swatch" data-palette="blue" title="Blue" style="background:var(--primary-600);"></div>
+                                <div class="palette-swatch" data-palette="teal" title="Teal" style="background:#0d9488;"></div>
+                                <div class="palette-swatch" data-palette="indigo" title="Indigo" style="background:#6366f1;"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
