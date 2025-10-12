@@ -76,6 +76,7 @@ jobs:
               break
             fi
             echo "Waiting for endpoint... (attempt $i)";
+            curl -v --max-time 3 "$ENDPOINT" > ci-logs/curl-probe-attempt-$i.txt 2>&1 || true
             sleep 1
           done
 
@@ -87,6 +88,18 @@ jobs:
             exit 2
           fi
 
-          # run the tests
-          php scripts/tests/api_tests.php || ( echo "api_tests.php failed, tailing php-server.log"; sed -n '1,200p' ci-logs/php-server.log || true; kill $PHP_PID || true; exit 1 )
+          # run the tests and capture output
+          php scripts/tests/api_tests.php > ci-logs/api-tests.txt 2>&1 || (
+            echo "api_tests.php failed, tailing php-server.log";
+            sed -n '1,200p' ci-logs/php-server.log || true;
+            cat ci-logs/api-tests.txt || true;
+            kill $PHP_PID || true;
+            exit 1
+          )
           kill $PHP_PID || true
+
+      - name: Upload CI logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: ci-logs
