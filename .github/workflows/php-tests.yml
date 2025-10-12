@@ -50,14 +50,43 @@ jobs:
 
       - name: Run API tests
         run: |
-          php -S 127.0.0.1:8000 -t public > /dev/null 2>&1 &
-          # wait up to 15s for the server to accept connections on 127.0.0.1:8000
-          for i in {1..15}; do
-            if curl --silent --fail http://127.0.0.1:8000/ > /dev/null 2>&1; then
-              echo "Server is up (attempt $i)";
+          # wait for MySQL to become healthy (service container provides mysqladmin)
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 --silent; then
+              echo "MySQL is ready (attempt $i)";
               break
             fi
-            echo "Waiting for server... (attempt $i)";
+            echo "Waiting for MySQL... (attempt $i)";
             sleep 1
           done
-          php scripts/tests/api_tests.php
+
+          # start PHP built-in server in background and capture its pid + log
+          mkdir -p ci-logs
+          nohup php -S 127.0.0.1:8000 -t public > ci-logs/php-server.log 2>&1 &
+          PHP_PID=$!
+          echo "Started PHP server with PID=$PHP_PID"
+
+          # wait up to 30s for the JSON endpoint that tests expect
+          ENDPOINT="http://127.0.0.1:8000/empleados/ajax"
+          echo "Probing $ENDPOINT for readiness"
+          for i in {1..30}; do
+            if curl --silent --fail "$ENDPOINT" > /dev/null 2>&1; then
+              echo "Endpoint is up (attempt $i)";
+              break
+            fi
+            echo "Waiting for endpoint... (attempt $i)";
+            sleep 1
+          done
+
+          # if endpoint still not responding, dump php server log for debugging
+          if ! curl --silent --fail "$ENDPOINT" > /dev/null 2>&1; then
+            echo "ERROR: endpoint $ENDPOINT did not respond. Dumping php-server.log:" >&2
+            sed -n '1,200p' ci-logs/php-server.log || true
+            kill $PHP_PID || true
+            exit 2
+          fi
+
+          # run the tests
+          php scripts/tests/api_tests.php || ( echo "api_tests.php failed, tailing php-server.log"; sed -n '1,200p' ci-logs/php-server.log || true; kill $PHP_PID || true; exit 1 )
+          kill $PHP_PID || true
