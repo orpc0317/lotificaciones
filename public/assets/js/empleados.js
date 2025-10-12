@@ -378,6 +378,21 @@ $(document).ready(function () {
 
             $('body').append($container);
 
+            // Open a new tab immediately so the popup is allowed by the browser
+            const newWin = window.open('', '_blank');
+            if (!newWin) {
+                showToast('Error', 'El navegador bloqueó la apertura de la nueva pestaña. Permite popups para continuar.', 'danger');
+                $container.remove();
+                return;
+            }
+            // temporary content while we render
+            try {
+                newWin.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Generando PDF...</title></head><body><p style="font-family:Arial,Helvetica,sans-serif;padding:20px;">Generando PDF, por favor espere...</p></body></html>');
+                newWin.document.close();
+            } catch (e) {
+                // some browsers may throw if cross-origin; ignore and proceed
+            }
+
             Swal.fire({ title: 'Generando PDF', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
             const renderAndSave = () => {
@@ -421,35 +436,42 @@ $(document).ready(function () {
                             }
                         }
 
-                        // Prepare blob URL for optional print preview
+                        // Prepare blob URL for the PDF
                         const blobUrl = pdf.output('bloburl');
+                        const filename = 'ficha_' + (codigo || 'empleado').replace(/[^a-z0-9_-]/gi, '_') + '.pdf';
+
+                        // Build a simple viewer page with Download / Print buttons and embed the PDF in an iframe
+                        try {
+                            const html = `<!doctype html><html><head><meta charset="utf-8"><title>${filename}</title></head><body style="margin:0;font-family:Arial,Helvetica,sans-serif;">
+    <div style="padding:8px;background:#f2f2f2;display:flex;gap:8px;align-items:center;">
+      <button id="downloadBtn" style="padding:6px 10px">Descargar</button>
+      <button id="printBtn" style="padding:6px 10px">Imprimir</button>
+      <button id="closeBtn" style="padding:6px 10px;margin-left:auto">Cerrar</button>
+    </div>
+    <iframe id="pdfFrame" src="${blobUrl}" style="width:100%;height:calc(100vh - 48px);border:0"></iframe>
+    <script>
+      (function(){
+        const blob = '${blobUrl}';
+        document.getElementById('downloadBtn').addEventListener('click', function(){
+          const a = document.createElement('a'); a.href = blob; a.download = '${filename}'; document.body.appendChild(a); a.click(); a.remove();
+        });
+        document.getElementById('printBtn').addEventListener('click', function(){
+          const f = document.getElementById('pdfFrame'); try { f.contentWindow.focus(); f.contentWindow.print(); } catch(e) { window.open(blob); }
+        });
+        document.getElementById('closeBtn').addEventListener('click', function(){ window.close(); });
+      })();
+    </script>
+    </body></html>`;
+                            newWin.document.open();
+                            newWin.document.write(html);
+                            newWin.document.close();
+                        } catch (e) {
+                            // Fallback: navigate directly to blob URL
+                            try { newWin.location.href = blobUrl; } catch (e2) { window.location.href = blobUrl; }
+                        }
 
                         Swal.close();
-                        Swal.fire({
-                            title: 'PDF listo',
-                            text: '¿Deseas descargar o imprimir la ficha?',
-                            icon: 'success',
-                            showCancelButton: true,
-                            showDenyButton: true,
-                            confirmButtonText: 'Descargar',
-                            denyButtonText: 'Imprimir',
-                            cancelButtonText: 'Cancelar'
-                        }).then((choice) => {
-                            if (choice.isConfirmed) {
-                                pdf.save('ficha_' + codigo.replace(/[^a-z0-9_-]/gi, '_') + '.pdf');
-                                $container.remove();
-                            } else if (choice.isDenied) {
-                                const w = window.open(blobUrl, '_blank');
-                                if (w) {
-                                    setTimeout(() => { try { w.focus(); w.print(); } catch (e) { console.warn('Print failed', e); } }, 700);
-                                } else {
-                                    window.location.href = blobUrl;
-                                }
-                                $container.remove();
-                            } else {
-                                $container.remove();
-                            }
-                        });
+                        $container.remove();
                     } catch (err) {
                         console.error('Error generating PDF', err);
                         Swal.close();
