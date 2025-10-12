@@ -11,18 +11,49 @@ function base_url() {
 }
 
 function fetch_json($url) {
-    $opts = ['http' => ['method' => 'GET', 'timeout' => 5]];
-    $context = stream_context_create($opts);
-    $raw = @file_get_contents($url, false, $context);
-    if ($raw === false) return null;
-    $json = json_decode($raw, true);
-    return $json;
+    return fetch_json_with_retries($url, 3, 1);
+}
+
+function fetch_json_with_retries($url, $tries = 3, $delaySeconds = 1) {
+    $attempt = 0;
+    while ($attempt < $tries) {
+        $attempt++;
+        $opts = ['http' => ['method' => 'GET', 'timeout' => 5]];
+        $context = stream_context_create($opts);
+        $raw = @file_get_contents($url, false, $context);
+        if ($raw !== false) {
+            $json = json_decode($raw, true);
+            if ($json !== null) return $json;
+        }
+        if ($attempt < $tries) {
+            // exponential-ish backoff
+            sleep($delaySeconds * $attempt);
+        }
+    }
+    return null;
+}
+
+function wait_for_server($base, $timeoutSeconds = 15) {
+    $deadline = time() + $timeoutSeconds;
+    while (time() < $deadline) {
+        $ok = fetch_json_with_retries($base, 1, 0);
+        if ($ok !== null) return true;
+        usleep(200000); // 200ms
+    }
+    return false;
 }
 
 echo "Running quick API tests...\n";
 
+// Wait for server to be ready
+$base = base_url();
+if (!wait_for_server($base, 20)) {
+    echo "[FAIL] Server did not respond at {$base} within timeout\n";
+    exit(1);
+}
+
 // Test 1: /empleados/ajax
-$url = base_url() . 'empleados/ajax';
+$url = $base . 'empleados/ajax';
 $j = fetch_json($url);
 if (!is_array($j) || !isset($j['data'])) {
     echo "[FAIL] /empleados/ajax did not return JSON with 'data' key\n";
