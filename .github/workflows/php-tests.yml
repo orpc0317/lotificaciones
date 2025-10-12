@@ -104,6 +104,14 @@ jobs:
             kill $PHP_PID || true;
             exit 1
           )
+          # run the upload invalid-image smoke test and capture output
+          php scripts/tests/upload_tests.php > ci-logs/upload-tests.txt 2>&1 || (
+            echo "upload_tests.php failed, tailing php-server.log";
+            sed -n '1,200p' ci-logs/php-server.log || true;
+            cat ci-logs/upload-tests.txt || true;
+            kill $PHP_PID || true;
+            exit 1
+          )
           kill $PHP_PID || true
 
       - name: Upload CI logs
