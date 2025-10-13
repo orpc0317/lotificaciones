@@ -38,13 +38,76 @@
         .card .card-body { padding: 0.75rem; }
         .nav-tabs .nav-link.rounded-0 { border-radius: 0 !important; }
         .list-group-item { padding: 0.5rem 0.75rem; background: transparent; border: none; }
-        .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
+    /* Keep tab-card headers visually minimal but do not override .section-accent headers */
+    .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
+    /* Make sure general card headers that are marked as section-accent keep their themed background */
+    .card-header.section-accent { background: var(--primary-600) !important; color: #fff !important; }
         .tab-card .card-body { padding-top: 0.5rem; }
         #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px }
         .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
         .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
         .nav-tabs .nav-link i { margin-right:6px; }
     </style>
+    <body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <!-- Nuevo Empleado (left column) -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header section-accent d-flex align-items-center">
+                        <h5 class="mb-0 section-title-on-accent">Nuevo Empleado</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formEmpleado" enctype="multipart/form-data">
+                            <div class="tab-card card">
+                                <div class="card-header section-accent" style="padding:0;">
+                                    <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+                                    <div class="tab-content pt-2" id="newFormTabsContent">
+                                        <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label for="codigo" class="form-label">Código</label>
+                                                        <input type="text" name="codigo" id="codigo" class="form-control">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nombres" class="form-label">Nombres</label>
+                                                        <input type="text" name="nombres" id="nombres" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="apellidos" class="form-label">Apellidos</label>
+                                                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="genero" class="form-label">Género</label>
+                                                        <select name="genero" id="genero" class="form-select">
+                                                            <option value="">Seleccione</option>
+                                                            <option value="Masculino">Masculino</option>
+                                                            <option value="Femenino">Femenino</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="new-puesto" role="tabpanel" aria-labelledby="new-puesto-tab">
+                                            <div class="card">
+                                                <div class="card-body">
                                                     <div class="mb-3">
                                                         <label for="puesto_id" class="form-label">Puesto</label>
                                                         <select name="puesto_id" id="puesto_id" class="form-select">
@@ -85,10 +148,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Crear</button>
-                                    </div>
-                                </form>
+                                </div>
+                            </div>
+                            <div class="d-grid mt-2">
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Crear</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -97,7 +162,7 @@
             <div class="col-md-8">
                     <div class="card shadow-sm">
                         <div class="card-header section-accent d-flex align-items-center">
-                            <h5 class="mb-0 section-title-blue">Lista de Empleados</h5>
+                            <h5 class="mb-0 section-title-on-accent">Lista de Empleados</h5>
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                         <div class="ms-auto d-flex align-items-center">
                             <button id="darkModeToggle" class="me-2" title="Modo Oscuro" aria-label="Toggle Dark Mode">
@@ -274,7 +339,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header section-accent">
-                <h5 class="modal-title">Editar Empleado</h5>
+                <h5 class="modal-title section-title-on-accent">Editar Empleado</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

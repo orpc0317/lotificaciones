@@ -19,34 +19,38 @@ body {
 }
 
 /* Card header accent that uses primary token as background and adapts for contrast */
+
 .section-accent {
+    /* Use the primary token as the accent background and ensure white text for titles */
     background-color: var(--primary-600);
     color: #fff;
     border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
-/* In dark theme, ensure the accent remains visible by using the theme's primary value or a lightened variant */
+/* In dark theme, keep the accent visible but prefer a softer primary shade; always keep title text white for contrast */
 [data-theme="dark"] .section-accent {
     background-color: var(--primary-400, #60a5fa);
-    color: #071025; /* dark text on bright accent to keep readable */
+    color: #fff; /* force white titles on dark theme accents */
     border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-/* For accents where we want white titles (cards / modals), force white title color */
-[data-theme="dark"] .section-accent .section-title-on-accent,
-.section-accent .section-title-on-accent {
+/* Force white for title elements inside an accented header/modal for maximum legibility */
+.section-accent .section-title-on-accent,
+.section-accent .section-title-blue,
+.section-accent .modal-title {
     color: #fff !important;
 }
 
 /* Make modal headers use accent when requested */
 .modal-header.section-accent {
-    background-color: var(--primary-600);
+    /* Make modal headers slightly softer than page accents so they feel less aggressive */
+    background-color: var(--primary-400);
     color: #fff;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 [data-theme="dark"] .modal-header.section-accent {
-    background-color: var(--primary-400, #60a5fa);
-    color: #071025;
+    background-color: var(--primary-400);
+    color: #fff; /* keep modal title white in dark mode as well */
 }
 
 .card {
