@@ -98,8 +98,8 @@
             <!-- Formulario -->
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <div class="card-header section-accent">
-                        <h5 class="mb-0">Nuevo Empleado</h5>
+                    <div class="card-header">
+                        <h5 class="mb-0 section-title-blue">Nuevo Empleado</h5>
                     </div>
                     <div class="card-body">
                                 <form id="formEmpleado" enctype="multipart/form-data">
