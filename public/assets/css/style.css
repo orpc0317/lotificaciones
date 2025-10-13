@@ -67,3 +67,26 @@ body.bg-dark .btn-outline-dark:hover {
     background-color: #f1f1f1;
     color: #121212;
 }
+
+/* Per-tab validation badge styling */
+.badge-tab {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    line-height: 16px;
+    font-size: 11px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 6px;
+    border-radius: 999px;
+}
+
+/* SweetAlert2: make the warning icon red instead of orange */
+.swal2-icon.swal2-warning {
+    color: #dc3545 !important; /* red */
+    border-color: #dc3545 !important;
+    box-shadow: none !important;
+}
+.swal2-icon.swal2-warning .swal2-icon-content {
+    color: #fff !important;
+}
