@@ -664,8 +664,12 @@ $(document).ready(function () {
                     // otherwise allow submission to proceed
                 }, false);
 
-                // live update on input change
+                // live update on input/change so selects also trigger immediate badge updates
                 form.addEventListener('input', function(){ updateTabBadges(form); }, true);
+                form.addEventListener('change', function(){ updateTabBadges(form); }, true);
+
+                // run an initial check to show badges/tab highlights on page load
+                try { updateTabBadges(form); } catch (e) { }
             });
         })();
 });
