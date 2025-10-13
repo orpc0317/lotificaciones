@@ -212,7 +212,7 @@
                     <div class="col-md-8">
                         <!-- Tabs: Generals | Puesto | Others (wrapped in card) -->
                         <div class="tab-card card">
-                            <div class="card-header" style="padding:0;">
+                            <div class="card-header section-accent" style="padding:0;">
                                 <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
                                     <li class="nav-item" role="presentation">
                                             <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="ficha-generals" style="display:none;"></span></button>
@@ -289,7 +289,7 @@
                         <div class="col-md-8">
                             <!-- Tabs for edit form -->
                             <div class="tab-card card">
-                                <div class="card-header" style="padding:0;">
+                                <div class="card-header section-accent" style="padding:0;">
                                     <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="edit-generals" style="display:none;"></span></button>
