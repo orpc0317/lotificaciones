@@ -99,8 +99,8 @@
             <div class="col-md-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Nuevo Empleado</h5>
-                    </div>
+                            <h5 class="mb-0 section-title-blue">Nuevo Empleado</h5>
+                        </div>
                     <div class="card-body">
                                 <form id="formEmpleado" enctype="multipart/form-data">
                                     <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
@@ -189,7 +189,7 @@
                                         </div>
                                     </div>
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary btn-sm">Crear</button>
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Crear</button>
                                     </div>
                                 </form>
                     </div>

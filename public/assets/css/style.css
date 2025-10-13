@@ -2,6 +2,19 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Section title that matches the app primary token and responds to theme/palette changes */
+.section-title-blue {
+    color: var(--primary-600);
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Ensure buttons using .btn-primary keep tactile appearance but use the CSS variable for background/border */
+.btn-primary {
+    background-color: var(--primary-600) !important;
+    border-color: var(--primary-600) !important;
+}
+
 .card {
     border-radius: 0.5rem;
 }
