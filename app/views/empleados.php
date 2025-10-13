@@ -233,10 +233,15 @@
                                 <tr>
                                     <th>ID</th>
                                     <th></th>
+                                    <th>Código</th>
                                     <th>Nombres</th>
                                     <th>Apellidos</th>
                                     <th>Edad</th>
-                                    
+                                    <th>Fecha de Nacimiento</th>
+                                    <th>Género</th>
+                                    <th>Puesto</th>
+                                    <th>Departamento</th>
+                                    <th>Comentarios</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>

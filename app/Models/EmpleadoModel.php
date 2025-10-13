@@ -25,7 +25,8 @@ class EmpleadoModel
 
     public function getAll()
     {
-        $stmt = $this->db->query("SELECT id, codigo, nombres, apellidos, fecha_nacimiento, edad, foto, puesto_id, departamento_id, genero, comentarios FROM empleados ORDER BY id DESC");
+        // Include puesto and departamento names so the front-end can show friendly labels
+        $stmt = $this->db->query("SELECT e.*, p.nombre as puesto_nombre, d.nombre as departamento_nombre FROM empleados e LEFT JOIN puestos p ON e.puesto_id = p.id LEFT JOIN departamentos d ON e.departamento_id = d.id ORDER BY e.id DESC");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Añadir campo thumbnail si el archivo existe
         foreach ($rows as &$r) {
@@ -125,8 +126,8 @@ class EmpleadoModel
             ':fecha_nacimiento' => $data['fecha_nacimiento'],
             ':edad' => $this->calcularEdad($data['fecha_nacimiento']),
             ':foto' => $foto,
-            ':puesto_id' => $data['puesto_id'],
-            ':departamento_id' => $data['departamento_id'],
+            ':puesto_id' => (isset($data['puesto_id']) && $data['puesto_id'] !== '') ? $data['puesto_id'] : null,
+            ':departamento_id' => (isset($data['departamento_id']) && $data['departamento_id'] !== '') ? $data['departamento_id'] : null,
             ':genero' => $data['genero'],
             ':comentarios' => $data['comentarios']
         ]);
@@ -166,8 +167,8 @@ class EmpleadoModel
             ':fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
             ':edad' => isset($data['fecha_nacimiento']) ? $this->calcularEdad($data['fecha_nacimiento']) : null,
             ':foto' => $foto,
-            ':puesto_id' => $data['puesto_id'] ?? null,
-            ':departamento_id' => $data['departamento_id'] ?? null,
+            ':puesto_id' => (isset($data['puesto_id']) && $data['puesto_id'] !== '') ? $data['puesto_id'] : null,
+            ':departamento_id' => (isset($data['departamento_id']) && $data['departamento_id'] !== '') ? $data['departamento_id'] : null,
             ':genero' => $data['genero'] ?? null,
             ':comentarios' => $data['comentarios'] ?? null
         ];

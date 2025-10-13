@@ -90,3 +90,52 @@ body.bg-dark .btn-outline-dark:hover {
 .swal2-icon.swal2-warning .swal2-icon-content {
     color: #fff !important;
 }
+
+/* Defensive: ensure table headers render horizontally for our employees table
+   Some third-party CSS or browser quirks may set writing-mode or transforms that
+   cause letters to stack vertically when column widths are small. Force
+   standard horizontal rendering for headers in #tablaEmpleados. */
+#tablaEmpleados th,
+#tablaEmpleados thead th {
+    writing-mode: horizontal-tb !important;
+    -webkit-writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    -webkit-text-orientation: mixed !important;
+    white-space: normal !important;
+    transform: none !important;
+}
+
+/* Prevent headers from wrapping into vertical/stacked letters when columns are very narrow.
+   Use ellipsis and a sane min-width so toggling visibility doesn't immediately create extremely
+   narrow columns that distort layout. */
+#tablaEmpleados th {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 70px !important; /* reasonable default, adjust if needed */
+}
+
+/* Also keep cell contents readable; allow horizontal scrolling if many columns are visible */
+#tablaEmpleados td {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Use automatic table layout so columns size based on content when possible.
+   Also make the DataTables wrapper scroll horizontally if too many columns are visible. */
+#tablaEmpleados {
+    table-layout: auto !important;
+    width: 100% !important;
+}
+
+/* Ensure inline widths set by DataTables/colResizable are not overly restrictive */
+#tablaEmpleados th, #tablaEmpleados td {
+    width: auto !important;
+    min-width: 56px !important; /* allow slightly narrower columns if needed */
+}
+
+/* Allow horizontal scrolling when needed to prevent collapsing columns */
+#tablaEmpleados_wrapper {
+    overflow-x: auto;
+}

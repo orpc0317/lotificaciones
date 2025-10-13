@@ -1,4 +1,40 @@
 $(document).ready(function () {
+    // Make touch event listeners passive when the browser supports it to avoid
+    // "Added non-passive event listener" console violations from libraries
+    // that attach touchstart/touchmove handlers (DataTables ColReorder, colResizable, etc).
+    // This is a defensive, non-invasive patch: it changes how jQuery binds
+    // touch events by setting the `passive` option if supported.
+    (function enablePassiveTouchForjQuery(){
+        try {
+            var supportsPassive = false;
+            try {
+                var opts = Object.defineProperty({}, 'passive', {
+                    get: function() { supportsPassive = true; }
+                });
+                window.addEventListener('testPassive', null, opts);
+                window.removeEventListener('testPassive', null, opts);
+            } catch (e) { supportsPassive = false; }
+
+            if (!supportsPassive || !window.jQuery || !jQuery.event || !jQuery.event.special) return;
+
+            ['touchstart','touchmove'].forEach(function(evtName){
+                if (!jQuery.event.special[evtName]) jQuery.event.special[evtName] = {};
+                // preserve existing setup if present
+                var origSetup = jQuery.event.special[evtName].setup;
+                jQuery.event.special[evtName].setup = function(data, namespaces, handler) {
+                    // when jQuery calls this, `this` is the element
+                    try {
+                        this.addEventListener(evtName, handler, { passive: true });
+                        return true;
+                    } catch (e) {
+                        // fallback to original setup or to jQuery's internal handler
+                        if (typeof origSetup === 'function') return origSetup.call(this, data, namespaces, handler);
+                        try { this.addEventListener(evtName, handler, false); return true; } catch (err) { return false; }
+                    }
+                };
+            });
+        } catch (e) { /* silently ignore - not critical */ }
+    })();
     // Inicializar DataTable con exportaciones
         // Map column header or data key to friendly export header
         function exportHeader(data, columnIdx) {
@@ -21,38 +57,73 @@ $(document).ready(function () {
             return map[key] || data;
         }
 
-        const tabla = $('#tablaEmpleados').DataTable({
-                ajax: {
-                        url: 'empleados/ajax',
-                        dataSrc: 'data'
-                },
-                columns: [
+    const tabla = $('#tablaEmpleados').DataTable({
+        ajax: { url: 'empleados/ajax', dataSrc: 'data' },
+        columns: [
                         { data: 'id' },
                         { data: 'thumbnail', className: 'no-export', render: function (d) { return d ? `<img src="${d}" class="thumb-sm" alt="thumb">` : `<img src="uploads/placeholder.png" class="thumb-sm" alt="thumb">`; } },
+                        { data: 'codigo', visible: false },
                         { data: 'nombres' },
                         { data: 'apellidos' },
                         { data: 'edad' },
-            {
-                data: null,
-                className: 'no-export',
-                render: function (data, type, row) {
-                                        return `
-                        <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}" title="Ver detalles">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning editar" data-id="${row.id}">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger eliminar" data-id="${row.id}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    `;
-                                }
-                        }
-                ],
-    dom: 'Bfrtip',
+                        { data: 'fecha_nacimiento', visible: false },
+                        { data: 'genero', visible: false },
+                        { data: 'puesto_id', visible: false, render: function(data, type, row) {
+                                // Prefer server-provided friendly name
+                                if (row && row.puesto_nombre) return row.puesto_nombre;
+                                // Try to find option text from the main form selects
+                                try {
+                                    if (!data) return '';
+                                    var opt = document.querySelector('#puesto_id option[value="' + data + '"]');
+                                    if (opt && opt.textContent && opt.textContent.trim()) return opt.textContent.trim();
+                                } catch (e) {}
+                                // final fallback: show the ID
+                                return data;
+                            }
+                        },
+                        { data: 'departamento_id', visible: false, render: function(data, type, row) {
+                                if (row && row.departamento_nombre) return row.departamento_nombre;
+                                try {
+                                    if (!data) return '';
+                                    var opt = document.querySelector('#departamento_id option[value="' + data + '"]');
+                                    if (opt && opt.textContent && opt.textContent.trim()) return opt.textContent.trim();
+                                } catch (e) {}
+                                return data;
+                            }
+                        },
+                        { data: 'comentarios', visible: false },
+                        {
+                            data: null,
+                            className: 'no-export',
+                            render: function (data, type, row) {
+                                return `
+                                    <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning editar" data-id="${row.id}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger eliminar" data-id="${row.id}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                `;
+                }
+                }
+            ],
+        dom: 'Bfrtip',
     colReorder: true,
     stateSave: true,
+    // When loading a saved state, remap old column data keys to current ones
+    stateLoadParams: function (settings, data) {
+        try {
+            if (data && data.columns && Array.isArray(data.columns)) {
+                data.columns.forEach(function (col) {
+                    if (col && col.data === 'puesto_nombre') col.data = 'puesto_id';
+                    if (col && col.data === 'departamento_nombre') col.data = 'departamento_id';
+                });
+            }
+        } catch (e) { /* ignore */ }
+    },
         buttons: [
             { extend: 'copy', text: 'Copiar', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
             { extend: 'colvis', text: 'Columnas' },
@@ -85,8 +156,78 @@ $(document).ready(function () {
             }
         ],
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            // Use explicit HTTPS to avoid redirects that can trigger CORS failures when running a local server
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         }
+    });
+
+    // Handle DataTables 'unknown parameter' errors (tn/4) caused by stale saved state
+    tabla.on('error.dt', function (e, settings, techNote, message) {
+        try {
+            if (message && message.indexOf && message.indexOf('Requested unknown parameter') !== -1) {
+                console.warn('DataTables unknown-parameter detected; clearing saved state.');
+                try { tabla.state.clear(); } catch (err) { }
+                try { localStorage.removeItem('DataTables_' + settings.sInstance + '_' + location.pathname); } catch (err) { }
+                // reload page to reset UI
+                location.reload();
+            }
+        } catch (e) { /* ignore */ }
+    });
+
+    /* ========= Resizing ========= */
+    // Inject minimal CSS for resizer handles
+    (function(){
+        var css = '\n#tablaEmpleados th { position:relative; }\n';
+        var s = document.createElement('style'); s.type='text/css'; s.appendChild(document.createTextNode(css)); document.head.appendChild(s);
+    })();
+
+    // When columns are toggled visible/hidden, remove any inline width styles that
+    // could force a column to become very narrow and then adjust columns.
+    tabla.on('column-visibility.dt', function(e, settings, column, state){
+        try {
+            // Clear inline width styles on all header and body cells so the browser
+            // can recompute reasonable widths instead of keeping previous tiny values.
+            $('#tablaEmpleados thead th').each(function(i, th){ if (th && th.style) th.style.width = ''; });
+            $('#tablaEmpleados tbody tr').each(function(){
+                Array.from(this.children).forEach(function(td){ if (td && td.style) td.style.width = ''; });
+            });
+
+            // If colResizable is present it may have injected inline widths/handles.
+            // Try to destroy/remove it then reinitialize to ensure it doesn't hold stale widths.
+            try {
+                if ($.fn.colResizable) {
+                    // attempt common destroy/remove APIs defensively
+                    try { $('#tablaEmpleados').colResizable('destroy'); } catch (e) {}
+                    try { $('#tablaEmpleados').colResizable('remove'); } catch (e) {}
+                    try { $('#tablaEmpleados').colResizable({ liveDrag: true, minWidth: 30, resizeMode: 'fit' }); } catch (e) { /* ignore colResizable reinit errors */ }
+                }
+            } catch (e) { /* ignore colResizable cleanup errors */ }
+
+            // small delay then adjust and redraw to recalc layout and remove distortions
+            setTimeout(function(){ try { tabla.columns.adjust(); tabla.draw(false); } catch(e){} }, 80);
+    } catch (err) { /* ignore column-visibility handler errors */ }
+    });
+
+    // Replace custom resizer with a small, well-tested library (colResizable)
+    function loadScript(url, cb) {
+        var s = document.createElement('script'); s.type = 'text/javascript'; s.src = url;
+        s.onload = function(){ cb(null); };
+        s.onerror = function(){ cb(new Error('Failed to load ' + url)); };
+        document.head.appendChild(s);
+    }
+
+    tabla.on('init.dt', function(){
+        try {
+            // load colResizable from CDN if not present
+            if (!$.fn.colResizable) {
+                loadScript('https://cdn.jsdelivr.net/npm/colresizable@1.6.0/colResizable-1.6.min.js', function(err){
+                    if (err) { /* Could not load colResizable - continue without it */ return; }
+                    try { $('#tablaEmpleados').colResizable({ liveDrag: true, minWidth: 30, resizeMode: 'fit' }); } catch(e) { /* ignore */ }
+                });
+            } else {
+                try { $('#tablaEmpleados').colResizable({ liveDrag: true, minWidth: 30, resizeMode: 'fit' }); } catch(e) { /* ignore */ }
+            }
+        } catch(e){ /* ignore */ }
     });
 
     // Initialize Bootstrap tooltips for help icons
@@ -182,7 +323,6 @@ $(document).ready(function () {
                 showToast('Error', 'Respuesta inesperada del servidor', 'warning');
             }
         }).catch(function (err) {
-            console.error(err);
             showToast('Error', 'Error al guardar el empleado', 'danger');
         });
     });
@@ -211,15 +351,22 @@ $(document).ready(function () {
                     } else {
                         $('#ficha_foto').attr('src', 'uploads/placeholder.png').show();
                     }
-                    var modal = new bootstrap.Modal(document.getElementById('modalFicha'));
+                    var modalElFicha = document.getElementById('modalFicha');
+                    var modal = new bootstrap.Modal(modalElFicha);
                     modal.show();
                     // Ensure the Generals tab is active when opening the ficha
-                    try { var fichaTabEl = document.querySelector('#ficha-generals-tab'); if (fichaTabEl) new bootstrap.Tab(fichaTabEl).show(); } catch (e) { }
+                    try { var fichaTabEl = modalElFicha.querySelector('#ficha-generals-tab'); if (fichaTabEl) new bootstrap.Tab(fichaTabEl).show(); } catch (e) { }
+                    // refresh badges when the modal is shown; blur focused descendant on hide to avoid aria-hidden focus errors
+                    try {
+                        if (typeof updateTabBadges === 'function') {
+                            modalElFicha.addEventListener('shown.bs.modal', function () { scheduleBadgeRefresh(modalElFicha); }, { once: true });
+                            modalElFicha.addEventListener('hide.bs.modal', function () { try { var a = document.activeElement; if (a && modalElFicha.contains(a)) a.blur(); } catch (e) { } }, { once: true });
+                        }
+                    } catch (e) { }
                 } else if (json.error) {
                     showToast('Error', json.error, 'danger');
                 }
             }).catch(err => {
-                console.error(err);
                 showToast('Error', 'Error al obtener la ficha', 'danger');
             });
     });
@@ -233,24 +380,37 @@ $(document).ready(function () {
                 if (json.data) {
                     const e = json.data;
                     $('#edit_id').val(e.id);
-                    $('#edit_nombres').val(e.nombres || '');
-                    $('#edit_apellidos').val(e.apellidos || '');
-                    $('#edit_fecha_nacimiento').val(e.fecha_nacimiento || '');
-                    // Poblar selects de puesto y departamento si están vacíos
-                    if ($('#edit_puesto_id option').length <= 1) {
-                        // copiar opciones del formulario principal
-                        $('#puesto_id option').clone().appendTo('#edit_puesto_id');
-                    }
-                    if ($('#edit_departamento_id option').length <= 1) {
-                        $('#departamento_id option').clone().appendTo('#edit_departamento_id');
-                    }
-                    $('#edit_puesto_id').val(e.puesto_id || '');
-                    $('#edit_departamento_id').val(e.departamento_id || '');
+                    // Assign visible input values immediately so the modal shows the
+                    // stored data without delay. We still keep the shown.bs.modal
+                    // handler below to reapply values after Bootstrap finishes
+                    // rendering (this combination is robust against browser autofill
+                    // and timing races).
+                    try {
+                        $('#edit_nombres').val(e.nombres || '');
+                        $('#edit_apellidos').val(e.apellidos || '');
+                        $('#edit_fecha_nacimiento').val(e.fecha_nacimiento || '');
+                        $('#edit_genero').val(e.genero || '');
+                        $('#edit_comentarios').val(e.comentarios || '');
+                    } catch (err) { /* ignore assignment errors */ }
+                    // Ensure edit selects have option lists. If empty, clone from main form selects.
+                    try {
+                        if ($('#edit_puesto_id').length && $('#edit_puesto_id option').length <= 1 && $('#puesto_id').length) {
+                            $('#puesto_id option').clone().appendTo('#edit_puesto_id');
+                        }
+                        if ($('#edit_departamento_id').length && $('#edit_departamento_id option').length <= 1 && $('#departamento_id').length) {
+                            $('#departamento_id option').clone().appendTo('#edit_departamento_id');
+                        }
+                        // set values after ensuring options exist
+                        try { $('#edit_puesto_id').val(e.puesto_id || ''); } catch(e){}
+                        try { $('#edit_departamento_id').val(e.departamento_id || ''); } catch(e){}
+                    } catch (err) { /* ignore clone errors */ }
                     // Set genero if provided
-                    $('#edit_genero').val(e.genero || '');
+                    // store fetched data on the modal element for applying after show
                     $('#edit_foto_actual').val(e.foto || '');
-                    // Set comentarios in edit modal
-                    $('#edit_comentarios').val(e.comentarios || '');
+                    // Set comentarios in edit modal will be applied after modal shown
+                    // We purposely defer assigning text inputs/selects until after the modal
+                    // is fully shown to avoid race conditions with browser autofill/focus
+                    // that were causing "first-open" validation false-positives.
                     // set photo preview
                     if (e.thumbnail) {
                         $('#edit_foto_preview').attr('src', e.thumbnail);
@@ -260,15 +420,78 @@ $(document).ready(function () {
                         $('#edit_foto_preview').attr('src', 'uploads/placeholder.png');
                     }
 
-                    var modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+                    var modalElEdit = document.getElementById('modalEditar');
+                    // debug banner removed (issue confirmed fixed)
+                    var modal = new bootstrap.Modal(modalElEdit);
+                    // Attach shown handler to populate inputs reliably after Bootstrap finishes
+                    try { var editTabEl = modalElEdit.querySelector('#edit-generals-tab'); if (editTabEl) new bootstrap.Tab(editTabEl).show(); } catch (e) { }
+                    if (typeof updateTabBadges === 'function') {
+                        modalElEdit.addEventListener('shown.bs.modal', function () {
+                            try {
+                                // Unconditionally apply fetched values after the modal is shown.
+                                // This avoids races with browser autofill/focus that could clear
+                                // or move focus and make inputs appear empty to validity checks.
+                                var applyMap = {
+                                    edit_nombres: e.nombres || '',
+                                    edit_apellidos: e.apellidos || '',
+                                    edit_fecha_nacimiento: e.fecha_nacimiento || '',
+                                    edit_genero: e.genero || '',
+                                    edit_comentarios: e.comentarios || ''
+                                };
+                                Object.keys(applyMap).forEach(function(id){
+                                    try {
+                                        var el = document.getElementById(id);
+                                        if (!el) return;
+                                        el.value = applyMap[id];
+                                        try { el.defaultValue = applyMap[id]; } catch(e){}
+                                        try { el.setAttribute('value', applyMap[id]); } catch(e){}
+                                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                                    } catch(err){}
+                                });
+                                // Ensure selects reflect values (in case options were cloned earlier)
+                                try { $('#edit_puesto_id').val(e.puesto_id || ''); } catch(e){}
+                                try { $('#edit_departamento_id').val(e.departamento_id || ''); } catch(e){}
+                                // Final badge update and scheduled refreshes
+                                try { updateTabBadges(modalElEdit); } catch(e){}
+                                scheduleBadgeRefresh(modalElEdit);
+                                // Set focus to the first input to avoid focus remaining on close button
+                                try { var first = modalElEdit.querySelector('input, select, textarea'); if (first) first.focus(); } catch(e){}
+                            } catch (e) {}
+                        }, { once: true });
+
+                        // Blur any focused descendant when the modal is about to hide to avoid
+                        // "aria-hidden descendant retains focus" warnings in some browsers.
+                        modalElEdit.addEventListener('hide.bs.modal', function () { try { var a = document.activeElement; if (a && modalElEdit.contains(a)) a.blur(); } catch (e) { } }, { once: true });
+                    }
+
+                    // finally show the modal
                     modal.show();
-                    // Ensure the Generals tab is active when opening the edit modal
-                    try { var editTabEl = document.querySelector('#edit-generals-tab'); if (editTabEl) new bootstrap.Tab(editTabEl).show(); } catch (e) { }
+
+                    // Fallback reapply: in some browsers/extensions autofill or
+                    // focus behaviors can clear values immediately after show.
+                    // Reapply the most important fields a few times shortly after
+                    // showing the modal to make the assignment robust.
+                    try {
+                        [50, 200].forEach(function(delay){
+                            setTimeout(function(){
+                                try {
+                                    var en = document.getElementById('edit_nombres');
+                                    var ea = document.getElementById('edit_apellidos');
+                                    if (en && (en.value||'').toString().trim() === '') en.value = e.nombres || '';
+                                    if (ea && (ea.value||'').toString().trim() === '') ea.value = e.apellidos || '';
+                                    try { var ef = document.getElementById('edit_fecha_nacimiento'); if (ef && (ef.value||'')==='' ) ef.value = e.fecha_nacimiento || ''; } catch(e2){}
+                                    try { var eg = document.getElementById('edit_genero'); if (eg && (eg.value||'')==='' ) eg.value = e.genero || ''; } catch(e2){}
+                                    try { updateTabBadges(modalElEdit); } catch(e){}
+                                    try { scheduleBadgeRefresh(modalElEdit); } catch(e){}
+                                } catch (err) { }
+                            }, delay);
+                        });
+                    } catch (err) { }
                 } else if (json.error) {
                     showToast('Error', json.error, 'danger');
                 }
             }).catch(err => {
-                console.error(err);
                 showToast('Error', 'Error al obtener la ficha', 'danger');
             });
     });
@@ -293,7 +516,6 @@ $(document).ready(function () {
                 showToast('Error', respuesta.error, 'danger');
             }
         }).catch(err => {
-            console.error(err);
             showToast('Error', 'Error al actualizar empleado', 'danger');
         });
     });
@@ -364,7 +586,6 @@ $(document).ready(function () {
                         Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: res.error || 'Error al eliminar', showConfirmButton: false, timer: 3500 });
                     }
                 }).catch(err => {
-                    console.error(err);
                     Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error al eliminar', showConfirmButton: false, timer: 3500 });
                 });
             }
@@ -563,6 +784,24 @@ $(document).ready(function () {
             Swal.fire({ toast: true, position: 'top-end', icon: icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
         }
 
+        // Ensure badge-refresh helper exists: dispatch input/change events and re-run badge checks
+        function scheduleBadgeRefresh(root) {
+            try {
+                var delays = [0, 50, 250, 800];
+                delays.forEach(function(d){
+                    setTimeout(function(){
+                        try {
+                            root = root || document;
+                            // trigger input/change events for elements that might be autofilled
+                            var elems = root.querySelectorAll('input, textarea, select');
+                            elems.forEach(function(el){ try { el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); } catch(e){} });
+                            try { updateTabBadges(root); } catch(e){}
+                        } catch(e){}
+                    }, d);
+                });
+            } catch(e) { /* ignore */ }
+        }
+
         // -- Persist last-open tab per modal/form and per-tab validation badges --
         (function(){
             const LS_PREFIX = 'lotificaciones_last_tab_';
@@ -611,25 +850,58 @@ $(document).ready(function () {
                 const badges = document.querySelectorAll('.badge-tab');
                 badges.forEach(b => { b.style.display = 'none'; b.textContent = ''; b.classList.remove('bg-danger','text-white','rounded-pill','px-1'); });
 
-                // find all tab panes inside the form/modal
-                const tabPanes = (formEl || document).querySelectorAll('.tab-pane');
+                // Scope search to the provided form/modal to avoid counting fields in other forms
+                const root = formEl || document;
+                const tabPanes = root.querySelectorAll('.tab-pane');
                 tabPanes.forEach(function(pane){
                     const paneId = pane.id;
                     if (!paneId) return;
-                    // look for required inputs inside pane
-                    const invalidElems = pane.querySelectorAll('input[required]:invalid, textarea[required]:invalid, select[required]:invalid');
-                    if (invalidElems && invalidElems.length > 0) {
-                        const badge = document.querySelector('.badge-tab[data-tab="' + paneId + '"]');
-                        if (badge) {
-                            badge.style.display = 'inline-block';
-                            badge.classList.add('bg-danger','text-white','rounded-pill','px-1');
-                            badge.textContent = '¡' + invalidElems.length + '!';
+
+                    // gather required fields in this pane
+                    const requiredElems = pane.querySelectorAll('input[required], textarea[required], select[required]');
+                    let invalidCount = 0;
+                    const invalidList = [];
+                    requiredElems.forEach(function(el) {
+                        try {
+                            // For text-like inputs, consider whitespace-only as empty
+                            if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search' || el.type === 'tel' || el.type === 'email' || el.type === 'url')) {
+                                if ((el.value || '').toString().trim() === '') { invalidCount++; invalidList.push(el); return; }
+                            }
+                            // Use native validity as fallback for other types (select/date/etc.)
+                            if (typeof el.checkValidity === 'function') {
+                                if (!el.checkValidity()) { invalidCount++; invalidList.push(el); }
+                            } else {
+                                // last resort: empty value
+                                if (!el.value) { invalidCount++; invalidList.push(el); }
+                            }
+                        } catch (e) {
+                            // ignore individual element errors
                         }
-                        // mark tab link
-                        const tabLink = document.querySelector('[data-bs-target="#' + paneId + '"]');
+                    });
+
+                    if (invalidCount > 0) {
+                        // prefer badges inside the same root (modal/form); fallback to document
+                        const badge = (root && root.querySelector) ? root.querySelector('.badge-tab[data-tab="' + paneId + '"]') : null;
+                        const badgeElem = badge || document.querySelector('.badge-tab[data-tab="' + paneId + '"]');
+                        if (badgeElem) {
+                            badgeElem.style.display = 'inline-block';
+                            badgeElem.classList.add('bg-danger','text-white','rounded-pill','px-1');
+                            badgeElem.textContent = '¡' + invalidCount + '!';
+                        }
+                        // prefer tab link inside same root
+                        const tabLinkRoot = (root && root.querySelector) ? root.querySelector('[data-bs-target="#' + paneId + '"]') : null;
+                        const tabLink = tabLinkRoot || document.querySelector('[data-bs-target="#' + paneId + '"]');
                         if (tabLink) tabLink.classList.add('text-danger');
+                        // debug: list concise descriptors for invalid elements (id/name/tag/type/value)
+                        if (invalidList.length) {
+                            try {
+                                const desc = invalidList.map(function(el){ return { tag: el.tagName, id: el.id||null, name: el.name||null, type: el.type||null, value: (el.value||'').toString().slice(0,40) }; });
+                                console.debug('Tab', paneId, 'invalid elements:', desc);
+                            } catch(e){ console.debug('Tab', paneId, 'invalid elements count', invalidList.length); }
+                        }
                     } else {
-                        const tabLink = document.querySelector('[data-bs-target="#' + paneId + '"]');
+                        const tabLinkRoot = (root && root.querySelector) ? root.querySelector('[data-bs-target="#' + paneId + '"]') : null;
+                        const tabLink = tabLinkRoot || document.querySelector('[data-bs-target="#' + paneId + '"]');
                         if (tabLink) tabLink.classList.remove('text-danger');
                     }
                 });
