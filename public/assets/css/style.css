@@ -9,6 +9,9 @@ body {
     margin: 0;
 }
 
+/* Title style when shown on an accent background: white text for legibility */
+.section-title-on-accent { color: #fff; font-weight: 600; margin: 0; }
+
 /* Ensure buttons using .btn-primary keep tactile appearance but use the CSS variable for background/border */
 .btn-primary {
     background-color: var(--primary-600) !important;
@@ -27,6 +30,12 @@ body {
     background-color: var(--primary-400, #60a5fa);
     color: #071025; /* dark text on bright accent to keep readable */
     border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+/* For accents where we want white titles (cards / modals), force white title color */
+[data-theme="dark"] .section-accent .section-title-on-accent,
+.section-accent .section-title-on-accent {
+    color: #fff !important;
 }
 
 /* Make modal headers use accent when requested */

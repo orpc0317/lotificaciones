@@ -23,7 +23,7 @@
     <link href="assets/css/style.css" rel="stylesheet">
     <style>
         /* Color system and themes */
-        :root{
+    :root{
             /* spacing scale */
             --space-xs: 4px;
             --space-sm: 8px;
@@ -33,9 +33,10 @@
             --card-bg: #ffffff;
             --text: #0f1724;
             --muted: #6b7280;
-            --primary-600: #0b63d3; /* deep blue */
-            --primary-400: #3b82f6; /* medium blue */
-            --accent: #94a3b8;
+            /* Softer theme tones for better contrast */
+            --primary-600: #1e6fb3; /* softer deep blue */
+            --primary-400: #4d9ae0; /* softer medium blue */
+            --accent: #7c5aa8; /* softened violet accent */
             --border: #e6edf6;
         }
         [data-theme="dark"]{
@@ -43,9 +44,9 @@
             --card-bg: #071025;
             --text: #e6eef8;
             --muted: #9aa6b2;
-            --primary-600: #1e90ff;
-            --primary-400: #60a5fa;
-            --accent: #334155;
+            --primary-600: #60a5fa;
+            --primary-400: #4d9ae0;
+            --accent: #6b5aa8;
             --border: #122233;
         }
 
@@ -221,9 +222,10 @@
                                 </svg>
                             </button>
                             <div id="palettePicker" class="d-flex align-items-center">
-                                <div class="palette-swatch" data-palette="blue" title="Blue" style="background:var(--primary-600);"></div>
+                                <!-- Use explicit softer swatch colors so the swatch preview doesn't depend on CSS vars at load time -->
+                                <div class="palette-swatch" data-palette="blue" title="Blue" style="background:#1e6fb3;"></div>
                                 <div class="palette-swatch" data-palette="teal" title="Teal" style="background:#0d9488;"></div>
-                                <div class="palette-swatch" data-palette="violet" title="Violet" style="background:#7c3aed;"></div>
+                                <div class="palette-swatch" data-palette="violet" title="Violet" style="background:#7c5aa8;"></div>
                             </div>
                         </div>
                     </div>
@@ -299,8 +301,8 @@
 <div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header d-flex align-items-center">
-                <h5 class="modal-title">Ficha de Empleado</h5>
+            <div class="modal-header section-accent d-flex align-items-center">
+                <h5 class="modal-title section-title-on-accent">Ficha de Empleado</h5>
                 <div class="ms-auto me-2">
                     <button id="exportPdfBtn" type="button" class="btn btn-sm btn-outline-primary">Exportar PDF</button>
                 </div>
