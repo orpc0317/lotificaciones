@@ -29,6 +29,17 @@ body {
     border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
+/* Make modal headers use accent when requested */
+.modal-header.section-accent {
+    background-color: var(--primary-600);
+    color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+[data-theme="dark"] .modal-header.section-accent {
+    background-color: var(--primary-400, #60a5fa);
+    color: #071025;
+}
+
 .card {
     border-radius: 0.5rem;
 }

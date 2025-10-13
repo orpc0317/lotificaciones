@@ -98,7 +98,7 @@
             <!-- Formulario -->
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <div class="card-header">
+                    <div class="card-header section-accent">
                         <h5 class="mb-0 section-title-blue">Nuevo Empleado</h5>
                     </div>
                     <div class="card-body">
@@ -199,8 +199,8 @@
             <!-- Tabla -->
             <div class="col-md-8">
                     <div class="card shadow-sm">
-                    <div class="card-header d-flex align-items-center">
-                        <h5 class="mb-0 section-title-blue">Lista de Empleados</h5>
+                        <div class="card-header section-accent d-flex align-items-center">
+                            <h5 class="mb-0 section-title-blue">Lista de Empleados</h5>
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                         <div class="ms-auto d-flex align-items-center">
                             <button id="darkModeToggle" class="me-2" title="Modo Oscuro" aria-label="Toggle Dark Mode">
@@ -375,7 +375,7 @@
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header section-accent">
                 <h5 class="modal-title">Editar Empleado</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
