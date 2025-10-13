@@ -15,6 +15,20 @@ body {
     border-color: var(--primary-600) !important;
 }
 
+/* Card header accent that uses primary token as background and adapts for contrast */
+.section-accent {
+    background-color: var(--primary-600);
+    color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* In dark theme, ensure the accent remains visible by using the theme's primary value or a lightened variant */
+[data-theme="dark"] .section-accent {
+    background-color: var(--primary-400, #60a5fa);
+    color: #071025; /* dark text on bright accent to keep readable */
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
 .card {
     border-radius: 0.5rem;
 }

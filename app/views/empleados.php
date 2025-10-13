@@ -98,9 +98,9 @@
             <!-- Formulario -->
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0 section-title-blue">Nuevo Empleado</h5>
-                        </div>
+                    <div class="card-header section-accent">
+                        <h5 class="mb-0">Nuevo Empleado</h5>
+                    </div>
                     <div class="card-body">
                                 <form id="formEmpleado" enctype="multipart/form-data">
                                     <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
@@ -198,9 +198,9 @@
 
             <!-- Tabla -->
             <div class="col-md-8">
-                <div class="card shadow-sm">
+                    <div class="card shadow-sm">
                     <div class="card-header d-flex align-items-center">
-                        <h5 class="mb-0">Lista de Empleados</h5>
+                        <h5 class="mb-0 section-title-blue">Lista de Empleados</h5>
                         <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
                         <div class="ms-auto d-flex align-items-center">
                             <button id="darkModeToggle" class="me-2" title="Modo Oscuro" aria-label="Toggle Dark Mode">
