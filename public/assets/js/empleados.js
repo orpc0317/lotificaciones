@@ -37,8 +37,8 @@ $(document).ready(function () {
                 className: 'no-export',
                 render: function (data, type, row) {
                                         return `
-                        <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}">
-                            <i class="bi bi-person-lines-fill"></i>
+                        <button class="btn btn-sm btn-info ver-ficha" data-id="${row.id}" title="Ver detalles">
+                            <i class="bi bi-eye"></i>
                         </button>
                         <button class="btn btn-sm btn-warning editar" data-id="${row.id}">
                             <i class="bi bi-pencil-square"></i>
@@ -117,11 +117,21 @@ $(document).ready(function () {
         // Palette picker
         const paletteSwatches = document.querySelectorAll('.palette-swatch');
         function applyPalette(name){
-            let p600 = '--primary-600';
-            let p400 = '--primary-400';
-            if (name === 'teal') { document.documentElement.style.setProperty('--primary-600','#0d9488'); document.documentElement.style.setProperty('--primary-400','#34d399'); }
-            else if (name === 'indigo') { document.documentElement.style.setProperty('--primary-600','#6366f1'); document.documentElement.style.setProperty('--primary-400','#8b5cf6'); }
-            else { document.documentElement.style.setProperty('--primary-600','#0b63d3'); document.documentElement.style.setProperty('--primary-400','#3b82f6'); }
+            // Default blue
+            var prim600 = '#0b63d3';
+            var prim400 = '#3b82f6';
+            if (name === 'teal') {
+                prim600 = '#0d9488'; prim400 = '#34d399';
+            } else if (name === 'violet') {
+                prim600 = '#7c3aed'; prim400 = '#a78bfa';
+            }
+            // Apply custom vars used by our CSS
+            document.documentElement.style.setProperty('--primary-600', prim600);
+            document.documentElement.style.setProperty('--primary-400', prim400);
+            // Also update Bootstrap root variable for broader effect
+            try {
+                document.documentElement.style.setProperty('--bs-primary', prim600);
+            } catch (err) { /* ignore */ }
             try { localStorage.setItem('lotificaciones_palette', name); } catch (e) {}
             paletteSwatches.forEach(s => s.classList.toggle('active', s.getAttribute('data-palette') === name));
         }

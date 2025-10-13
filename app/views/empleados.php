@@ -223,7 +223,7 @@
                             <div id="palettePicker" class="d-flex align-items-center">
                                 <div class="palette-swatch" data-palette="blue" title="Blue" style="background:var(--primary-600);"></div>
                                 <div class="palette-swatch" data-palette="teal" title="Teal" style="background:#0d9488;"></div>
-                                <div class="palette-swatch" data-palette="indigo" title="Indigo" style="background:#6366f1;"></div>
+                                <div class="palette-swatch" data-palette="violet" title="Violet" style="background:#7c3aed;"></div>
                             </div>
                         </div>
                     </div>
@@ -325,20 +325,28 @@
                             <div class="card-body">
                                 <div class="tab-content pt-2" id="fichaTabsContent">
                             <div class="tab-pane fade show active" id="ficha-generals" role="tabpanel" aria-labelledby="ficha-generals-tab">
-                                <ul class="list-group">
-                                    <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
-                                    <li class="list-group-item"><strong>Nombres:</strong> <span id="ficha_nombres"></span></li>
-                                    <li class="list-group-item"><strong>Apellidos:</strong> <span id="ficha_apellidos"></span></li>
-                                    <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> <span id="ficha_fecha_nacimiento"></span></li>
-                                    <li class="list-group-item"><strong>Edad:</strong> <span id="ficha_edad"></span></li>
-                                    <li class="list-group-item"><strong>Género:</strong> <span id="ficha_genero"></span></li>
-                                </ul>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <ul class="list-group">
+                                            <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
+                                            <li class="list-group-item"><strong>Nombres:</strong> <span id="ficha_nombres"></span></li>
+                                            <li class="list-group-item"><strong>Apellidos:</strong> <span id="ficha_apellidos"></span></li>
+                                            <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> <span id="ficha_fecha_nacimiento"></span></li>
+                                            <li class="list-group-item"><strong>Edad:</strong> <span id="ficha_edad"></span></li>
+                                            <li class="list-group-item"><strong>Género:</strong> <span id="ficha_genero"></span></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="ficha-puesto" role="tabpanel" aria-labelledby="ficha-puesto-tab">
-                                <ul class="list-group">
-                                    <li class="list-group-item"><strong>Puesto:</strong> <span id="ficha_puesto"></span></li>
-                                    <li class="list-group-item"><strong>Departamento:</strong> <span id="ficha_departamento"></span></li>
-                                </ul>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <ul class="list-group">
+                                            <li class="list-group-item"><strong>Puesto:</strong> <span id="ficha_puesto"></span></li>
+                                            <li class="list-group-item"><strong>Departamento:</strong> <span id="ficha_departamento"></span></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="ficha-others" role="tabpanel" aria-labelledby="ficha-others-tab">
                                 <div class="card">
@@ -394,35 +402,43 @@
                                 <div class="card-body">
                                     <div class="tab-content pt-2" id="editFormTabsContent">
                                 <div class="tab-pane fade show active" id="edit-generals" role="tabpanel" aria-labelledby="edit-generals-tab">
-                                    <div class="mb-3">
-                                        <label for="edit_nombres" class="form-label">Nombres</label>
-                                        <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_apellidos" class="form-label">Apellidos</label>
-                                        <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                        <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_genero" class="form-label">Género</label>
-                                        <select name="genero" id="edit_genero" class="form-select">
-                                            <option value="">Seleccione</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Femenino">Femenino</option>
-                                        </select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="edit_nombres" class="form-label">Nombres</label>
+                                                <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_apellidos" class="form-label">Apellidos</label>
+                                                <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_genero" class="form-label">Género</label>
+                                                <select name="genero" id="edit_genero" class="form-select">
+                                                    <option value="">Seleccione</option>
+                                                    <option value="Masculino">Masculino</option>
+                                                    <option value="Femenino">Femenino</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-puesto" role="tabpanel" aria-labelledby="edit-puesto-tab">
-                                    <div class="mb-3">
-                                        <label for="edit_puesto_id" class="form-label">Puesto</label>
-                                        <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_departamento_id" class="form-label">Departamento</label>
-                                        <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="edit_puesto_id" class="form-label">Puesto</label>
+                                                <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_departamento_id" class="form-label">Departamento</label>
+                                                <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
