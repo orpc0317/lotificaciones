@@ -21,134 +21,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/theme.css" rel="stylesheet">
     <style>
-        /* Color system and themes */
-    :root{
-            /* spacing scale */
-            --space-xs: 4px;
-            --space-sm: 8px;
-            --space-md: 12px;
-            --space-lg: 20px;
-            --bg: #f5f7fb;
-            --card-bg: #ffffff;
-            --text: #0f1724;
-            --muted: #6b7280;
-            /* Softer theme tones for better contrast */
-            --primary-600: #1e6fb3; /* softer deep blue */
-            --primary-400: #4d9ae0; /* softer medium blue */
-            --accent: #7c5aa8; /* softened violet accent */
-            --border: #e6edf6;
-        }
-        [data-theme="dark"]{
-            --bg: #0b1220;
-            --card-bg: #071025;
-            --text: #e6eef8;
-            --muted: #9aa6b2;
-            --primary-600: #60a5fa;
-            --primary-400: #4d9ae0;
-            --accent: #6b5aa8;
-            --border: #122233;
-        }
-
+        /* Keep small layout helpers inline while main tokens live in theme.css */
         html,body{height:100%;}
         body{background:var(--bg); color:var(--text); font-family: 'Inter', 'Segoe UI', Roboto, Arial, Helvetica, sans-serif;}
-
         /* smooth transitions for theme/palette changes */
         body, .card, .modal-content, .btn, .nav-tabs .nav-link { transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease; }
-
-    .card{background:var(--card-bg); border:1px solid var(--border);}
-        .card-header{background:transparent; border-bottom:1px solid var(--border);}
-        .btn-primary{background:var(--primary-600); border-color:var(--primary-600);}
-        .btn-outline-primary{color:var(--primary-600); border-color:var(--primary-600);}
-
-        /* Fixed tab pane height: use the generals pane height as reference */
+        .card{background:var(--card-bg); border:1px solid var(--border);} 
+        .card-header{background:transparent; border-bottom:1px solid var(--border);} 
+        .btn-primary{background:var(--primary-600); border-color:var(--primary-600);} 
+        .btn-outline-primary{color:var(--primary-600); border-color:var(--primary-600);} 
         .tab-fixed-height { overflow-y: auto; }
-
-        /* Modal and card typography & spacing tweaks */
         .modal .modal-content { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, Helvetica, sans-serif; }
         .modal .modal-body { padding: 1rem 1.25rem; }
         .card .card-body { padding: 0.75rem; }
-
-        /* Square corners for tabs */
         .nav-tabs .nav-link.rounded-0 { border-radius: 0 !important; }
-
-        /* Tighter list group items for compact look */
         .list-group-item { padding: 0.5rem 0.75rem; background: transparent; border: none; }
-
-        /* Ensure tab card header and content align */
         .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
         .tab-card .card-body { padding-top: 0.5rem; }
-
-    /* Dark-mode toggle button */
-    #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px }
-
-    /* Palette swatches */
-    .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
-    .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
-
-        /* Tab icon spacing */
+        #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px }
+        .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
+        .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
         .nav-tabs .nav-link i { margin-right:6px; }
-
     </style>
-</head>
-
-<body class="bg-light">
-
-    <div class="container-fluid py-4">
-        <div class="row">
-            <!-- Formulario -->
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header section-accent">
-                        <h5 class="mb-0 section-title-blue">Nuevo Empleado</h5>
-                    </div>
-                    <div class="card-body">
-                                <form id="formEmpleado" enctype="multipart/form-data">
-                                    <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content pt-2" id="newFormTabsContent">
-                                        <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <div class="mb-3">
-                                                        <label for="nombres" class="form-label">Nombres</label>
-                                                        <input type="text" name="nombres" id="nombres" class="form-control" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="apellidos" class="form-label">Apellidos</label>
-                                                        <input type="text" name="apellidos" id="apellidos" class="form-control" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                                        <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="edad" class="form-label">Edad</label>
-                                                        <input type="text" id="edad" class="form-control" readonly>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="genero" class="form-label">Género</label>
-                                                        <select name="genero" id="genero" class="form-select" required>
-                                                            <option value="">Seleccione</option>
-                                                            <option value="Masculino">Masculino</option>
-                                                            <option value="Femenino">Femenino</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="new-puesto" role="tabpanel" aria-labelledby="new-puesto-tab">
-                                            <div class="card">
-                                                <div class="card-body">
                                                     <div class="mb-3">
                                                         <label for="puesto_id" class="form-label">Puesto</label>
                                                         <select name="puesto_id" id="puesto_id" class="form-select">
