@@ -46,6 +46,15 @@ body {
 }
 /* modal headers use palette variables; no dark-mode overrides */
 
+/* Make modal contents visually match the app cards (Nuevo Empleado / Lista de Empleados) */
+.modal .modal-content {
+    background: var(--card-bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 0.5rem !important;
+}
+.modal .modal-body { background: transparent; }
+
 .card {
     border-radius: 0.5rem;
 }
