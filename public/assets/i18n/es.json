@@ -3,12 +3,12 @@
   "tab_generals": "Generales",
   "tab_position": "Puesto",
   "tab_others": "Otros",
-  "create": "Crear",
+  "create": "Agregar",
   "list_employees": "Lista de Empleados",
   "language": "Idioma",
   "ficha_title": "Ficha de Empleado",
   "export_pdf": "Exportar PDF",
   "comments": "Comentarios",
   "edit_employee": "Editar Empleado",
-  "save_changes": "Guardar cambios"
+  "save_changes": "Guardar Cambios"
 }
