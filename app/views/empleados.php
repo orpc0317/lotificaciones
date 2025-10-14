@@ -151,7 +151,7 @@
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="create">Crear</span></button>
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="create">Add</span></button>
                             </div>
                         </form>
                     </div>
@@ -413,7 +413,7 @@
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="save_changes">Guardar cambios</span></button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="save_changes">Guardar Cambios</span></button>
                             </div>
                         </div>
                     </div>
