@@ -3,7 +3,22 @@ $(document).ready(function () {
 
     function exportHeader(data) {
         var key = (data || '').toString().trim().toLowerCase().replace(/\s+/g, '_');
-        var map = { id: 'ID', codigo: 'Código', nombres: 'Nombres', apellidos: 'Apellidos', fecha_de_nacimiento: 'Fecha de Nacimiento', edad: 'Edad', foto: 'Foto', puesto_id: 'Puesto ID', puesto_nombre: 'Puesto', departamento_id: 'Departamento ID', departamento_nombre: 'Departamento', genero: 'Género', comentarios: 'Comentarios' };
+        // Resolve common headers using runtime translations when available
+        var map = {
+            id: (typeof getTranslation === 'function' ? getTranslation('id', 'ID') : 'ID'),
+            codigo: (typeof getTranslation === 'function' ? getTranslation('codigo_label', 'Código') : 'Código'),
+            nombres: (typeof getTranslation === 'function' ? getTranslation('nombres', 'Nombres') : 'Nombres'),
+            apellidos: (typeof getTranslation === 'function' ? getTranslation('apellidos', 'Apellidos') : 'Apellidos'),
+            fecha_de_nacimiento: (typeof getTranslation === 'function' ? getTranslation('fecha_nacimiento', 'Fecha de Nacimiento') : 'Fecha de Nacimiento'),
+            edad: (typeof getTranslation === 'function' ? getTranslation('edad', 'Edad') : 'Edad'),
+            foto: (typeof getTranslation === 'function' ? getTranslation('foto', 'Foto') : 'Foto'),
+            puesto_id: (typeof getTranslation === 'function' ? getTranslation('puesto', 'Puesto ID') : 'Puesto ID'),
+            puesto_nombre: (typeof getTranslation === 'function' ? getTranslation('puesto', 'Puesto') : 'Puesto'),
+            departamento_id: (typeof getTranslation === 'function' ? getTranslation('departamento', 'Departamento ID') : 'Departamento ID'),
+            departamento_nombre: (typeof getTranslation === 'function' ? getTranslation('departamento', 'Departamento') : 'Departamento'),
+            genero: (typeof getTranslation === 'function' ? getTranslation('genero', 'Género') : 'Género'),
+            comentarios: (typeof getTranslation === 'function' ? getTranslation('comments', 'Comentarios') : 'Comentarios')
+        };
         return map[key] || data;
     }
 
@@ -129,11 +144,118 @@ $(document).ready(function () {
                 colReorder: true,
                 stateSave: true,
                 stateLoadParams: function(settings, data){ try { if (data && data.columns && Array.isArray(data.columns)) { data.columns.forEach(function(col){ if (col && col.data === 'puesto_nombre') col.data = 'puesto_id'; if (col && col.data === 'departamento_nombre') col.data = 'departamento_id'; }); } } catch(e){} },
-                buttons: [ { extend: 'copy', text: 'Copiar', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }, { extend: 'colvis', text: 'Columnas' }, { extend: 'excelHtml5', text: 'XLS', filename: 'empleados', extension: '.xls', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }, { extend: 'csvHtml5', text: 'CSV', filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }, { extend: 'csvHtml5', text: 'TXT', filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }, { extend: 'print', text: 'Imprimir', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } } ],
+                buttons: [
+                    { extend: 'colvis', text: 'Columnas' },
+                    {
+                        extend: 'collection',
+                        text: 'Exportar',
+                        className: 'btn-export-collection',
+                        buttons: [
+                                // SheetJS-based exporter (primary .xlsx exporter)
+                                    { text: '<i class="bi bi-file-earmark-spreadsheet me-2"></i> ' + (typeof getTranslation === 'function' ? getTranslation('export_xls_sheetjs','XLSX') : 'XLSX'), action: function(e, dt, node, config){
+                                            try {
+                                                var visibleCols = dt.columns(':visible:not(.no-export)').indexes().toArray();
+                                                var headers = visibleCols.map(function(i){ var h = dt.column(i).header(); return exportHeader(h ? (h.textContent || h.innerText || '') : ''); });
+                                                var dataRows = [];
+                                                // Helper to guess types: number, date (with locale DD/MM/YYYY), or string
+                                                function parseLocaleDate(s) {
+                                                    // Accepts DD/MM/YYYY or DD/MM/YYYY HH:mm:ss (24h), optionally with dashes or slashes
+                                                    // normalize separators
+                                                    var orig = String(s).trim();
+                                                    var s2 = orig.replace(/-/g, '/');
+                                                    var m = s2.match(/^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?\s*$/);
+                                                    if (m) {
+                                                        var day = parseInt(m[1],10), month = parseInt(m[2],10)-1, year = parseInt(m[3],10);
+                                                        var hour = m[4] ? parseInt(m[4],10) : 0;
+                                                        var min = m[5] ? parseInt(m[5],10) : 0;
+                                                        var sec = m[6] ? parseInt(m[6],10) : 0;
+                                                        var dt = new Date(year, month, day, hour, min, sec);
+                                                        if (!isNaN(dt.getTime())) return { date: dt, hasTime: !!m[4] };
+                                                    }
+                                                    return null;
+                                                }
+
+                                                function guessType(val){
+                                                    if (val === null || typeof val === 'undefined') return { v: '' };
+                                                    var s = String(val).trim();
+                                                    if (s === '') return { v: '' };
+                                                    // number?
+                                                    var num = s.replace(/,/g,'');
+                                                    if (!isNaN(num) && isFinite(num)) return { v: Number(num), t: 'n' };
+                                                    // locale date DD/MM/YYYY or with time
+                                                    var parsed = parseLocaleDate(s);
+                                                    if (parsed) return { v: parsed.date, t: 'd', hasTime: parsed.hasTime };
+                                                    // ISO date fallback
+                                                    var d = Date.parse(s);
+                                                    if (!isNaN(d)) return { v: new Date(d), t: 'd', hasTime: (String(s).indexOf('T') !== -1 || String(s).indexOf(':') !== -1) };
+                                                    return { v: s, t: 's' };
+                                                }
+
+                                                dt.rows({ search: 'applied', order: 'applied' }).every(function(rowIdx){
+                                                    var rowData = this.data();
+                                                    var row = visibleCols.map(function(ci){
+                                                        var col = dt.settings()[0].aoColumns[ci];
+                                                        var key = col && col.data;
+                                                        var val = '';
+                                                        try { val = (typeof rowData === 'object' && key) ? rowData[key] : (rowData && rowData[ci]); } catch(e) { val = ''; }
+                                                        try { if (val && typeof val === 'string') { var tmp = document.createElement('div'); tmp.innerHTML = val; val = tmp.textContent || tmp.innerText || val; } } catch(e){}
+                                                        return val;
+                                                    });
+                                                    dataRows.push(row);
+                                                });
+
+                                                // Build worksheet from AOA then convert cells to guessed types
+                                                var ws_data = [headers].concat(dataRows);
+                                                var wb = XLSX.utils.book_new();
+                                                var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                                                // Convert types for data cells (skip header row) and set formats for dates
+                                                for (var R = 1; R < ws_data.length; ++R) {
+                                                    for (var C = 0; C < visibleCols.length; ++C) {
+                                                        var cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                                                        var raw = ws_data[R][C];
+                                                        var guessed = guessType(raw);
+                                                        if (!ws[cell_address]) ws[cell_address] = { t: guessed.t || 's', v: guessed.v };
+                                                        else { ws[cell_address].v = guessed.v; if (guessed.t) ws[cell_address].t = guessed.t; }
+                                                        // If it's a date, apply the forced format: YYYY-MM-DD or YYYY-MM-DD HH:mm:ss
+                                                        if (guessed && guessed.t === 'd' && ws[cell_address]) {
+                                                            // Excel serial date requires JS Date object as v and cell.t = 'd' (SheetJS will handle conversion)
+                                                            // Apply number format for display
+                                                            if (guessed.hasTime) ws[cell_address].z = 'yyyy-mm-dd hh:mm:ss';
+                                                            else ws[cell_address].z = 'yyyy-mm-dd';
+                                                        }
+                                                    }
+                                                }
+
+                                                // Set reasonable column widths based on header lengths
+                                                ws['!cols'] = headers.map(function(h, idx){
+                                                    var maxLen = String(h).length;
+                                                    for (var r = 0; r < dataRows.length; ++r) {
+                                                        try { var l = String(dataRows[r][idx] || '').length; if (l > maxLen) maxLen = l; } catch(e){}
+                                                    }
+                                                    // approximate width (characters + padding)
+                                                    return { wch: Math.min(Math.max(maxLen + 2, 10), 60) };
+                                                });
+
+                                                XLSX.utils.book_append_sheet(wb, ws, 'Empleados');
+                                                var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                                var blob = new Blob([wbout], { type: 'application/octet-stream' });
+                                                var fname = (config && config.filename) ? config.filename : 'empleados';
+                                                if (!fname.toLowerCase().endsWith('.xlsx')) fname = fname + '.xlsx';
+                                                var url = window.URL.createObjectURL(blob);
+                                                var a = document.createElement('a'); a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
+                                            } catch (err) { console.error('SheetJS export failed', err); alert('Export failed: ' + (err && err.message ? err.message : err)); }
+                                        }, filename: 'empleados' },
+                            { extend: 'csvHtml5', text: '<i class="bi bi-filetype-csv me-2"></i> ' + (typeof getTranslation === 'function' ? getTranslation('export_csv','CSV') : 'CSV'), filename: 'empleados', extension: '.csv', fieldSeparator: ',', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } },
+                            { extend: 'csvHtml5', text: '<i class="bi bi-file-earmark-text me-2"></i> ' + (typeof getTranslation === 'function' ? getTranslation('export_txt','TXT') : 'TXT'), filename: 'empleados', extension: '.txt', fieldSeparator: '\t', bom: true, exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }
+                        ]
+                    }
+                ],
                 language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' }
             });
 
             attachTableHandlers(tabla);
+            // debug logs removed
             // hide spinner after successful init
             try { hideLoading(); } catch(e){}
         }).catch(function(err){ console.error('Error building table', err); });
@@ -161,11 +283,22 @@ $(document).ready(function () {
         try {
             var palettes = {
                 blue: { '--primary-600': '#1e6fb3', '--primary-400': '#4d9ae0', '--accent': '#7c5aa8' },
-                teal: { '--primary-600': '#0d9488', '--primary-400': '#34d399', '--accent': '#0ea5a4' },
+                // teal was slightly light for white headers; darken to meet WCAG AA for white-on-primary
+                teal: { '--primary-600': '#0c857a', '--primary-400': '#34d399', '--accent': '#0ea5a4' },
                 violet: { '--primary-600': '#7c5aa8', '--primary-400': '#a78bfa', '--accent': '#7c5aa8' }
             };
             var p = palettes[name] || palettes.blue;
             Object.keys(p).forEach(function(k){ try { document.documentElement.style.setProperty(k, p[k]); } catch(e){} });
+            // also set modal divider gradient stops derived from primary color for a pleasing accent
+            try {
+                var primary = p['--primary-600'] || '#1e6fb3';
+                // simple hex -> rgba fallback function
+                function hexToRgba(hex, alpha){ try { hex = hex.replace('#',''); var bigint = parseInt(hex,16); var r = (bigint >> 16) & 255; var g = (bigint >> 8) & 255; var b = bigint & 255; return 'rgba('+r+','+g+','+b+','+ (alpha||1) +')'; } catch(e){ return 'rgba(0,0,0,'+ (alpha||1) +')'; } }
+                var start = hexToRgba(primary, 0.06);
+                var end = hexToRgba(primary, 0.12);
+                document.documentElement.style.setProperty('--modal-divider-color-start', start);
+                document.documentElement.style.setProperty('--modal-divider-color-end', end);
+            } catch(e){}
             // mark active swatch
             try { document.querySelectorAll('.palette-swatch').forEach(function(el){ try { el.classList.toggle('active', el.getAttribute('data-palette') === name); } catch(e){} }); } catch(e){}
             try { localStorage.setItem('lotificaciones_palette', name); } catch(e){}
@@ -298,12 +431,55 @@ $(document).ready(function () {
                             var key = el.getAttribute('data-i18n');
                             if (!key) return;
                             var txt = t(key);
+                            // set visible text appropriately
                             var nested = el.querySelector && el.querySelector('.label-text');
-                            if (nested) nested.textContent = txt; else if (el.classList && el.classList.contains('label-text')) el.textContent = txt; else el.textContent = txt;
+                            if (nested) nested.textContent = txt;
+                            else if (el.classList && el.classList.contains('label-text')) el.textContent = txt;
+                            else {
+                                // for buttons or inline spans we may want to replace innerText but preserve icons
+                                if (el.tagName === 'BUTTON' || el.tagName === 'A') {
+                                    // if the button contains an icon (i) keep it and update the text node after it
+                                    var icon = el.querySelector('i');
+                                    if (icon) {
+                                        // find a text node sibling or span
+                                        var txtSpan = el.querySelector('.label-text') || el.querySelector('span');
+                                        if (txtSpan) txtSpan.textContent = txt; else {
+                                            // append a small span
+                                            var s = document.createElement('span'); s.className = 'label-text'; s.textContent = txt; el.appendChild(s);
+                                        }
+                                    } else {
+                                        el.textContent = txt;
+                                    }
+                                } else {
+                                    el.textContent = txt;
+                                }
+                            }
+
+                            // apply aria-label override if provided
+                            try {
+                                var ariaKey = el.getAttribute('data-i18n-aria');
+                                if (ariaKey) {
+                                    var ariaTxt = t(ariaKey);
+                                    if (ariaTxt) el.setAttribute('aria-label', ariaTxt);
+                                }
+                            } catch(e){}
                         } catch(e){}
                     });
                     // (Tooltip UI removed) — no-op
                 } catch(e){}
+            }
+
+            // Lightweight helper to get a translation anywhere in this file
+            function getTranslation(key, fallback) {
+                try {
+                    var lang = (document.getElementById('langSelect') && document.getElementById('langSelect').value) || localStorage.getItem('lotificaciones_lang') || 'es';
+                    var dict = _i18nCache[lang] || _i18nCache['es'] || _i18nCache['en'] || {};
+                    if (dict && dict[key]) return dict[key];
+                    // fallbacks
+                    if (_i18nCache['en'] && _i18nCache['en'][key]) return _i18nCache['en'][key];
+                    if (_i18nCache['es'] && _i18nCache['es'][key]) return _i18nCache['es'][key];
+                } catch(e){}
+                return fallback || key;
             }
 
             langSel.addEventListener('change', function(){ var v = langSel.value || 'es'; try { localStorage.setItem('lotificaciones_lang', v); } catch(e){}; loadTranslations(v).then(function(){ applyUiLabels(v); buildTable(v); }); });
@@ -347,9 +523,9 @@ $(document).ready(function () {
                     var modalEl = document.getElementById('modalFicha');
                     if (modalEl) { var modal = new bootstrap.Modal(modalEl); modal.show(); }
                 } else if (json.error) {
-                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:json.error, showConfirmButton:false, timer:3500 }); } catch(e){}
+                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:json.error || getTranslation('error_fetching_ficha','Error al obtener ficha'), showConfirmButton:false, timer:3500 }); } catch(e){}
                 }
-            }).catch(function(err){ try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Error al obtener ficha', showConfirmButton:false, timer:3500 }); } catch(e){} });
+            }).catch(function(err){ try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:getTranslation('error_fetching_ficha','Error al obtener ficha'), showConfirmButton:false, timer:3500 }); } catch(e){} });
         } catch(e){}
     });
 
@@ -357,16 +533,16 @@ $(document).ready(function () {
     $(document).on('click', '.eliminar', function(){
         try {
             var id = $(this).data('id');
-            Swal.fire({ title: '¿Eliminar empleado?', text: 'Esta acción no se puede deshacer.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){
+            Swal.fire({ title: getTranslation('confirm_delete_title','¿Eliminar empleado?'), text: getTranslation('confirm_delete_text','Esta acción no se puede deshacer.'), icon: 'warning', showCancelButton: true, confirmButtonText: getTranslation('confirm_delete_confirm','Sí, eliminar'), cancelButtonText: getTranslation('confirm_delete_cancel','Cancelar') }).then(function(result){
                 if (result.isConfirmed) {
                     fetch('empleados/delete', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json(); }).then(function(res){
                         if (res.success) {
-                            try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title:'Empleado eliminado', showConfirmButton:false, timer:2000 }); }catch(e){}
+                            try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title:getTranslation('employee_deleted','Empleado eliminado'), showConfirmButton:false, timer:2000 }); }catch(e){}
                             try { reloadOrBuild(); } catch(e){}
                         } else {
-                            try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title:res.error||'Error al eliminar', showConfirmButton:false, timer:3500 }); }catch(e){}
+                            try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title: res.error || getTranslation('error_deleting','Error al eliminar'), showConfirmButton:false, timer:3500 }); }catch(e){}
                         }
-                    }).catch(function(err){ try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Error al eliminar', showConfirmButton:false, timer:3500 }); }catch(e){} });
+                    }).catch(function(err){ try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title:getTranslation('error_deleting','Error al eliminar'), showConfirmButton:false, timer:3500 }); }catch(e){} });
                 }
             });
         } catch(e){}
@@ -409,11 +585,49 @@ $(document).ready(function () {
                     // re-validate edit panes so per-tab badges reflect the populated values
                     try { validateAndUpdateForPane('edit-generals'); validateAndUpdateForPane('edit-puesto'); validateAndUpdateForPane('edit-others'); } catch(e){}
                     var modalEl = document.getElementById('modalEditar');
-                    if (modalEl) { var modal = new bootstrap.Modal(modalEl); modal.show(); }
+                    if (modalEl) {
+                        var modal = new bootstrap.Modal(modalEl);
+                        // Before showing, compute tallest tab pane height and set min-height on the tab-content
+                        try {
+                            // small helper to compute and apply
+                            var applyStableEditModalHeight = function() {
+                                try {
+                                    var panes = modalEl.querySelectorAll('#editFormTabsContent .tab-pane');
+                                    var maxH = 0;
+                                    panes.forEach(function(p){ try { p.style.minHeight = ''; p.style.minHeight = p.scrollHeight + 'px'; if (p.scrollHeight > maxH) maxH = p.scrollHeight; } catch(e){} });
+                                    // set min-height on the tab-content wrapper so switching tabs doesn't change height
+                                    var content = modalEl.querySelector('#editFormTabsContent');
+                                    if (content) {
+                                        content.style.minHeight = maxH + 'px';
+                                    }
+                                } catch(e){}
+                            };
+
+                            // apply once now (will measure current DOM)
+                            applyStableEditModalHeight();
+
+                            // Also re-apply after the modal is fully shown to account for fonts/scrollbars
+                            modalEl.addEventListener('shown.bs.modal', function onShown(){ try { applyStableEditModalHeight(); modalEl.removeEventListener('shown.bs.modal', onShown); } catch(e){} });
+
+                            // Recompute on window resize while modal is open
+                            var onResize = function(){ try { if (document.body.classList && document.body.classList.contains('modal-open')) applyStableEditModalHeight(); } catch(e){} };
+                            window.addEventListener('resize', onResize);
+
+                            // Clean up when modal hides
+                            modalEl.addEventListener('hidden.bs.modal', function(){ try {
+                                // remove inline minHeight settings
+                                try { var content = modalEl.querySelector('#editFormTabsContent'); if (content) content.style.minHeight = ''; } catch(e){}
+                                try { modalEl.querySelectorAll('#editFormTabsContent .tab-pane').forEach(function(p){ try { p.style.minHeight = ''; } catch(e){} }); } catch(e){}
+                                window.removeEventListener('resize', onResize);
+                            } catch(e){} });
+                        } catch(e){}
+
+                        modal.show();
+                    }
                 } else if (json.error) {
-                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:json.error, showConfirmButton:false, timer:3500 }); } catch(e){}
+                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:json.error || getTranslation('error_fetching_data','Error al obtener datos'), showConfirmButton:false, timer:3500 }); } catch(e){}
                 }
-            }).catch(function(err){ try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Error al obtener datos', showConfirmButton:false, timer:3500 }); } catch(e){} });
+            }).catch(function(err){ try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:getTranslation('error_fetching_data','Error al obtener datos'), showConfirmButton:false, timer:3500 }); } catch(e){} });
         } catch(e){}
     });
 
@@ -499,6 +713,77 @@ $(document).ready(function () {
         try { var target = e.target && e.target.getAttribute('data-bs-target'); if (target) { var id = target.replace('#',''); validateAndUpdateForPane(id); } } catch(e){}
     });
 
+    // Edit modal: Change photo overlay handler
+    $(document).on('click', '.change-photo-btn', function(){
+        try {
+            var $card = $(this).closest('.edit-photo-card');
+            var $input = $card.find('input[type="file"][name="foto"]');
+            if ($input && $input.length) { $input.trigger('click'); }
+        } catch(e){}
+    });
+
+    // Preview selected image in edit/new forms with client-side validation
+    // Validates: MIME type image/*, file size <= 2MB, dimensions <= 2000x2000
+    $(document).on('change', 'input[type="file"][name="foto"]', function(){
+        try {
+            var input = this;
+            var file = input.files && input.files[0];
+            if (!file) return;
+
+            var MAX_SIZE = 2 * 1024 * 1024; // 2MB
+            var MAX_DIM = 2000; // px
+
+            // Basic MIME check
+            if (!file.type || file.type.indexOf('image') === -1) {
+                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: getTranslation('image_invalid','Archivo de imagen inválido'), showConfirmButton:false, timer:3500 }); } catch(e){}
+                try { input.value = ''; } catch(e){}
+                return;
+            }
+
+            // File size check
+            if (file.size > MAX_SIZE) {
+                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: getTranslation('image_too_large','El archivo excede el tamaño máximo de 2MB'), showConfirmButton:false, timer:4500 }); } catch(e){}
+                try { input.value = ''; } catch(e){}
+                return;
+            }
+
+            // Read dataURL to validate image dimensions before previewing
+            var reader = new FileReader();
+            reader.onload = function(ev){
+                try {
+                    var dataUrl = ev.target.result;
+                    var img = new Image();
+                    img.onload = function(){
+                        try {
+                            if (img.width > MAX_DIM || img.height > MAX_DIM) {
+                                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: getTranslation('image_too_large_dimensions','La imagen supera las dimensiones máximas de 2000×2000 px'), showConfirmButton:false, timer:4500 }); } catch(e){}
+                                try { input.value = ''; } catch(e){}
+                                return;
+                            }
+
+                            // Determine preview target: prefer explicit ids, otherwise look inside parent card
+                            var $preview = null;
+                            try {
+                                if (input.id === 'edit_foto') $preview = $('#edit_foto_preview');
+                                else if (input.id === 'foto') $preview = $('#foto_preview');
+                                if ((!$preview || !$preview.length) && input.closest) {
+                                    var $card = $(input).closest('.edit-photo-card, .photo-card, .tab-card');
+                                    if ($card && $card.length) $preview = $card.find('img').first();
+                                }
+                            } catch(ignore){}
+
+                            // Apply preview if we found an img element
+                            try { if ($preview && $preview.length) $preview.attr('src', dataUrl); } catch(e){}
+                        } catch(e){}
+                    };
+                    img.onerror = function(){ try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: getTranslation('image_cannot_process','No se puede procesar la imagen'), showConfirmButton:false, timer:3500 }); } catch(e){} try { input.value = ''; } catch(e){} };
+                    img.src = dataUrl;
+                } catch(e){}
+            };
+            reader.readAsDataURL(file);
+        } catch(e){}
+    });
+
     // initial pass: validate common pane ids
     try {
         ['new-generals','new-puesto','new-others','edit-generals','edit-puesto','edit-others'].forEach(function(id){ validateAndUpdateForPane(id); });
@@ -573,19 +858,19 @@ $(document).ready(function () {
             }).then(function(resObj){
                 var status = resObj.status; var resp = resObj.body;
                 if (status === 200 && resp && resp.success) {
-                    try { Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message || 'Empleado creado', showConfirmButton:false, timer:2000 }); } catch(e){}
+                    try { Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message || getTranslation('employee_created','Empleado creado'), showConfirmButton:false, timer:2000 }); } catch(e){}
                     try { $form[0].reset(); } catch(e){}
                     try { reloadOrBuild(); } catch(e){}
                 } else if (status === 422 && resp && resp.errors) {
                     // show field-level errors
                     try { Object.keys(resp.errors).forEach(function(k){ var $el = $('#'+k); if ($el && $el.length) showInvalidMessage($el, resp.errors[k]); }); } catch(e){}
-                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp.error || 'Errores en el formulario', showConfirmButton:false, timer:3500 }); } catch(e){}
+                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp.error || getTranslation('form_errors','Errores en el formulario'), showConfirmButton:false, timer:3500 }); } catch(e){}
                 } else {
-                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp && resp.error ? resp.error : 'Error al crear', showConfirmButton:false, timer:3500 }); } catch(e){}
+                    try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp && resp.error ? resp.error : getTranslation('error_creating','Error al crear'), showConfirmButton:false, timer:3500 }); } catch(e){}
                 }
             }).catch(function(err){
                 console.error('Create request failed', err);
-                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Error de red al crear', showConfirmButton:false, timer:3500 }); } catch(e){}
+                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:getTranslation('network_error_creating','Error de red al crear'), showConfirmButton:false, timer:3500 }); } catch(e){}
             }).finally(function(){ try { submitBtn.prop('disabled', false); } catch(e){} });
 
             return false;
@@ -620,21 +905,21 @@ $(document).ready(function () {
                 var status = resObj.status; var resp = resObj.body;
                 try {
                     if (status === 200 && resp && resp.success) {
-                        try { Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message || 'Empleado actualizado', showConfirmButton:false, timer:2000 }); } catch(e){}
+                        try { Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message || getTranslation('employee_updated','Empleado actualizado'), showConfirmButton:false, timer:2000 }); } catch(e){}
                         // close modal
                         try { var modalEl = document.getElementById('modalEditar'); if (modalEl) { var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); modal.hide(); } } catch(e){}
                         // refresh DataTable (prefer ajax reload)
                         try { reloadOrBuild(); } catch(e){}
                     } else if (status === 422 && resp && resp.errors) {
                         try { Object.keys(resp.errors).forEach(function(k){ var sel = '#edit_' + k; var $el = $(sel); if ($el && $el.length) showInvalidMessage($el, resp.errors[k]); else { var $f = $('#'+k); if ($f && $f.length) showInvalidMessage($f, resp.errors[k]); } }); } catch(e){}
-                        try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp.error || 'Errores en el formulario', showConfirmButton:false, timer:3500 }); } catch(e){}
+                        try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp.error || getTranslation('form_errors','Errores en el formulario'), showConfirmButton:false, timer:3500 }); } catch(e){}
                     } else {
-                        try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp && resp.error ? resp.error : 'Error al actualizar', showConfirmButton:false, timer:3500 }); } catch(e){}
+                        try { Swal.fire({ toast:true, position:'top-end', icon:'error', title: resp && resp.error ? resp.error : getTranslation('error_updating','Error al actualizar'), showConfirmButton:false, timer:3500 }); } catch(e){}
                     }
                 } catch(e) { console.error('Unexpected response', e); }
             }).catch(function(err){
                 console.error('Update request failed', err);
-                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Error de red al actualizar', showConfirmButton:false, timer:3500 }); } catch(e){}
+                try { Swal.fire({ toast:true, position:'top-end', icon:'error', title:getTranslation('network_error_updating','Error de red al actualizar'), showConfirmButton:false, timer:3500 }); } catch(e){}
             }).finally(function(){ try { submitBtn.prop('disabled', false); } catch(e){} });
 
             return false;

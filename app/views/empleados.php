@@ -49,6 +49,8 @@
         .nav-tabs .nav-link i { margin-right:6px; }
         /* Make labels in the Nuevo Empleado left-column card bold for emphasis */
         .col-md-4 .card .form-label { font-weight: 600; }
+        /* Modal split layout moved to public/assets/css/style.css (pixel-based minmax grid)
+           to keep styles centralized. */
     </style>
     <body>
     <div class="container-fluid py-4">
@@ -81,23 +83,23 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="nombres" class="form-label"><span class="label-text">Nombres</span></label>
+                                                        <label for="nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
                                                         <input type="text" name="nombres" id="nombres" class="form-control" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="apellidos" class="form-label"><span class="label-text">Apellidos</span></label>
+                                                        <label for="apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
                                                         <input type="text" name="apellidos" id="apellidos" class="form-control" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="fecha_nacimiento" class="form-label"><span class="label-text">Fecha de Nacimiento</span></label>
+                                                        <label for="fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
                                                         <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="genero" class="form-label"><span class="label-text">Género</span></label>
+                                                        <label for="genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
                                                         <select name="genero" id="genero" class="form-select">
-                                                            <option value="">Seleccione</option>
-                                                            <option value="Masculino">Masculino</option>
-                                                            <option value="Femenino">Femenino</option>
+                                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                            <option value="Masculino" data-i18n="gender_male">Masculino</option>
+                                                            <option value="Femenino" data-i18n="gender_female">Femenino</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -107,9 +109,9 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="puesto_id" class="form-label"><span class="label-text">Puesto</span></label>
+                                                        <label for="puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
                                                         <select name="puesto_id" id="puesto_id" class="form-select">
-                                                            <option value="">Seleccione</option>
+                                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
                                                             <?php if (!empty($puestos)): ?>
                                                                 <?php foreach ($puestos as $p): ?>
                                                                     <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
@@ -118,9 +120,9 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="departamento_id" class="form-label"><span class="label-text">Departamento</span></label>
+                                                        <label for="departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
                                                         <select name="departamento_id" id="departamento_id" class="form-select">
-                                                            <option value="">Seleccione</option>
+                                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
                                                             <?php if (!empty($departamentos)): ?>
                                                                 <?php foreach ($departamentos as $d): ?>
                                                                     <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
@@ -135,11 +137,11 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="comentarios" class="form-label"><span class="label-text">Comentarios</span></label>
+                                                        <label for="comentarios" class="form-label"><span class="label-text" data-i18n="comments">Comentarios</span></label>
                                                         <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="foto" class="form-label"><span class="label-text">Foto</span></label>
+                                                        <label for="foto" class="form-label"><span class="label-text" data-i18n="foto">Foto</span></label>
                                                         <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
                                                     </div>
                                                 </div>
@@ -182,18 +184,18 @@
                         <table id="tablaEmpleados" class="table table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th data-i18n="id">ID</th>
                                     <th></th>
-                                    <th>Código</th>
-                                    <th>Nombres</th>
-                                    <th>Apellidos</th>
-                                    <th>Edad</th>
-                                    <th>Fecha de Nacimiento</th>
-                                    <th>Género</th>
-                                    <th>Puesto</th>
-                                    <th>Departamento</th>
-                                    <th>Comentarios</th>
-                                    <th>Acciones</th>
+                                    <th data-i18n="codigo_label">Código</th>
+                                    <th data-i18n="nombres">Nombres</th>
+                                    <th data-i18n="apellidos">Apellidos</th>
+                                    <th data-i18n="edad">Edad</th>
+                                    <th data-i18n="fecha_nacimiento">Fecha de Nacimiento</th>
+                                    <th data-i18n="genero">Género</th>
+                                    <th data-i18n="puesto">Puesto</th>
+                                    <th data-i18n="departamento">Departamento</th>
+                                    <th data-i18n="comments">Comentarios</th>
+                                    <th data-i18n="actions">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -213,7 +215,11 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <!-- JSZip is required for Excel (excelHtml5) export to work -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <!-- Add SheetJS (xlsx) as an alternative exporter that produces real .xlsx files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
     <script src="https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js"></script>
@@ -258,23 +264,27 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4 text-center">
-                        <img id="ficha_foto" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded" style="max-height:250px;">
+                <div class="row modal-split-row">
+                    <div class="col-12 col-md-4">
+                        <div class="tab-card card">
+                            <div class="card-body text-center text-md-start">
+                                <img id="ficha_foto" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded mx-auto mx-md-0">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-12 col-md-8">
                         <!-- Tabs: Generals | Puesto | Others (wrapped in card) -->
                         <div class="tab-card card">
                             <div class="card-header section-accent" style="padding:0;">
                                 <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
                                     <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="ficha-generals" style="display:none;"></span></button>
+                                            <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="ficha-generals" style="display:none;"></span></button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="ficha-puesto" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span> <span class="badge-tab ms-2" data-tab="ficha-puesto" style="display:none;"></span></button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="ficha-others" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="ficha-others" style="display:none;"></span></button>
                                     </li>
                                 </ul>
                             </div>
@@ -284,12 +294,12 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <ul class="list-group">
-                                            <li class="list-group-item"><strong><span class="label-text">Código</span>:</strong> <span id="ficha_codigo"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Nombres</span>:</strong> <span id="ficha_nombres"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Apellidos</span>:</strong> <span id="ficha_apellidos"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Fecha de Nacimiento</span>:</strong> <span id="ficha_fecha_nacimiento"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Edad</span>:</strong> <span id="ficha_edad"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Género</span>:</strong> <span id="ficha_genero"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="codigo_label">Código</span>:</strong> <span id="ficha_codigo"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="nombres">Nombres</span>:</strong> <span id="ficha_nombres"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="apellidos">Apellidos</span>:</strong> <span id="ficha_apellidos"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span>:</strong> <span id="ficha_fecha_nacimiento"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="edad">Edad</span>:</strong> <span id="ficha_edad"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="genero">Género</span>:</strong> <span id="ficha_genero"></span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -298,8 +308,8 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <ul class="list-group">
-                                            <li class="list-group-item"><strong><span class="label-text">Puesto</span>:</strong> <span id="ficha_puesto"></span></li>
-                                            <li class="list-group-item"><strong><span class="label-text">Departamento</span>:</strong> <span id="ficha_departamento"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="puesto">Puesto</span>:</strong> <span id="ficha_puesto"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text" data-i18n="departamento">Departamento</span>:</strong> <span id="ficha_departamento"></span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -334,24 +344,29 @@
                 <form id="formEditar" action="empleados/update" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="edit_id">
                     <input type="hidden" name="foto_actual" id="edit_foto_actual">
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <img id="edit_foto_preview" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded mb-2" style="max-height:220px;">
-                            <!-- File input moved to Others tab to group media + comments -->
+                    <div class="row modal-split-row">
+                        <div class="col-12 col-md-4">
+                            <div class="tab-card card edit-photo-card position-relative">
+                                    <div class="card-body text-center text-md-start position-relative">
+                                        <img id="edit_foto_preview" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded mb-2 edit-photo-img mx-auto mx-md-0">
+                                        <input type="file" name="foto" id="edit_foto" accept="image/*" class="d-none" />
+                                        <button type="button" class="btn btn-sm btn-outline-light change-photo-btn" data-i18n="change_photo" data-i18n-aria="change_photo"><i class="bi bi-camera-fill"></i> <span class="label-text d-none d-sm-inline" data-i18n="change_photo">Change photo</span></button>
+                                    </div>
+                                </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-12 col-md-8 mt-md-0 mt-3">
                             <!-- Tabs for edit form -->
                             <div class="tab-card card">
                                 <div class="card-header section-accent" style="padding:0;">
                                     <ul class="nav nav-tabs" id="editFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="edit-generals" style="display:none;"></span></button>
+                                            <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="edit-generals" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="edit-puesto" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span> <span class="badge-tab ms-2" data-tab="edit-puesto" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="edit-others" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="edit-others" style="display:none;"></span></button>
                                         </li>
                                     </ul>
                                 </div>
@@ -365,23 +380,23 @@
                                                     <input type="text" name="codigo" id="edit_codigo" class="form-control" readonly>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="edit_nombres" class="form-label"><span class="label-text">Nombres</span></label>
+                                                    <label for="edit_nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
                                                     <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
                                                 </div>
                                             <div class="mb-3">
-                                                <label for="edit_apellidos" class="form-label"><span class="label-text">Apellidos</span></label>
+                                                    <label for="edit_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
                                                 <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text">Fecha de Nacimiento</span></label>
+                                                <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
                                                 <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_genero" class="form-label"><span class="label-text">Género</span></label>
+                                                <label for="edit_genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
                                                 <select name="genero" id="edit_genero" class="form-select">
-                                                    <option value="">Seleccione</option>
-                                                    <option value="Masculino">Masculino</option>
-                                                    <option value="Femenino">Femenino</option>
+                                                    <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                    <option value="Masculino" data-i18n="gender_male">Masculino</option>
+                                                    <option value="Femenino" data-i18n="gender_female">Femenino</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -391,11 +406,11 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="mb-3">
-                                                <label for="edit_puesto_id" class="form-label"><span class="label-text">Puesto</span></label>
+                                                <label for="edit_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
                                                 <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_departamento_id" class="form-label"><span class="label-text">Departamento</span></label>
+                                                <label for="edit_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
                                                 <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
                                             </div>
                                         </div>
@@ -403,13 +418,10 @@
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
                                         <div class="mb-3">
-                                            <label for="edit_comentarios" class="form-label"><span class="label-text">Comentarios</span></label>
+                                            <label for="edit_comentarios" class="form-label"><span class="label-text" data-i18n="comments">Comentarios</span></label>
                                             <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
                                         </div>
-                                        <div class="mb-3 mt-2">
-                                            <label for="edit_foto" class="form-label"><span class="label-text">Actualizar foto</span></label>
-                                            <input type="file" name="foto" id="edit_foto" accept="image/*" class="form-control">
-                                        </div>
+                                        <!-- File input moved into the photo card for a cleaner UI -->
                                 </div>
                                     </div>
                                 </div>

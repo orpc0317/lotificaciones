@@ -189,6 +189,37 @@ table.dataTable td img {
     overflow-x: auto;
 }
 
+/* Stronger table borders for visual separation */
+#tablaEmpleados {
+    border: 2px solid rgba(15,23,42,0.08); /* thicker outer border */
+    border-collapse: collapse; /* ensure cell borders align with outer border */
+}
+
+/* Thicker bottom border on header and cells to emphasize rows/columns */
+#tablaEmpleados thead th {
+    border-bottom: 3px solid rgba(15,23,42,0.12);
+}
+#tablaEmpleados th,
+#tablaEmpleados td {
+    border-bottom: 2px solid rgba(15,23,42,0.06);
+}
+
+/* Slightly increase padding to keep content clear with the bolder lines */
+#tablaEmpleados th,
+#tablaEmpleados td {
+    padding: 0.65rem 0.6rem;
+}
+
+/* Zebra striping: use the same subtle tint as cards for even rows (prefer color-mix) */
+#tablaEmpleados tbody tr:nth-child(even) {
+    background-color: #f7f8fb; /* fallback */
+}
+@supports (background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%)) {
+    #tablaEmpleados tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--primary-600) 4%, #f7f8fb 96%);
+    }
+}
+
 /* Palette swatches (visual previews that read colors from CSS variables) */
 .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 .palette-swatch[data-palette="blue"] { background: var(--swatch-blue); }
@@ -198,7 +229,7 @@ table.dataTable td img {
 
 /* Nuevo Empleado (left column) tab header: mix primary with soft gray to reduce all-white feel */
 .col-md-4 .tab-card .card-header {
-    background: linear-gradient(90deg, var(--primary-600) 0%, rgba(245,247,251,0.95) 60%);
+    background-color: var(--primary-600);
     padding: 0.35rem 0.5rem;
     border-radius: 6px 6px 0 0;
 }
@@ -214,12 +245,91 @@ table.dataTable td img {
 }
 .col-md-4 .tab-card .card { background: rgba(255,255,255,0.97); }
 
-/* Modal tab headers should match the softened look too */
+/* Nuevo Empleado fields container: light mix of theme primary and soft gray */
+.col-md-4 .tab-card .card .card-body {
+    background-color: #f7f8fb; /* fallback soft gray */
+    border-radius: 6px;
+    padding: 0.75rem; /* ensure consistent inner spacing */
+    /* subtle border to separate from surrounding card */
+    border: 1px solid rgba(15,23,42,0.04);
+}
+
+/* Prefer color-mix when available so the background follows the active palette */
+@supports (background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%)) {
+    .col-md-4 .tab-card .card .card-body {
+        background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%);
+        border: 1px solid color-mix(in srgb, var(--primary-600) 6%, rgba(15,23,42,0.06) 94%);
+    }
+}
+
+/* Apply same tint to modal tab card bodies (edit modal, ficha modal, etc.) */
+.modal .tab-card .card .card-body,
+.modal .tab-card .card .card-body .card-body {
+    background-color: #f7f8fb; /* fallback */
+    border-radius: 6px;
+    padding: 0.75rem;
+    border: 1px solid rgba(15,23,42,0.04);
+}
+
+@supports (background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%)) {
+    .modal .tab-card .card .card-body,
+    .modal .tab-card .card .card-body .card-body {
+        background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%);
+        border: 1px solid color-mix(in srgb, var(--primary-600) 6%, rgba(15,23,42,0.06) 94%);
+    }
+}
+
+/* Modal left image card tweaks: ensure consistent sizing and use the same tint */
+.modal .col-md-4 .tab-card.card { max-width: 100%; }
+.modal .col-md-4 .tab-card.card .card-body { padding: 1rem; display:flex; align-items:center; justify-content:center; }
+/* When used in our modal-split-row left column, allow the photo card to be full-bleed */
+/* left modal photo card uses default padding from earlier rule; no special zero-padding here */
+
+/* Image drop shadow to separate from tinted background */
+.edit-photo-img {
+    box-shadow: 0 6px 18px rgba(12,20,30,0.12);
+}
+
+/* Change photo overlay button (hidden until hover) */
+.edit-photo-card { overflow: visible; }
+.edit-photo-card .change-photo-btn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 8px;
+    opacity: 0;
+    transition: opacity 180ms ease, transform 180ms ease;
+    background: rgba(255,255,255,0.85);
+    color: var(--text);
+    border: 1px solid rgba(15,23,42,0.06);
+}
+.edit-photo-card:hover .change-photo-btn,
+.edit-photo-card:focus-within .change-photo-btn { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Slightly darker overlay on hover for affordance */
+.edit-photo-card .change-photo-btn:hover { background: rgba(255,255,255,0.95); }
+
+
 .modal .tab-card .card-header,
 .modal .tab-card .card-header .nav-tabs {
-    background: linear-gradient(90deg, var(--primary-600) 0%, rgba(245,247,251,0.95) 60%);
+    background-color: var(--primary-600);
     padding: 0.35rem 0.5rem;
     border-radius: 6px 6px 0 0;
+}
+
+/* Ensure edit modal body can scroll when content is taller than viewport
+   and allow JS to set a min-height to stabilize layout across tabs */
+#modalEditar .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* do not force a fixed height here; JS will set min-height when modal opens */
+}
+
+/* Smoothly animate min-height changes when we stabilize edit modal height across tabs */
+#modalEditar #editFormTabsContent,
+#modalEditar #editFormTabsContent .tab-pane {
+    transition: min-height 220ms ease;
+    will-change: min-height;
 }
 .modal .nav-tabs .nav-link { color: #fff; border: none; }
 .modal .nav-tabs .nav-link.active { background: rgba(0,0,0,0.14); color: #fff; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08); }
@@ -229,3 +339,51 @@ table.dataTable td img {
     background: linear-gradient(90deg, var(--primary-600) 0%, rgba(245,247,251,0.95) 60%);
 }
 .modal .tab-card .card { background: rgba(255,255,255,0.97); }
+
+/* Apply the same subtle tint to right-column inner cards to match Nuevo Empleado */
+.col-md-8 .card .card-body,
+.col-md-8 .tab-card .card .card-body {
+    background-color: #f7f8fb; /* fallback */
+    border-radius: 6px;
+    padding: 0.75rem;
+    border: 1px solid rgba(15,23,42,0.04);
+}
+
+@supports (background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%)) {
+    .col-md-8 .card .card-body,
+    .col-md-8 .tab-card .card .card-body {
+        background: color-mix(in srgb, var(--primary-600) 6%, #f7f8fb 94%);
+        border: 1px solid color-mix(in srgb, var(--primary-600) 6%, rgba(15,23,42,0.06) 94%);
+    }
+}
+
+/* Modal split layout: left photo card + right fields card
+   Moved from inline styles in empleados.php for easier maintenance.
+   Use pixel-based minmax for predictable behavior on narrow/wide screens. */
+.modal .modal-split-row { display: block; gap: 1rem; }
+@media (min-width: 768px) {
+    /* Left column: at least 180px, up to 25% of modal width; right column fills remaining space */
+    .modal .modal-split-row { display: grid; grid-template-columns: minmax(180px, 25%) 1fr; gap: 1rem; align-items: start; }
+    .modal .modal-split-row .col-12.col-md-4 { grid-column: 1; }
+    .modal .modal-split-row .col-12.col-md-8 { grid-column: 2; }
+    /* Ensure cards inside modal columns take available width */
+    .modal .modal-split-row .card { width: 100%; max-width: 100%; min-width: 0; }
+    .modal .modal-split-row .tab-card.card { margin: 0; }
+    .modal .modal-split-row .card > .card-body { padding: 0.75rem; }
+    /* Keep modal-lg reasonably wide but constrained */
+    .modal-dialog.modal-lg { max-width: 950px; }
+    .modal .modal-split-row .nav-tabs { white-space: nowrap; }
+    .modal .modal-split-row .nav-tabs .nav-link { display: inline-block; }
+    .modal .modal-split-row > .col-12.col-md-4,
+    .modal .modal-split-row > .col-12.col-md-8 { align-self: stretch; min-width: 0; width: auto !important; }
+    .modal .modal-split-row .col-12.col-md-8 .tab-card.card,
+    .modal .modal-split-row .col-12.col-md-8 .tab-card.card .card-body,
+    .modal .modal-split-row .col-12.col-md-8 .card { width: 100% !important; max-width: 100% !important; display: block !important; min-width: 0 !important; }
+    .modal .modal-split-row .col-12.col-md-8 .card .card-body { display: block !important; }
+    /* Image sizing inside modal photo card */
+    .modal .modal-split-row img { max-width: 100%; height: auto; display: block; object-fit: cover; }
+    .modal #ficha_foto, .modal #edit_foto_preview { max-height: 250px; width: 100%; height: auto; object-fit: cover; display: block; }
+}
+
+    /* Align icons in DataTables button collections */
+    .dt-button-collection .bi { vertical-align: -.125em; margin-right: .5rem; }
