@@ -38,12 +38,61 @@ if (!is_dir($templates)) {
     exit(1);
 }
 
+// Interactive: prompt for fields definition
+echo "\nEnter fields for the module as name:type comma-separated (e.g. codigo:string,nombres:string,fecha_nacimiento:date).\n";
+echo "Leave empty for default example fields.\n";
+echo "Fields: ";
+$line = trim(fgets(STDIN));
+if ($line === '') {
+    $line = 'codigo:string,nombres:string,apellidos:string,fecha_nacimiento:date,edad:number';
+}
+$pairs = array_map('trim', explode(',', $line));
+$fields = [];
+foreach ($pairs as $p) {
+    if ($p === '') continue;
+    $parts = explode(':', $p);
+    $fname = trim($parts[0]);
+    $ftype = isset($parts[1]) ? trim($parts[1]) : 'string';
+    $fields[] = ['name' => $fname, 'type' => $ftype];
+}
+
+// Build template snippets
+$allowed = array_map(function($f){ return "'".$f['name']."'"; }, $fields);
+$allowed_fields_php = '[' . implode(', ', $allowed) . ']';
+
+$columns_php_parts = [];
+foreach ($fields as $f) {
+    $label = ucwords(str_replace(['_','-'], ' ', $f['name']));
+    $columns_php_parts[] = "array('data' => '".$f['name']."', 'title' => '".$label."')";
+}
+$columns_php = 'array(' . implode(', ', $columns_php_parts) . ')';
+
+$datatable_js_cols = [];
+foreach ($fields as $f) {
+    $label = ucwords(str_replace(['_','-'], ' ', $f['name']));
+    $datatable_js_cols[] = "{ data: '".$f['name']."', title: '".$label."' }";
+}
+$datatable_js = '[' . implode(', ', $datatable_js_cols) . ']';
+
+$form_inputs = '';
+foreach ($fields as $f) {
+    $label = ucwords(str_replace(['_','-'], ' ', $f['name']));
+    $form_inputs .= "<div class=\"mb-3\">\n";
+    $form_inputs .= "  <label for=\"edit_".$f['name']."\" class=\"form-label\">".$label."</label>\n";
+    $form_inputs .= "  <input type=\"text\" class=\"form-control\" id=\"edit_".$f['name']."\" name=\"".$f['name']."\">\n";
+    $form_inputs .= "</div>\n";
+}
+
 $mapping = [
     '{{Name}}' => $Name,
     '{{name}}' => $name_snake,
     '{{NAME}}' => $NAME,
     '{{name_kebab}}' => $name_kebab,
     '{{storage}}' => $storage,
+    '{{allowed_fields}}' => $allowed_fields_php,
+    '{{columns_php}}' => $columns_php,
+    '{{datatable_columns_js}}' => $datatable_js,
+    '{{form_inputs}}' => $form_inputs,
 ];
 
 $targets = [

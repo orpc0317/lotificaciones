@@ -7,5 +7,5 @@ class {{Name}}Model extends Model
 {
     protected $table = '{{name}}';
     protected $primaryKey = 'id';
-    protected $allowedFields = [];
+    protected $allowedFields = {{allowed_fields}};
 }

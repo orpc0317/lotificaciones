@@ -14,10 +14,10 @@ class {{Name}}Controller extends BaseController
 
     public function ajax()
     {
-        // Example JSON response for DataTables; adapt to your API or DB
-        $data = [
-            // Provide sample columns/data here or integrate with an API
-        ];
-        return $this->response->setJSON(['columns' => [], 'data' => $data]);
+        // Minimal server-side response for DataTables when scaffolding with API storage.
+        // Update this method to fetch actual data from your API or DB.
+        $columns = {{columns_php}};
+        $data = [];
+        return $this->response->setJSON(['columns' => $columns, 'data' => $data]);
     }
 }
