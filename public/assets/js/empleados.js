@@ -326,6 +326,14 @@ $(document).ready(function () {
             fetch('empleados/get?id='+encodeURIComponent(id)).then(function(r){ return r.json(); }).then(function(json){
                 if (json.data) {
                     var e = json.data;
+                    try { console.debug('empleados/get response', e); } catch(e2){}
+                    // populate codigo using multiple possible property names
+                    try {
+                        var codeVal = e.codigo || e.code || e.Code || e.Codigo || e.id_code || e.emp_codigo || '';
+                        // fallback: if no explicit code, but id exists, try prefixing
+                        if (!codeVal && e.id) codeVal = 'EMP' + String(e.id).padStart(3,'0');
+                        $('#edit_codigo').val(codeVal || '');
+                    } catch(e3){}
                     $('#ficha_codigo').text(e.codigo||'');
                     $('#ficha_nombres').text(e.nombres||'');
                     $('#ficha_apellidos').text(e.apellidos||'');
