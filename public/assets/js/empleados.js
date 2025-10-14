@@ -382,6 +382,7 @@ $(document).ready(function () {
                     } catch(e) { /* ignore */ }
 
                     try { $('#edit_id').val(e.id); } catch(e){}
+                    try { $('#edit_codigo').val(e.codigo || ''); } catch(e){}
                     try { $('#edit_nombres').val(e.nombres || ''); } catch(e){}
                     try { $('#edit_apellidos').val(e.apellidos || ''); } catch(e){}
                     try { $('#edit_fecha_nacimiento').val(e.fecha_nacimiento || ''); } catch(e){}

@@ -54,6 +54,8 @@ body {
     border-radius: 0.5rem !important;
 }
 .modal .modal-body { background: transparent; }
+/* Make labels inside modals slightly bolder for consistency */
+.modal .form-label { font-weight: 600; }
 
 .card {
     border-radius: 0.5rem;
