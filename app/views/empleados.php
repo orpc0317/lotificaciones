@@ -47,6 +47,8 @@
         .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
         .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
         .nav-tabs .nav-link i { margin-right:6px; }
+        /* Make labels in the Nuevo Empleado left-column card bold for emphasis */
+        .col-md-4 .card .form-label { font-weight: 600; }
     </style>
     <body>
     <div class="container-fluid py-4">
@@ -78,10 +80,6 @@
                                         <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <div class="mb-3">
-                                                        <label for="codigo" class="form-label"><span class="label-text">Código</span></label>
-                                                        <input type="text" name="codigo" id="codigo" class="form-control">
-                                                    </div>
                                                     <div class="mb-3">
                                                         <label for="nombres" class="form-label"><span class="label-text">Nombres</span></label>
                                                         <input type="text" name="nombres" id="nombres" class="form-control" required>
