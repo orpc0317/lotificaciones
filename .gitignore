@@ -16,6 +16,8 @@ tmp/
 
 # Archivos de subida
 public/assets/img/empleados/
+public/uploads/
+public/uploads/thumbs/
 
 # Dependencias (si se usan en el futuro)
 vendor/

@@ -1,0 +1,122 @@
+name: PHP tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: lotificaciones
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check PSR-4 namespace casing
+        run: php scripts/check_namespace_case.php
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, pdo_mysql, gd
+
+      - name: Install composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Create config/.env
+        run: |
+          mkdir -p config
+          cat > config/.env <<EOF
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_NAME=lotificaciones
+          DB_USER=root
+          DB_PASS=root
+          EOF
+
+      - name: Run DB setup
+        run: php scripts/setup_db.php
+
+      - name: Prepare CI logs directory
+        run: |
+          mkdir -p ci-logs
+          echo "placeholder" > ci-logs/.gitkeep
+
+      - name: Run API tests
+        run: |
+          # wait for MySQL to become healthy (service container provides mysqladmin)
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 --silent; then
+              echo "MySQL is ready (attempt $i)";
+              break
+            fi
+            echo "Waiting for MySQL... (attempt $i)";
+            sleep 1
+          done
+
+          # start PHP built-in server in background and capture its pid + log
+          mkdir -p ci-logs
+          nohup php -S 127.0.0.1:8000 -t public > ci-logs/php-server.log 2>&1 &
+          PHP_PID=$!
+          echo "Started PHP server with PID=$PHP_PID"
+
+          # wait up to 30s for the JSON endpoint that tests expect
+          ENDPOINT="http://127.0.0.1:8000/empleados/ajax"
+          echo "Probing $ENDPOINT for readiness"
+          for i in {1..30}; do
+            if curl --silent --fail "$ENDPOINT" > /dev/null 2>&1; then
+              echo "Endpoint is up (attempt $i)";
+              break
+            fi
+            echo "Waiting for endpoint... (attempt $i)";
+            curl -v --max-time 3 "$ENDPOINT" > ci-logs/curl-probe-attempt-$i.txt 2>&1 || true
+            sleep 1
+          done
+
+          # if endpoint still not responding, dump php server log for debugging
+          if ! curl --silent --fail "$ENDPOINT" > /dev/null 2>&1; then
+            echo "ERROR: endpoint $ENDPOINT did not respond. Dumping php-server.log:" >&2
+            sed -n '1,200p' ci-logs/php-server.log || true
+            kill $PHP_PID || true
+            exit 2
+          fi
+
+          # run the tests and capture output
+          php scripts/tests/api_tests.php > ci-logs/api-tests.txt 2>&1 || (
+            echo "api_tests.php failed, tailing php-server.log";
+            sed -n '1,200p' ci-logs/php-server.log || true;
+            cat ci-logs/api-tests.txt || true;
+            kill $PHP_PID || true;
+            exit 1
+          )
+          # run the upload invalid-image smoke test and capture output
+          php scripts/tests/upload_tests.php > ci-logs/upload-tests.txt 2>&1 || (
+            echo "upload_tests.php failed, tailing php-server.log";
+            sed -n '1,200p' ci-logs/php-server.log || true;
+            cat ci-logs/upload-tests.txt || true;
+            kill $PHP_PID || true;
+            exit 1
+          )
+          kill $PHP_PID || true
+
+      - name: Upload CI logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: ci-logs
