@@ -11,4 +11,6 @@
   "comments": "Comentarios",
   "edit_employee": "Editar Empleado",
   "save_changes": "Guardar Cambios"
+  ,"codigo_label": "Código",
+  "codigo_helper": "El código se genera al guardar el registro."
 }

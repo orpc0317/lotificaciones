@@ -360,10 +360,15 @@
                                 <div class="tab-pane fade show active" id="edit-generals" role="tabpanel" aria-labelledby="edit-generals-tab">
                                     <div class="card">
                                         <div class="card-body">
-                                            <div class="mb-3">
-                                                <label for="edit_nombres" class="form-label"><span class="label-text">Nombres</span></label>
-                                                <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
-                                            </div>
+                                                <div class="mb-3">
+                                                    <label for="edit_codigo" class="form-label"><span class="label-text" data-i18n="codigo_label">Código</span></label>
+                                                    <input type="text" name="codigo" id="edit_codigo" class="form-control" readonly>
+                                                    <div class="form-text"><span class="label-text" data-i18n="codigo_helper">El código se genera al guardar el registro.</span></div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="edit_nombres" class="form-label"><span class="label-text">Nombres</span></label>
+                                                    <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
+                                                </div>
                                             <div class="mb-3">
                                                 <label for="edit_apellidos" class="form-label"><span class="label-text">Apellidos</span></label>
                                                 <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
