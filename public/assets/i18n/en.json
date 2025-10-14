@@ -11,6 +11,5 @@
   "comments": "Comments",
   "edit_employee": "Edit Employee",
   "save_changes": "Save changes"
-  ,"codigo_label": "Code",
-  "codigo_helper": "The code is generated when the record is saved."
+  ,"codigo_label": "Code"
 }
