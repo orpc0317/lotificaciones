@@ -83,6 +83,22 @@ foreach ($fields as $f) {
     $form_inputs .= "</div>\n";
 }
 
+// Ask about file upload
+echo "\nInclude file upload field? (y/N): ";
+$uploadAnswer = trim(fgets(STDIN));
+$includeUpload = (strtolower($uploadAnswer) === 'y');
+if ($includeUpload) {
+    $form_inputs .= "<div class=\"mb-3\">\n  <label for=\"edit_file\" class=\"form-label\">File</label>\n  <input type=\"file\" class=\"form-control\" id=\"edit_file\" name=\"file\">\n</div>\n";
+}
+
+// Ask about validations
+echo "\nAdd simple client-side validation? (y/N): ";
+$valAnswer = trim(fgets(STDIN));
+$includeValidation = (strtolower($valAnswer) === 'y');
+
+$mapping['{{include_upload}}'] = $includeUpload ? 'true' : 'false';
+$mapping['{{include_validation}}'] = $includeValidation ? 'true' : 'false';
+
 $mapping = [
     '{{Name}}' => $Name,
     '{{name}}' => $name_snake,
