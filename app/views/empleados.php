@@ -413,7 +413,7 @@
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary"><span class="label-text" data-i18n="save_changes">Guardar cambios</span></button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="save_changes">Guardar cambios</span></button>
                             </div>
                         </div>
                     </div>
