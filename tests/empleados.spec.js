@@ -58,8 +58,35 @@ test.describe('Empleados smoke', () => {
     await page.locator('#modalFicha button.btn-close').click();
     await page.waitForSelector('#modalFicha', { state: 'hidden' });
 
+    // Edit the created row: open edit modal, change genero and save
+    const editBtn = row.locator('.editar').first();
+    await editBtn.click();
+    await page.waitForSelector('#modalEditar.show');
+    // Toggle genero
+    const currentGenero = await page.$eval('#edit_genero', el => el.value);
+    const newGenero = currentGenero === 'Masculino' ? 'Femenino' : 'Masculino';
+    await page.selectOption('#edit_genero', newGenero);
+    // Submit edit and wait for response
+    await Promise.all([
+      page.click('#modalEditar button[type="submit"]'),
+      page.waitForResponse(resp => resp.url().includes('/empleados/update') && (resp.status() === 200 || resp.status() === 422))
+    ]);
+    // Wait for table to reflect update and view ficha to verify
+    await page.waitForTimeout(800);
+
+    // Re-open ficha to verify genero changed
+    const updatedRow = await page.locator('#tablaEmpleados tbody tr').filter({ hasText: e.nombres }).first();
+    const verBtn2 = updatedRow.locator('.ver-ficha').first();
+    await verBtn2.click();
+    await page.waitForSelector('#modalFicha.show');
+    await expect(page.locator('#ficha_genero')).toHaveText(newGenero);
+
+    // Close ficha modal
+    await page.locator('#modalFicha button.btn-close').click();
+    await page.waitForSelector('#modalFicha', { state: 'hidden' });
+
     // Find delete button on the same row and delete
-    const delBtn = row.locator('.eliminar').first();
+    const delBtn = updatedRow.locator('.eliminar').first();
     await delBtn.click();
     // Confirm dialog -> click confirm
     await page.waitForSelector('.swal2-confirm');

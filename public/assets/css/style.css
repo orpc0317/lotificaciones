@@ -28,11 +28,7 @@ body {
 }
 
 /* In dark theme, keep the accent visible but prefer a softer primary shade; always keep title text white for contrast */
-[data-theme="dark"] .section-accent {
-    background-color: var(--primary-400, #60a5fa);
-    color: #fff; /* force white titles on dark theme accents */
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-}
+/* palette-only UI: no dark-mode specific overrides */
 
 /* Force white for title elements inside an accented header/modal for maximum legibility */
 .section-accent .section-title-on-accent,
@@ -48,10 +44,7 @@ body {
     color: #fff;
     border-bottom: 1px solid rgba(0,0,0,0.06);
 }
-[data-theme="dark"] .modal-header.section-accent {
-    background-color: var(--primary-400);
-    color: #fff; /* keep modal title white in dark mode as well */
-}
+/* modal headers use palette variables; no dark-mode overrides */
 
 .card {
     border-radius: 0.5rem;
@@ -84,40 +77,7 @@ table.dataTable td img {
     z-index: 1080;
 }
 
-body.bg-dark {
-    background-color: #121212 !important;
-    color: #f1f1f1 !important;
-}
-
-body.bg-dark .card {
-    background-color: #1e1e1e;
-    color: #f1f1f1;
-}
-
-body.bg-dark .form-control,
-body.bg-dark .form-select {
-    background-color: #2c2c2c;
-    color: #f1f1f1;
-    border-color: #444;
-}
-
-body.bg-dark .form-check-label {
-    color: #f1f1f1;
-}
-
-body.bg-dark .table {
-    color: #f1f1f1;
-}
-
-body.bg-dark .btn-outline-dark {
-    border-color: #f1f1f1;
-    color: #f1f1f1;
-}
-
-body.bg-dark .btn-outline-dark:hover {
-    background-color: #f1f1f1;
-    color: #121212;
-}
+/* removed legacy dark-mode .bg-dark overrides; palette variables control appearance */
 
 /* Per-tab validation badge styling */
 .badge-tab {
@@ -130,6 +90,33 @@ body.bg-dark .btn-outline-dark:hover {
     vertical-align: middle;
     padding: 0 6px;
     border-radius: 999px;
+}
+
+/* Add a red underline to tab titles when the tab has validation errors */
+.tab-invalid {
+    position: relative;
+}
+/* animated underline: start collapsed (scaleX(0)) and fade in */
+.tab-invalid::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: -6px;
+    height: 3px;
+    background: #dc3545; /* bootstrap danger */
+    border-radius: 2px;
+    transform-origin: left center;
+    transform: scaleX(0);
+    opacity: 0;
+    transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease-in-out;
+}
+/* When class present the line scales to full width and becomes visible */
+.tab-invalid.tab-invalid::after,
+.tab-invalid.active::after,
+.tab-invalid.show::after {
+    transform: scaleX(1);
+    opacity: 1;
 }
 
 /* SweetAlert2: make the warning icon red instead of orange */
@@ -190,3 +177,10 @@ body.bg-dark .btn-outline-dark:hover {
 #tablaEmpleados_wrapper {
     overflow-x: auto;
 }
+
+/* Palette swatches (visual previews that read colors from CSS variables) */
+.palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+.palette-swatch[data-palette="blue"] { background: var(--swatch-blue); }
+.palette-swatch[data-palette="teal"] { background: var(--swatch-teal); }
+.palette-swatch[data-palette="violet"] { background: var(--swatch-violet); }
+.palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }

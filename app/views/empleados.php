@@ -43,7 +43,7 @@
     /* Make sure general card headers that are marked as section-accent keep their themed background */
     .card-header.section-accent { background: var(--primary-600) !important; color: #fff !important; }
         .tab-card .card-body { padding-top: 0.5rem; }
-        #darkModeToggle{ background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px }
+    /* dark mode toggle removed */
         .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
         .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
         .nav-tabs .nav-link i { margin-right:6px; }
@@ -54,22 +54,22 @@
             <!-- Nuevo Empleado (left column) -->
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <div class="card-header section-accent d-flex align-items-center">
-                        <h5 class="mb-0 section-title-on-accent">Nuevo Empleado</h5>
+                        <div class="card-header section-accent d-flex align-items-center">
+                        <h5 class="mb-0 section-title-on-accent"><span class="label-text" data-i18n="new_employee">Nuevo Empleado</span></h5>
                     </div>
                     <div class="card-body">
-                        <form id="formEmpleado" enctype="multipart/form-data">
+                        <form id="formEmpleado" action="empleados/create" method="post" enctype="multipart/form-data">
                             <div class="tab-card card">
                                 <div class="card-header section-accent" style="padding:0;">
                                     <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> Generals <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
+                                            <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> Puesto <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span> <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> Others <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
+                                            <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
                                         </li>
                                     </ul>
                                 </div>
@@ -79,23 +79,23 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="codigo" class="form-label">Código</label>
+                                                        <label for="codigo" class="form-label"><span class="label-text">Código</span></label>
                                                         <input type="text" name="codigo" id="codigo" class="form-control">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="nombres" class="form-label">Nombres</label>
+                                                        <label for="nombres" class="form-label"><span class="label-text">Nombres</span></label>
                                                         <input type="text" name="nombres" id="nombres" class="form-control" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="apellidos" class="form-label">Apellidos</label>
+                                                        <label for="apellidos" class="form-label"><span class="label-text">Apellidos</span></label>
                                                         <input type="text" name="apellidos" id="apellidos" class="form-control" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                        <label for="fecha_nacimiento" class="form-label"><span class="label-text">Fecha de Nacimiento</span></label>
                                                         <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="genero" class="form-label">Género</label>
+                                                        <label for="genero" class="form-label"><span class="label-text">Género</span></label>
                                                         <select name="genero" id="genero" class="form-select">
                                                             <option value="">Seleccione</option>
                                                             <option value="Masculino">Masculino</option>
@@ -109,7 +109,7 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="puesto_id" class="form-label">Puesto</label>
+                                                        <label for="puesto_id" class="form-label"><span class="label-text">Puesto</span></label>
                                                         <select name="puesto_id" id="puesto_id" class="form-select">
                                                             <option value="">Seleccione</option>
                                                             <?php if (!empty($puestos)): ?>
@@ -120,7 +120,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="departamento_id" class="form-label">Departamento</label>
+                                                        <label for="departamento_id" class="form-label"><span class="label-text">Departamento</span></label>
                                                         <select name="departamento_id" id="departamento_id" class="form-select">
                                                             <option value="">Seleccione</option>
                                                             <?php if (!empty($departamentos)): ?>
@@ -137,11 +137,11 @@
                                             <div class="card">
                                                 <div class="card-body">
                                                     <div class="mb-3">
-                                                        <label for="comentarios" class="form-label">Comentarios</label>
+                                                        <label for="comentarios" class="form-label"><span class="label-text">Comentarios</span></label>
                                                         <textarea name="comentarios" id="comentarios" class="form-control"></textarea>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="foto" class="form-label">Foto</label>
+                                                        <label for="foto" class="form-label"><span class="label-text">Foto</span></label>
                                                         <input type="file" name="foto" id="foto" accept="image/*" class="form-control">
                                                     </div>
                                                 </div>
@@ -151,7 +151,7 @@
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Crear</button>
+                                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="create">Crear</span></button>
                             </div>
                         </form>
                     </div>
@@ -162,31 +162,21 @@
             <div class="col-md-8">
                     <div class="card shadow-sm">
                         <div class="card-header section-accent d-flex align-items-center">
-                            <h5 class="mb-0 section-title-on-accent">Lista de Empleados</h5>
-                        <i class="bi bi-info-circle ms-3" data-bs-toggle="tooltip" title="Arrastra las columnas para reordenarlas. Usa 'Columnas' para ocultar/mostrar columnas. Las exportaciones usan solo las columnas visibles."></i>
+                            <h5 class="mb-0 section-title-on-accent"><span class="label-text" data-i18n="list_employees">Lista de Empleados</span></h5>
                         <div class="ms-auto d-flex align-items-center">
-                            <button id="darkModeToggle" class="me-2" title="Modo Oscuro" aria-label="Toggle Dark Mode">
-                                <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="4" fill="currentColor" />
-                                        <g id="rays" opacity="0.9">
-                                            <path d="M12 2v2" />
-                                            <path d="M12 20v2" />
-                                            <path d="M4.93 4.93l1.41 1.41" />
-                                            <path d="M17.66 17.66l1.41 1.41" />
-                                            <path d="M2 12h2" />
-                                            <path d="M20 12h2" />
-                                            <path d="M4.93 19.07l1.41-1.41" />
-                                            <path d="M17.66 6.34l1.41-1.41" />
-                                        </g>
-                                    </g>
-                                </svg>
-                            </button>
+                            <!-- Dark mode removed: only palette swatches remain -->
                             <div id="palettePicker" class="d-flex align-items-center">
                                 <!-- Use explicit softer swatch colors so the swatch preview doesn't depend on CSS vars at load time -->
-                                <div class="palette-swatch" data-palette="blue" title="Blue" style="background:#1e6fb3;"></div>
-                                <div class="palette-swatch" data-palette="teal" title="Teal" style="background:#0d9488;"></div>
-                                <div class="palette-swatch" data-palette="violet" title="Violet" style="background:#7c5aa8;"></div>
+                                <div class="palette-swatch" data-palette="blue" title="Blue" role="button" aria-pressed="false"></div>
+                                <div class="palette-swatch" data-palette="teal" title="Teal" role="button" aria-pressed="false"></div>
+                                <div class="palette-swatch" data-palette="violet" title="Violet" role="button" aria-pressed="false"></div>
+                            </div>
+                            <div class="ms-3 d-flex align-items-center">
+                                <label for="langSelect" class="form-label mb-0 me-2" style="font-size:0.85rem;"><span class="label-text" data-i18n="language">Idioma</span></label>
+                                <select id="langSelect" class="form-select form-select-sm" style="width:auto;">
+                                    <option value="es">Español</option>
+                                    <option value="en">English</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -263,9 +253,9 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header section-accent d-flex align-items-center">
-                <h5 class="modal-title section-title-on-accent">Ficha de Empleado</h5>
+                <h5 class="modal-title section-title-on-accent"><span class="label-text" data-i18n="ficha_title">Ficha de Empleado</span></h5>
                 <div class="ms-auto me-2">
-                    <button id="exportPdfBtn" type="button" class="btn btn-sm btn-outline-primary">Exportar PDF</button>
+                    <button id="exportPdfBtn" type="button" class="btn btn-sm btn-outline-primary"><span class="label-text" data-i18n="export_pdf">Exportar PDF</span></button>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -296,12 +286,12 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <ul class="list-group">
-                                            <li class="list-group-item"><strong>Código:</strong> <span id="ficha_codigo"></span></li>
-                                            <li class="list-group-item"><strong>Nombres:</strong> <span id="ficha_nombres"></span></li>
-                                            <li class="list-group-item"><strong>Apellidos:</strong> <span id="ficha_apellidos"></span></li>
-                                            <li class="list-group-item"><strong>Fecha de Nacimiento:</strong> <span id="ficha_fecha_nacimiento"></span></li>
-                                            <li class="list-group-item"><strong>Edad:</strong> <span id="ficha_edad"></span></li>
-                                            <li class="list-group-item"><strong>Género:</strong> <span id="ficha_genero"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Código</span>:</strong> <span id="ficha_codigo"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Nombres</span>:</strong> <span id="ficha_nombres"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Apellidos</span>:</strong> <span id="ficha_apellidos"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Fecha de Nacimiento</span>:</strong> <span id="ficha_fecha_nacimiento"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Edad</span>:</strong> <span id="ficha_edad"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Género</span>:</strong> <span id="ficha_genero"></span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -310,8 +300,8 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <ul class="list-group">
-                                            <li class="list-group-item"><strong>Puesto:</strong> <span id="ficha_puesto"></span></li>
-                                            <li class="list-group-item"><strong>Departamento:</strong> <span id="ficha_departamento"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Puesto</span>:</strong> <span id="ficha_puesto"></span></li>
+                                            <li class="list-group-item"><strong><span class="label-text">Departamento</span>:</strong> <span id="ficha_departamento"></span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -319,7 +309,7 @@
                             <div class="tab-pane fade" id="ficha-others" role="tabpanel" aria-labelledby="ficha-others-tab">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6>Comentarios</h6>
+                                        <h6><span class="label-text" data-i18n="comments">Comentarios</span></h6>
                                         <div id="ficha_comentarios" style="white-space:pre-wrap;"></div>
                                     </div>
                                 </div>
@@ -339,11 +329,11 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header section-accent">
-                <h5 class="modal-title section-title-on-accent">Editar Empleado</h5>
+                <h5 class="modal-title section-title-on-accent"><span class="label-text" data-i18n="edit_employee">Editar Empleado</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditar" enctype="multipart/form-data">
+                <form id="formEditar" action="empleados/update" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="edit_id">
                     <input type="hidden" name="foto_actual" id="edit_foto_actual">
                     <div class="row">
@@ -373,19 +363,19 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="mb-3">
-                                                <label for="edit_nombres" class="form-label">Nombres</label>
+                                                <label for="edit_nombres" class="form-label"><span class="label-text">Nombres</span></label>
                                                 <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_apellidos" class="form-label">Apellidos</label>
+                                                <label for="edit_apellidos" class="form-label"><span class="label-text">Apellidos</span></label>
                                                 <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                                <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text">Fecha de Nacimiento</span></label>
                                                 <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_genero" class="form-label">Género</label>
+                                                <label for="edit_genero" class="form-label"><span class="label-text">Género</span></label>
                                                 <select name="genero" id="edit_genero" class="form-select">
                                                     <option value="">Seleccione</option>
                                                     <option value="Masculino">Masculino</option>
@@ -399,23 +389,23 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="mb-3">
-                                                <label for="edit_puesto_id" class="form-label">Puesto</label>
+                                                <label for="edit_puesto_id" class="form-label"><span class="label-text">Puesto</span></label>
                                                 <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_departamento_id" class="form-label">Departamento</label>
+                                                <label for="edit_departamento_id" class="form-label"><span class="label-text">Departamento</span></label>
                                                 <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
-                                    <div class="mb-3">
-                                            <label for="edit_comentarios" class="form-label">Comentarios</label>
+                                        <div class="mb-3">
+                                            <label for="edit_comentarios" class="form-label"><span class="label-text">Comentarios</span></label>
                                             <textarea name="comentarios" id="edit_comentarios" class="form-control"></textarea>
                                         </div>
                                         <div class="mb-3 mt-2">
-                                            <label for="edit_foto" class="form-label">Actualizar foto</label>
+                                            <label for="edit_foto" class="form-label"><span class="label-text">Actualizar foto</span></label>
                                             <input type="file" name="foto" id="edit_foto" accept="image/*" class="form-control">
                                         </div>
                                 </div>
@@ -423,7 +413,7 @@
                                 </div>
                             </div>
                             <div class="d-grid mt-2">
-                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="submit" class="btn btn-primary"><span class="label-text" data-i18n="save_changes">Guardar cambios</span></button>
                             </div>
                         </div>
                     </div>

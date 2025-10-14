@@ -17,9 +17,9 @@ const fs = require('fs');
     const editBtn = await page.$('.editar');
     if (editBtn) { await editBtn.click(); await page.waitForSelector('#modalEditar.show'); await page.screenshot({ path: outDir + '/modal_edit_light.png' }); await page.click('#modalEditar button.btn-close'); }
 
-    // Dark theme: toggle via the existing button if present
-    const darkToggle = await page.$('#darkModeToggle');
-    if (darkToggle) { await darkToggle.click(); await page.waitForTimeout(300); await page.screenshot({ path: outDir + '/empleados_dark_full.png', fullPage: true }); }
+  // Palette-only: capture an additional full screenshot after picking a palette (if present)
+  const firstSwatch = await page.$('.palette-swatch');
+  if (firstSwatch) { await firstSwatch.click(); await page.waitForTimeout(200); await page.screenshot({ path: outDir + '/empleados_palette_full.png', fullPage: true }); }
 
     // Also capture the left form card and table card individually
     const leftCard = await page.$('.col-md-4 .card'); if (leftCard) await leftCard.screenshot({ path: outDir + '/leftcard.png' });

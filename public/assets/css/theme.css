@@ -15,15 +15,10 @@
     --primary-400: #4d9ae0; /* softer medium blue */
     --accent: #7c5aa8; /* softened violet accent */
     --border: #e6edf6;
+    /* Swatch colors (used by palette previews) */
+    --swatch-blue: #1e6fb3;
+    --swatch-teal: #0d9488;
+    --swatch-violet: #7c5aa8;
 }
 
-[data-theme="dark"]{
-    --bg: #0b1220;
-    --card-bg: #071025;
-    --text: #e6eef8;
-    --muted: #9aa6b2;
-    --primary-600: #60a5fa;
-    --primary-400: #4d9ae0;
-    --accent: #6b5aa8;
-    --border: #122233;
-}
+/* Dark mode intentionally removed — app uses color palettes only */

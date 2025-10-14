@@ -27,8 +27,41 @@ class EmpleadoController
             $model = new EmpleadoModel();
             $data = $model->getAll();
 
+            // Support language for column titles (es / en)
+            $lang = isset($_GET['lang']) && $_GET['lang'] === 'en' ? 'en' : 'es';
+
+            $titles = [
+                'es' => [
+                    'id' => 'ID', 'codigo' => 'Código', 'nombres' => 'Nombres', 'apellidos' => 'Apellidos',
+                    'edad' => 'Edad', 'fecha_nacimiento' => 'Fecha de Nacimiento', 'genero' => 'Género',
+                    'foto' => 'Foto', 'puesto' => 'Puesto', 'departamento' => 'Departamento', 'comentarios' => 'Comentarios', 'acciones' => 'Acciones'
+                ],
+                'en' => [
+                    'id' => 'ID', 'codigo' => 'Code', 'nombres' => 'First Name', 'apellidos' => 'Last Name',
+                    'edad' => 'Age', 'fecha_nacimiento' => 'Birth Date', 'genero' => 'Gender',
+                    'foto' => 'Photo', 'puesto' => 'Position', 'departamento' => 'Department', 'comentarios' => 'Comments', 'acciones' => 'Actions'
+                ]
+            ];
+
+            $t = $titles[$lang];
+
+            $columns = [
+                ['data' => 'id', 'title' => $t['id']],
+                ['data' => 'thumbnail', 'title' => $t['foto'], 'className' => 'no-export'],
+                ['data' => 'codigo', 'title' => $t['codigo'], 'visible' => false],
+                ['data' => 'nombres', 'title' => $t['nombres']],
+                ['data' => 'apellidos', 'title' => $t['apellidos']],
+                ['data' => 'edad', 'title' => $t['edad']],
+                ['data' => 'fecha_nacimiento', 'title' => $t['fecha_nacimiento'], 'visible' => false],
+                ['data' => 'genero', 'title' => $t['genero'], 'visible' => false],
+                ['data' => 'puesto_id', 'title' => $t['puesto'], 'visible' => false],
+                ['data' => 'departamento_id', 'title' => $t['departamento'], 'visible' => false],
+                ['data' => 'comentarios', 'title' => $t['comentarios'], 'visible' => false],
+                ['data' => null, 'title' => $t['acciones'], 'className' => 'no-export']
+            ];
+
             header('Content-Type: application/json', true, 200);
-            echo json_encode(['data' => $data]);
+            echo json_encode(['columns' => $columns, 'data' => $data]);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json', true, 500);
@@ -39,28 +72,55 @@ class EmpleadoController
     public function create()
     {
         try {
+            // Basic server-side validation
+            $errors = [];
+            $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
+            $apellidos = isset($_POST['apellidos']) ? trim($_POST['apellidos']) : '';
+            if ($nombres === '') $errors['nombres'] = 'Nombres es obligatorio';
+            if ($apellidos === '') $errors['apellidos'] = 'Apellidos es obligatorio';
+
+            if (!empty($errors)) {
+                header('Content-Type: application/json', true, 422);
+                echo json_encode(['success' => false, 'error' => 'Validation failed', 'errors' => $errors]);
+                return;
+            }
+
             $model = new EmpleadoModel();
             $result = $model->create($_POST, $_FILES);
             header('Content-Type: application/json', true, 200);
-            echo json_encode(['success' => $result]);
+            echo json_encode(['success' => (bool)$result, 'message' => $result ? 'Empleado creado' : 'No se pudo crear el empleado']);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json', true, 500);
-            echo json_encode(['error' => 'Ocurrió un error al crear el empleado.']);
+            echo json_encode(['success' => false, 'error' => 'Ocurrió un error al crear el empleado.']);
         }
     }
 
     public function update()
     {
         try {
+            $errors = [];
+            $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+            if ($id <= 0) $errors['id'] = 'ID inválido';
+            $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
+            $apellidos = isset($_POST['apellidos']) ? trim($_POST['apellidos']) : '';
+            if ($nombres === '') $errors['nombres'] = 'Nombres es obligatorio';
+            if ($apellidos === '') $errors['apellidos'] = 'Apellidos es obligatorio';
+
+            if (!empty($errors)) {
+                header('Content-Type: application/json; charset=utf-8', true, 422);
+                echo json_encode(['success' => false, 'error' => 'Validation failed', 'errors' => $errors]);
+                return;
+            }
+
             $model = new EmpleadoModel();
             $result = $model->update($_POST, $_FILES);
             header('Content-Type: application/json; charset=utf-8', true, 200);
-            echo json_encode(['success' => $result]);
+            echo json_encode(['success' => (bool)$result, 'message' => $result ? 'Empleado actualizado' : 'No se realizaron cambios']);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json; charset=utf-8', true, 500);
-            echo json_encode(['error' => 'Ocurrió un error al actualizar el empleado.']);
+            echo json_encode(['success' => false, 'error' => 'Ocurrió un error al actualizar el empleado.']);
         }
     }
 
