@@ -39,9 +39,9 @@ body {
 
 /* Make modal headers use accent when requested */
 .modal-header.section-accent {
-    /* Make modal headers slightly softer than page accents so they feel less aggressive */
-    background-color: var(--primary-400);
-    color: #fff;
+    /* Match card title accent for strong visual parity with Nuevo Empleado / Lista de Empleados */
+    background-color: var(--primary-600) !important;
+    color: #fff !important;
     border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 /* modal headers use palette variables; no dark-mode overrides */
