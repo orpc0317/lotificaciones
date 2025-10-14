@@ -104,3 +104,46 @@ php scripts/check_namespace_case.php
 La comprobación fallará con código de salida distinto de 0 si detecta inconsistencias en el casing.
 
 Si prefieres usar carpetas en minúscula, hay que mantener esa convención también en los `namespace` de los archivos PHP; en general la opción menos disruptiva es alinear carpetas con namespaces.
+
+---
+
+## 🧩 Scaffolder (generador de módulos)
+
+Se ha incluido un scaffolder ligero para generar módulos basados en plantillas. Está pensado para acelerar la creación de formularios y vistas que sigan el patrón del módulo `Empleado`.
+
+Ubicación: `scripts/scaffold_module.php` — plantillas en `scripts/templates/module/`
+
+Uso (interactivo):
+
+```powershell
+php scripts/scaffold_module.php ModuleName
+```
+
+Uso (no interactivo):
+
+```powershell
+php scripts/scaffold_module.php ModuleName --fields-file=scripts/samples/example_fields.json --yes
+```
+
+Flags:
+- `--storage=api|db` — estrategia de almacenamiento (por defecto: `api`).
+- `--fields-file=path` — JSON con un array de objetos {"name","type"} (ej.: `scripts/samples/example_fields.json`).
+- `--yes` / `-y` — ejecutar sin prompts (usa valores por defecto).
+
+La documentación específica del scaffolder se encuentra en `scripts/SCaffolder_README.md`.
+
+Ejemplo rápido:
+
+```powershell
+php scripts/scaffold_module.php Product --fields-file=scripts/samples/example_fields.json --yes
+```
+
+Esto generará archivos en:
+- `app/Controllers/ProductController.php`
+- `app/Models/ProductModel.php`
+- `app/views/product.php`
+- `public/assets/js/product.js`
+
+Notas:
+- Las plantillas actuales incluyen una modal con foto a la izquierda y campos a la derecha, además de un exportador XLSX (SheetJS) como alternativa.
+- El scaffolder no sobrescribe archivos existentes; los saltará si ya existen.
