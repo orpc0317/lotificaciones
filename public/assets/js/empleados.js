@@ -175,12 +175,22 @@
                 var initial = (resp && Array.isArray(resp.data)) ? resp.data : [];
                 try{
                     tabla = $('#tablaEmpleados').DataTable({
-                        data: initial,
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: api('empleados/ajax?lang=' + encodeURIComponent(lang||'es')),
+                            type: 'POST',
+                            error: function(xhr, error, thrown){
+                                console.error('DataTables ajax error:', error, thrown);
+                            }
+                        },
                         columns: cols,
-                        dom: 'Bfrtip',
+                        dom: 'Blfrtip',
                         colReorder: true,
                         stateSave: false,
                         deferRender: true,
+                        pageLength: 25,
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
                         buttons: [
                             { 
                                 extend: 'colvis', 
@@ -229,19 +239,20 @@
                         language: { search: 'Buscar:', paginate: { previous: 'Anterior', next: 'Siguiente' }, emptyTable: 'No hay datos disponibles' }
                     });
 
+                    // Reload data method for server-side processing
                     tabla.reloadData = function(cb){
-                        fetchJsonWithIndexPhpFallback('empleados/ajax?lang=' + encodeURIComponent(getCurrentLang()||'es')).then(function(rr){
-                            var rows = (rr && Array.isArray(rr.data))? rr.data : [];
-                            tabla.clear(); tabla.rows.add(rows);
-                            try{ tabla.draw(false); }catch(e){}
-                            updateEmployeeCount(rows.length);
-                            if(cb) cb(null, rows);
-                        }).catch(function(err){ if(err && err.raw) console.error('reloadData raw response:', err.raw); if(cb) cb(err); updateEmployeeCount(0); });
+                        try{
+                            tabla.ajax.reload(function(){
+                                if(cb) cb(null);
+                            }, false); // false = don't reset paging
+                        }catch(e){
+                            console.error('Error reloading data:', e);
+                            if(cb) cb(e);
+                        }
                     };
 
                     attachTableHandlers(tabla);
                     try{ window.__tabla = tabla; }catch(e){}
-                    try{ updateEmployeeCount(initial.length); }catch(e){}
                 }catch(e){ console.error('Error initializing DataTable', e); }
                 hideLoading(); buildingTable = false;
             })

@@ -41,6 +41,88 @@ class EmpleadoModel
         return $rows;
     }
 
+    /**
+     * Get paginated data for server-side DataTables processing
+     * @param array $params - DataTables request parameters (start, length, search, order, etc.)
+     * @return array - Formatted response for DataTables
+     */
+    public function getServerSide($params = [])
+    {
+        // Extract parameters
+        $start = isset($params['start']) ? (int)$params['start'] : 0;
+        $length = isset($params['length']) ? (int)$params['length'] : 10;
+        $searchValue = isset($params['search']['value']) ? trim($params['search']['value']) : '';
+        $orderColumnIndex = isset($params['order'][0]['column']) ? (int)$params['order'][0]['column'] : 0;
+        $orderDir = isset($params['order'][0]['dir']) && $params['order'][0]['dir'] === 'asc' ? 'ASC' : 'DESC';
+
+        // Column mapping (based on DataTables column order)
+        $columns = ['e.id', 'e.foto', 'e.codigo', 'e.nombres', 'e.apellidos', 'e.edad', 'e.fecha_nacimiento', 
+                    'e.genero', 'p.nombre', 'd.nombre', 'e.email', 'e.telefono', 'e.direccion', 'e.ciudad', 'e.comentarios'];
+        
+        $orderColumn = isset($columns[$orderColumnIndex]) ? $columns[$orderColumnIndex] : 'e.id';
+
+        // Base query
+        $baseQuery = "FROM empleados e 
+                      LEFT JOIN puestos p ON e.puesto_id = p.id 
+                      LEFT JOIN departamentos d ON e.departamento_id = d.id";
+
+        // WHERE clause for search
+        $whereClause = '';
+        $params_bind = [];
+        if ($searchValue !== '') {
+            $whereClause = " WHERE (e.codigo LIKE :search OR e.nombres LIKE :search OR e.apellidos LIKE :search 
+                            OR e.email LIKE :search OR e.telefono LIKE :search OR e.ciudad LIKE :search 
+                            OR p.nombre LIKE :search OR d.nombre LIKE :search)";
+            $params_bind[':search'] = '%' . $searchValue . '%';
+        }
+
+        // Count total records (without filtering)
+        $stmtTotal = $this->db->query("SELECT COUNT(*) as total FROM empleados");
+        $totalRecords = $stmtTotal->fetch(\PDO::FETCH_ASSOC)['total'];
+
+        // Count filtered records
+        $stmtFiltered = $this->db->prepare("SELECT COUNT(*) as total $baseQuery $whereClause");
+        foreach ($params_bind as $key => $value) {
+            $stmtFiltered->bindValue($key, $value);
+        }
+        $stmtFiltered->execute();
+        $totalFiltered = $stmtFiltered->fetch(\PDO::FETCH_ASSOC)['total'];
+
+        // Get paginated data
+        $sql = "SELECT e.*, p.nombre as puesto_nombre, d.nombre as departamento_nombre 
+                $baseQuery 
+                $whereClause 
+                ORDER BY $orderColumn $orderDir 
+                LIMIT :start, :length";
+        
+        $stmt = $this->db->prepare($sql);
+        foreach ($params_bind as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':start', $start, \PDO::PARAM_INT);
+        $stmt->bindValue(':length', $length, \PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Add thumbnail paths
+        foreach ($rows as &$r) {
+            $r['thumbnail'] = null;
+            if (!empty($r['foto']) && file_exists(__DIR__ . '/../../public/uploads/thumbs/' . $r['foto'])) {
+                $r['thumbnail'] = 'uploads/thumbs/' . $r['foto'];
+            } elseif (!empty($r['foto']) && file_exists(__DIR__ . '/../../public/uploads/' . $r['foto'])) {
+                $r['thumbnail'] = 'uploads/' . $r['foto'];
+            }
+        }
+
+        return [
+            'draw' => isset($params['draw']) ? (int)$params['draw'] : 1,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $rows
+        ];
+    }
+
     // Obtener lista de puestos (id, nombre)
     public function getPuestos()
     {

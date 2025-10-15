@@ -25,6 +25,21 @@ class EmpleadoController
     {
         try {
             $model = new EmpleadoModel();
+            
+            // Check if DataTables is requesting server-side processing
+            $isServerSide = isset($_GET['draw']) || isset($_POST['draw']);
+            
+            if ($isServerSide) {
+                // Server-side processing mode
+                $params = array_merge($_GET, $_POST);
+                $response = $model->getServerSide($params);
+                
+                header('Content-Type: application/json', true, 200);
+                echo json_encode($response);
+                return;
+            }
+            
+            // Legacy client-side mode (for initial column setup)
             $data = $model->getAll();
 
             // Support language for column titles (es / en)
