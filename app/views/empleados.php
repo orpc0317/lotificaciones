@@ -231,7 +231,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="submit" form="formNuevo" class="btn btn-primary"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="create">Crear</span></button>
+        <button type="submit" form="formNuevoEmpleado" class="btn btn-primary"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="create">Crear</span></button>
       </div>
     </div>
   </div>
