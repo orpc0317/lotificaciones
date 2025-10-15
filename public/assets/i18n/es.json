@@ -53,4 +53,8 @@
   ,"export": "Exportar"
   ,"close": "Cerrar"
   ,"employee_details": "Ficha del Empleado"
+  ,"email": "Email"
+  ,"telefono": "Teléfono"
+  ,"direccion": "Dirección"
+  ,"ciudad": "Ciudad"
 }

@@ -116,8 +116,8 @@ class EmpleadoModel
             $this->createThumbnail($dest, __DIR__ . '/../../public/uploads/thumbs/' . $foto, 120, 120);
         }
 
-        $stmt = $this->db->prepare("INSERT INTO empleados (codigo, nombres, apellidos, fecha_nacimiento, edad, foto, puesto_id, departamento_id, genero, comentarios)
-            VALUES (:codigo, :nombres, :apellidos, :fecha_nacimiento, :edad, :foto, :puesto_id, :departamento_id, :genero, :comentarios)");
+        $stmt = $this->db->prepare("INSERT INTO empleados (codigo, nombres, apellidos, fecha_nacimiento, edad, foto, puesto_id, departamento_id, genero, email, telefono, direccion, ciudad, comentarios)
+            VALUES (:codigo, :nombres, :apellidos, :fecha_nacimiento, :edad, :foto, :puesto_id, :departamento_id, :genero, :email, :telefono, :direccion, :ciudad, :comentarios)");
 
         return $stmt->execute([
             ':codigo' => uniqid('EMP'),
@@ -129,6 +129,10 @@ class EmpleadoModel
             ':puesto_id' => (isset($data['puesto_id']) && $data['puesto_id'] !== '') ? $data['puesto_id'] : null,
             ':departamento_id' => (isset($data['departamento_id']) && $data['departamento_id'] !== '') ? $data['departamento_id'] : null,
             ':genero' => $data['genero'],
+            ':email' => $data['email'] ?? null,
+            ':telefono' => $data['telefono'] ?? null,
+            ':direccion' => $data['direccion'] ?? null,
+            ':ciudad' => $data['ciudad'] ?? null,
             ':comentarios' => $data['comentarios']
         ]);
     }
@@ -159,7 +163,7 @@ class EmpleadoModel
             $this->createThumbnail($dest, __DIR__ . '/../../public/uploads/thumbs/' . $foto, 120, 120);
         }
 
-        $stmt = $this->db->prepare("UPDATE empleados SET nombres = :nombres, apellidos = :apellidos, fecha_nacimiento = :fecha_nacimiento, edad = :edad, foto = :foto, puesto_id = :puesto_id, departamento_id = :departamento_id, genero = :genero, comentarios = :comentarios WHERE id = :id");
+        $stmt = $this->db->prepare("UPDATE empleados SET nombres = :nombres, apellidos = :apellidos, fecha_nacimiento = :fecha_nacimiento, edad = :edad, foto = :foto, puesto_id = :puesto_id, departamento_id = :departamento_id, genero = :genero, email = :email, telefono = :telefono, direccion = :direccion, ciudad = :ciudad, comentarios = :comentarios WHERE id = :id");
         $params = [
             ':id' => $data['id'],
             ':nombres' => $data['nombres'] ?? null,
@@ -170,6 +174,10 @@ class EmpleadoModel
             ':puesto_id' => (isset($data['puesto_id']) && $data['puesto_id'] !== '') ? $data['puesto_id'] : null,
             ':departamento_id' => (isset($data['departamento_id']) && $data['departamento_id'] !== '') ? $data['departamento_id'] : null,
             ':genero' => $data['genero'] ?? null,
+            ':email' => $data['email'] ?? null,
+            ':telefono' => $data['telefono'] ?? null,
+            ':direccion' => $data['direccion'] ?? null,
+            ':ciudad' => $data['ciudad'] ?? null,
             ':comentarios' => $data['comentarios'] ?? null
         ];
 

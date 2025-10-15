@@ -53,4 +53,8 @@
   ,"export": "Export"
   ,"close": "Close"
   ,"employee_details": "Employee Details"
-}
+  ,"email": "Email"`n  ,"telefono": "Phone"`n  ,"direccion": "Address"`n  ,"ciudad": "City"`n}
+  ,"email": "Email"
+  ,"telefono": "Phone"
+  ,"direccion": "Address"
+  ,"ciudad": "City"
