@@ -3,6 +3,48 @@
 (function(){
     'use strict';
     
+    // i18n translations cache
+    var translations = {};
+    
+    // Load and apply translations
+    function loadTranslations(lang){
+        return fetch('assets/i18n/' + lang + '.json')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                translations = data;
+                applyTranslations();
+                return data;
+            })
+            .catch(function(err){
+                console.error('Error loading translations:', err);
+                return {};
+            });
+    }
+    
+    // Apply translations to elements with data-i18n attribute
+    function applyTranslations(){
+        try{
+            document.querySelectorAll('[data-i18n]').forEach(function(el){
+                var key = el.getAttribute('data-i18n');
+                if(translations[key]){
+                    // For input placeholders and select options
+                    if(el.tagName === 'OPTION' || el.tagName === 'INPUT'){
+                        if(el.hasAttribute('placeholder')){
+                            el.placeholder = translations[key];
+                        } else {
+                            el.textContent = translations[key];
+                        }
+                    } else {
+                        // For spans, buttons, labels, etc.
+                        el.textContent = translations[key];
+                    }
+                }
+            });
+        }catch(e){
+            console.error('Error applying translations:', e);
+        }
+    }
+    
     // Configure passive events to suppress Chrome warnings
     try {
         var opts = Object.defineProperty({}, "passive", {
@@ -145,7 +187,44 @@
                         deferRender: true,
                         buttons: [
                             { extend: 'colvis', text: 'Columnas' },
-                            { extend: 'csvHtml5', text: 'CSV', exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } }
+                            {
+                                extend: 'collection',
+                                text: translations['export'] || 'Exportar',
+                                buttons: [
+                                    { 
+                                        extend: 'excelHtml5', 
+                                        text: 'XLSX', 
+                                        exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } 
+                                    },
+                                    { 
+                                        extend: 'csvHtml5', 
+                                        text: 'CSV', 
+                                        exportOptions: { columns: ':visible:not(.no-export)', format: { header: exportHeader } } 
+                                    },
+                                    {
+                                        text: 'TXT',
+                                        action: function(e, dt, button, config){
+                                            var data = dt.buttons.exportData({ 
+                                                columns: ':visible:not(.no-export)',
+                                                format: { header: exportHeader }
+                                            });
+                                            var txt = '';
+                                            // Add headers
+                                            txt += data.header.join('\t') + '\n';
+                                            // Add rows
+                                            for(var i = 0; i < data.body.length; i++){
+                                                txt += data.body[i].join('\t') + '\n';
+                                            }
+                                            // Create download
+                                            var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+                                            var link = document.createElement('a');
+                                            link.href = URL.createObjectURL(blob);
+                                            link.download = 'empleados.txt';
+                                            link.click();
+                                        }
+                                    }
+                                ]
+                            }
                         ],
                         language: { search: 'Buscar:', paginate: { previous: 'Anterior', next: 'Siguiente' }, emptyTable: 'No hay datos disponibles' }
                     });
@@ -185,8 +264,139 @@
     function applyPalette(name){ try{ var palettes = { blue:{'--primary-600':'#1e6fb3'}, teal:{'--primary-600':'#0c857a'}, violet:{'--primary-600':'#7c5aa8'} }; var p = palettes[name]||palettes.blue; Object.keys(p).forEach(function(k){ try{ document.documentElement.style.setProperty(k,p[k]); }catch(e){} }); try{ localStorage.setItem('lotificaciones_palette', name); }catch(e){} }catch(e){} }
     try{ document.querySelectorAll('.palette-swatch').forEach(function(s){ s.addEventListener('click', function(){ try{ applyPalette(s.getAttribute('data-palette')); }catch(e){} }); }); var sp = localStorage.getItem('lotificaciones_palette')||'blue'; applyPalette(sp); }catch(e){}
 
-    // file preview
-    $(document).on('change','input[type="file"][name="foto"]', function(){ try{ var input=this; var file = input.files && input.files[0]; if(!file) return; if(!file.type || file.type.indexOf('image')===-1){ try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title:'Archivo inválido', showConfirmButton:false, timer:2500 }); }catch(e){} input.value=''; return; } var reader = new FileReader(); reader.onload = function(ev){ try{ var dataUrl = ev.target.result; var img = new Image(); img.onload = function(){ try{ var target = null; if(input.id==='edit_foto') target = document.getElementById('edit_foto_preview'); else if(input.id==='foto') target = document.getElementById('foto_preview'); else if(input.id==='nuevo_foto') target = document.getElementById('nuevo_foto_preview'); if(target) target.src = dataUrl; }catch(e){} }; img.src = dataUrl; }catch(e){} }; reader.readAsDataURL(file); }catch(e){} });
+    // Change photo button click handler
+    $(document).on('click', '.change-photo-btn', function(){ 
+        try{ 
+            var btn = $(this);
+            var card = btn.closest('.edit-photo-card');
+            var fileInput = card.find('input[type="file"]');
+            if(fileInput.length > 0){
+                fileInput.click();
+            }
+        }catch(e){ console.error('Error triggering file input', e); } 
+    });
+
+    // file preview with validation
+    $(document).on('change','input[type="file"][name="foto"]', function(){ 
+        try{ 
+            var input=this; 
+            var file = input.files && input.files[0]; 
+            if(!file) return; 
+            
+            // Validate file type (MIME type check)
+            var validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if(!file.type || validTypes.indexOf(file.type) === -1){ 
+                try{ 
+                    Swal.fire({ 
+                        toast:true, 
+                        position:'top-end', 
+                        icon:'error', 
+                        title:'Solo se permiten imágenes (JPG, PNG, GIF, WebP)', 
+                        showConfirmButton:false, 
+                        timer:3000 
+                    }); 
+                }catch(e){} 
+                input.value=''; 
+                return; 
+            }
+            
+            // Validate file size (max 2MB)
+            var maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            if(file.size > maxSize){
+                try{ 
+                    Swal.fire({ 
+                        toast:true, 
+                        position:'top-end', 
+                        icon:'error', 
+                        title:'La imagen no debe superar 2MB', 
+                        showConfirmButton:false, 
+                        timer:2500 
+                    }); 
+                }catch(e){} 
+                input.value=''; 
+                return; 
+            }
+            
+            // Additional validation: Check file signature (magic numbers)
+            var reader = new FileReader();
+            reader.onloadend = function(e){
+                try{
+                    var arr = new Uint8Array(e.target.result).subarray(0, 4);
+                    var header = '';
+                    for(var i = 0; i < arr.length; i++){
+                        header += arr[i].toString(16);
+                    }
+                    
+                    // Check magic numbers for common image formats
+                    var isValidImage = false;
+                    // JPEG: FF D8 FF
+                    if(header.indexOf('ffd8ff') === 0) isValidImage = true;
+                    // PNG: 89 50 4E 47
+                    else if(header.indexOf('89504e47') === 0) isValidImage = true;
+                    // GIF: 47 49 46 38
+                    else if(header.indexOf('47494638') === 0) isValidImage = true;
+                    // WebP: 52 49 46 46 (RIFF)
+                    else if(header.indexOf('52494646') === 0) isValidImage = true;
+                    
+                    if(!isValidImage){
+                        try{
+                            Swal.fire({ 
+                                toast:true, 
+                                position:'top-end', 
+                                icon:'error', 
+                                title:'El archivo no es una imagen válida', 
+                                showConfirmButton:false, 
+                                timer:3000 
+                            });
+                        }catch(err){}
+                        input.value='';
+                        return;
+                    }
+                    
+                    // If valid, show preview
+                    var readerPreview = new FileReader();
+                    readerPreview.onload = function(ev){ 
+                        try{ 
+                            var dataUrl = ev.target.result; 
+                            var img = new Image(); 
+                            img.onload = function(){ 
+                                try{ 
+                                    var target = null; 
+                                    if(input.id==='edit_foto') target = document.getElementById('edit_foto_preview'); 
+                                    else if(input.id==='foto') target = document.getElementById('foto_preview'); 
+                                    else if(input.id==='nuevo_foto') target = document.getElementById('nuevo_foto_preview'); 
+                                    if(target) target.src = dataUrl; 
+                                }catch(e){} 
+                            };
+                            img.onerror = function(){
+                                try{
+                                    Swal.fire({ 
+                                        toast:true, 
+                                        position:'top-end', 
+                                        icon:'error', 
+                                        title:'Error al cargar la imagen', 
+                                        showConfirmButton:false, 
+                                        timer:2500 
+                                    });
+                                }catch(err){}
+                                input.value='';
+                            };
+                            img.src = dataUrl; 
+                        }catch(e){} 
+                    }; 
+                    readerPreview.readAsDataURL(file);
+                    
+                }catch(err){
+                    console.error('Error validating file signature:', err);
+                    input.value='';
+                }
+            };
+            reader.readAsArrayBuffer(file.slice(0, 4));
+            
+        }catch(e){ 
+            console.error('Error in file validation:', e);
+        } 
+    });
 
     // forms
     $(document).on('submit', '#formNuevoEmpleado, #formEmpleado', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/create'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message||'Empleado creado', showConfirmButton:false, timer:1800 }); }catch(e){} try{ $form.get(0).reset(); }catch(e){} try{ reloadOrBuild(); }catch(e){} } else { try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:2500 }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
@@ -203,7 +413,17 @@
     $(document).on('click', '.eliminar', function(){ try{ var id = $(this).data('id'); Swal.fire({ title: '¿Está seguro?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){ if(result.isConfirmed){ fetch(api('empleados/delete'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ if(resp && resp.success){ Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: resp.message || 'Empleado eliminado', showConfirmButton: false, timer: 1800 }); reloadOrBuild(); } else { Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: (resp && resp.error) || 'Error al eliminar', showConfirmButton: false, timer: 2500 }); } }).catch(function(err){ console.error('delete failed', err); Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error de conexión', showConfirmButton: false, timer: 2500 }); }); } }); }catch(e){ console.error('eliminar click handler error', e); } });
 
     // lang
-    try{ var langSel = document.getElementById('langSelect'); if(langSel){ langSel.addEventListener('change', function(){ console.log('[langSelect] Language changed to:', langSel.value); try{ localStorage.setItem('lotificaciones_lang', langSel.value); }catch(e){} try{ reloadOrBuild(); }catch(e){ console.error('[langSelect] reloadOrBuild failed:', e); } }); } }catch(e){ console.error('[langSelect] Setup failed:', e); }
+    try{ 
+        var langSel = document.getElementById('langSelect'); 
+        if(langSel){ 
+            langSel.addEventListener('change', function(){ 
+                console.log('[langSelect] Language changed to:', langSel.value); 
+                try{ localStorage.setItem('lotificaciones_lang', langSel.value); }catch(e){} 
+                try{ loadTranslations(langSel.value); }catch(e){ console.error('[loadTranslations] failed:', e); }
+                try{ reloadOrBuild(); }catch(e){ console.error('[reloadOrBuild] failed:', e); } 
+            }); 
+        } 
+    }catch(e){ console.error('[langSelect] Setup failed:', e); }
 
     // Tab validation badges logic
     function updateTabBadges(formId){
@@ -278,6 +498,23 @@
         }catch(e){ console.error('Error attaching validation listeners', e); }
     }
 
+    // Reset photo preview when New modal is about to be shown (before it opens)
+    $(document).on('show.bs.modal', '#modalNuevoEmpleado', function(){
+        try{
+            // Reset the entire form
+            var form = document.getElementById('formNuevoEmpleado');
+            if(form) form.reset();
+            
+            // Reset photo preview to placeholder immediately
+            var preview = document.getElementById('nuevo_foto_preview');
+            if(preview) preview.src = 'uploads/placeholder.png';
+            
+            // Clear file input
+            var fileInput = document.getElementById('nuevo_foto');
+            if(fileInput) fileInput.value = '';
+        }catch(e){}
+    });
+
     // Call updateTabBadges when modals are shown
     $(document).on('shown.bs.modal', '#modalNuevoEmpleado', function(){
         updateTabBadges('formNuevoEmpleado');
@@ -288,7 +525,12 @@
     });
 
     // init
-    try{ var saved = localStorage.getItem('lotificaciones_lang') || (document.getElementById('langSelect') && document.getElementById('langSelect').value) || 'es'; if(document.getElementById('langSelect')) document.getElementById('langSelect').value = saved; buildTable(saved); }catch(e){}
+    try{ 
+        var saved = localStorage.getItem('lotificaciones_lang') || (document.getElementById('langSelect') && document.getElementById('langSelect').value) || 'es'; 
+        if(document.getElementById('langSelect')) document.getElementById('langSelect').value = saved; 
+        loadTranslations(saved); // Load translations on page load
+        buildTable(saved); 
+    }catch(e){}
 
     // Attach validation listeners on page load
     attachValidationListeners();

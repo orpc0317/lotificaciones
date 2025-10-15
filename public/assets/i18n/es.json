@@ -4,7 +4,7 @@
   "tab_position": "Puesto",
   "tab_others": "Otros",
   "create": "Agregar",
-  "list_employees": "Lista de Empleados",
+  "list_employees": "Empleados",
   "language": "Idioma",
   "ficha_title": "Ficha de Empleado",
   "export_pdf": "Exportar PDF",
@@ -50,6 +50,7 @@
   ,"export_xls_sheetjs": "XLSX"
   ,"export_csv": "CSV"
   ,"export_txt": "TXT"
+  ,"export": "Exportar"
   ,"close": "Cerrar"
   ,"employee_details": "Ficha del Empleado"
 }

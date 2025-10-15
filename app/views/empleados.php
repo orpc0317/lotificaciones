@@ -66,7 +66,7 @@
                 <div class="card">
                     <div class="card-header section-accent d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <h5 class="mb-0 section-title-on-accent me-3"><span class="label-text" data-i18n="list_employees">Listado de Empleados</span></h5>
+                            <h5 class="mb-0 section-title-on-accent me-3"><span class="label-text" data-i18n="list_employees">Empleados</span></h5>
                             <button class="btn btn-primary me-2" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="new_employee">Nuevo Empleado</span></button>
                         </div>
                         <div class="d-flex align-items-center">
@@ -171,12 +171,18 @@
                                         <label for="nuevo_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
                                         <select name="puesto_id" id="nuevo_puesto_id" class="form-select">
                                             <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                            <?php if(isset($puestos) && is_array($puestos)): foreach($puestos as $p): ?>
+                                            <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                                            <?php endforeach; endif; ?>
                                         </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="nuevo_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
                                         <select name="departamento_id" id="nuevo_departamento_id" class="form-select">
                                             <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                            <?php if(isset($departamentos) && is_array($departamentos)): foreach($departamentos as $d): ?>
+                                            <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
+                                            <?php endforeach; endif; ?>
                                         </select>
                                     </div>
                                 </div>
@@ -269,11 +275,21 @@
                                 <div class="tab-pane fade" id="edit-puesto" role="tabpanel" aria-labelledby="edit-puesto-tab">
                                     <div class="mb-3">
                                         <label for="edit_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
-                                        <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
+                                        <select name="puesto_id" id="edit_puesto_id" class="form-select">
+                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                            <?php if(isset($puestos) && is_array($puestos)): foreach($puestos as $p): ?>
+                                            <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                                            <?php endforeach; endif; ?>
+                                        </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="edit_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
-                                        <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                        <select name="departamento_id" id="edit_departamento_id" class="form-select">
+                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                            <?php if(isset($departamentos) && is_array($departamentos)): foreach($departamentos as $d): ?>
+                                            <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
+                                            <?php endforeach; endif; ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
