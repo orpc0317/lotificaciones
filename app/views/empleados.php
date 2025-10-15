@@ -135,7 +135,16 @@
                                     <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
                                 </li>
                                 <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="new-personal-tab" data-bs-toggle="tab" data-bs-target="#new-personal" type="button" role="tab" aria-controls="new-personal" aria-selected="false"><i class="bi bi-person-badge"></i> <span class="label-text">Personal</span> <span class="badge-tab ms-2" data-tab="new-personal" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="new-puesto-tab" data-bs-toggle="tab" data-bs-target="#new-puesto" type="button" role="tab" aria-controls="new-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span> <span class="badge-tab ms-2" data-tab="new-puesto" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="new-contact-tab" data-bs-toggle="tab" data-bs-target="#new-contact" type="button" role="tab" aria-controls="new-contact" aria-selected="false"><i class="bi bi-telephone-fill"></i> <span class="label-text">Contacto</span> <span class="badge-tab ms-2" data-tab="new-contact" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="new-address-tab" data-bs-toggle="tab" data-bs-target="#new-address" type="button" role="tab" aria-controls="new-address" aria-selected="false"><i class="bi bi-house-fill"></i> <span class="label-text">Dirección</span> <span class="badge-tab ms-2" data-tab="new-address" style="display:none;"></span></button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
@@ -153,6 +162,8 @@
                                         <label for="nuevo_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
                                         <input type="text" name="apellidos" id="nuevo_apellidos" class="form-control" required>
                                     </div>
+                                </div>
+                                <div class="tab-pane fade" id="new-personal" role="tabpanel" aria-labelledby="new-personal-tab">
                                     <div class="mb-3">
                                         <label for="nuevo_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
                                         <input type="date" name="fecha_nacimiento" id="nuevo_fecha_nacimiento" class="form-control">
@@ -184,6 +195,26 @@
                                             <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
                                             <?php endforeach; endif; ?>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="new-contact" role="tabpanel" aria-labelledby="new-contact-tab">
+                                    <div class="mb-3">
+                                        <label for="nuevo_email" class="form-label"><span class="label-text" data-i18n="email">Email</span></label>
+                                        <input type="email" name="email" id="nuevo_email" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="nuevo_telefono" class="form-label"><span class="label-text" data-i18n="telefono">Teléfono</span></label>
+                                        <input type="tel" name="telefono" id="nuevo_telefono" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="new-address" role="tabpanel" aria-labelledby="new-address-tab">
+                                    <div class="mb-3">
+                                        <label for="nuevo_direccion" class="form-label"><span class="label-text" data-i18n="direccion">Dirección</span></label>
+                                        <textarea name="direccion" id="nuevo_direccion" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="nuevo_ciudad" class="form-label"><span class="label-text" data-i18n="ciudad">Ciudad</span></label>
+                                        <input type="text" name="ciudad" id="nuevo_ciudad" class="form-control">
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="new-others" role="tabpanel" aria-labelledby="new-others-tab">

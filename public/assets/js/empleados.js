@@ -136,12 +136,10 @@
 
     function buildTable(lang){
         if(buildingTable) return; buildingTable = true; showLoading();
-        console.log('[buildTable] Starting with lang:', lang);
         
         // Destroy existing table if it exists
         try{ 
             if(tabla && $.fn.DataTable.isDataTable('#tablaEmpleados')){ 
-                console.log('[buildTable] Destroying existing DataTable');
                 tabla.destroy(); 
                 tabla = null; 
             } 
@@ -154,7 +152,6 @@
 
         fetchJsonWithIndexPhpFallback('empleados/ajax?lang=' + encodeURIComponent(lang||'es'))
             .then(function(resp){
-                console.log('[buildTable] Received response:', resp);
                 if(!resp || !resp.columns){ 
                     console.error('[buildTable] Invalid response - no columns found');
                     buildingTable = false; hideLoading(); return; 
@@ -176,7 +173,6 @@
                 });
 
                 var initial = (resp && Array.isArray(resp.data)) ? resp.data : [];
-                console.log('[buildTable] Initial data rows:', initial.length);
                 try{
                     tabla = $('#tablaEmpleados').DataTable({
                         data: initial,
@@ -242,7 +238,6 @@
                     attachTableHandlers(tabla);
                     try{ window.__tabla = tabla; }catch(e){}
                     try{ updateEmployeeCount(initial.length); }catch(e){}
-                    console.log('[buildTable] Table initialized successfully with', initial.length, 'rows');
                 }catch(e){ console.error('Error initializing DataTable', e); }
                 hideLoading(); buildingTable = false;
             })
@@ -250,10 +245,8 @@
     }
 
     function reloadOrBuild(){ 
-        console.log('[reloadOrBuild] Called, current lang:', getCurrentLang());
         try{ 
             // We're not using DataTables' ajax feature, so always rebuild the table
-            console.log('[reloadOrBuild] Calling buildTable');
             buildTable(getCurrentLang()); 
         }catch(e){ 
             console.error('[reloadOrBuild] Error:', e);
@@ -432,7 +425,7 @@
             if(!form) return;
             var tabPaneIds = [];
             if(formId === 'formNuevo' || formId === 'formNuevoEmpleado'){
-                tabPaneIds = ['new-generals', 'new-puesto', 'new-others'];
+                tabPaneIds = ['new-generals', 'new-personal', 'new-puesto', 'new-contact', 'new-address', 'new-others'];
             } else if(formId === 'formEditar'){
                 tabPaneIds = ['edit-generals', 'edit-puesto', 'edit-others'];
             }

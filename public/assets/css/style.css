@@ -130,6 +130,43 @@ table.dataTable td img {
     opacity: 1;
 }
 
+/* Horizontal scrollable tabs for modals */
+.nav-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.nav-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.nav-tabs::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.5);
+}
+
+/* Ensure tab items don't shrink */
+.nav-tabs .nav-item {
+    flex-shrink: 0;
+}
+
+.nav-tabs .nav-link {
+    white-space: nowrap;
+}
+
 /* SweetAlert2: make the warning icon red instead of orange */
 .swal2-icon.swal2-warning {
     color: #dc3545 !important; /* red */
