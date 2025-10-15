@@ -427,7 +427,7 @@
             if(formId === 'formNuevo' || formId === 'formNuevoEmpleado'){
                 tabPaneIds = ['new-generals', 'new-personal', 'new-puesto', 'new-contact', 'new-address', 'new-others'];
             } else if(formId === 'formEditar'){
-                tabPaneIds = ['edit-generals', 'edit-puesto', 'edit-others'];
+                tabPaneIds = ['edit-generals', 'edit-personal', 'edit-puesto', 'edit-contact', 'edit-address', 'edit-others'];
             }
             
             tabPaneIds.forEach(function(tabId){

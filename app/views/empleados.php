@@ -268,7 +268,16 @@
                                     <button class="nav-link active rounded-0" id="edit-generals-tab" data-bs-toggle="tab" data-bs-target="#edit-generals" type="button" role="tab" aria-controls="edit-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="edit-generals" style="display:none;"></span></button>
                                 </li>
                                 <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="edit-personal-tab" data-bs-toggle="tab" data-bs-target="#edit-personal" type="button" role="tab" aria-controls="edit-personal" aria-selected="false"><i class="bi bi-person-badge"></i> <span class="label-text">Personal</span> <span class="badge-tab ms-2" data-tab="edit-personal" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="edit-puesto-tab" data-bs-toggle="tab" data-bs-target="#edit-puesto" type="button" role="tab" aria-controls="edit-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span> <span class="badge-tab ms-2" data-tab="edit-puesto" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="edit-contact-tab" data-bs-toggle="tab" data-bs-target="#edit-contact" type="button" role="tab" aria-controls="edit-contact" aria-selected="false"><i class="bi bi-telephone-fill"></i> <span class="label-text">Contacto</span> <span class="badge-tab ms-2" data-tab="edit-contact" style="display:none;"></span></button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="edit-address-tab" data-bs-toggle="tab" data-bs-target="#edit-address" type="button" role="tab" aria-controls="edit-address" aria-selected="false"><i class="bi bi-house-fill"></i> <span class="label-text">Dirección</span> <span class="badge-tab ms-2" data-tab="edit-address" style="display:none;"></span></button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="edit-others-tab" data-bs-toggle="tab" data-bs-target="#edit-others" type="button" role="tab" aria-controls="edit-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="edit-others" style="display:none;"></span></button>
@@ -290,6 +299,8 @@
                                         <label for="edit_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
                                         <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
                                     </div>
+                                </div>
+                                <div class="tab-pane fade" id="edit-personal" role="tabpanel" aria-labelledby="edit-personal-tab">
                                     <div class="mb-3">
                                         <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
                                         <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
@@ -321,6 +332,26 @@
                                             <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
                                             <?php endforeach; endif; ?>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="edit-contact" role="tabpanel" aria-labelledby="edit-contact-tab">
+                                    <div class="mb-3">
+                                        <label for="edit_email" class="form-label"><span class="label-text" data-i18n="email">Email</span></label>
+                                        <input type="email" name="email" id="edit_email" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edit_telefono" class="form-label"><span class="label-text" data-i18n="telefono">Teléfono</span></label>
+                                        <input type="tel" name="telefono" id="edit_telefono" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="edit-address" role="tabpanel" aria-labelledby="edit-address-tab">
+                                    <div class="mb-3">
+                                        <label for="edit_direccion" class="form-label"><span class="label-text" data-i18n="direccion">Dirección</span></label>
+                                        <textarea name="direccion" id="edit_direccion" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edit_ciudad" class="form-label"><span class="label-text" data-i18n="ciudad">Ciudad</span></label>
+                                        <input type="text" name="ciudad" id="edit_ciudad" class="form-control">
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
@@ -369,7 +400,16 @@
                     <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span></button>
                   </li>
                   <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-0" id="ficha-personal-tab" data-bs-toggle="tab" data-bs-target="#ficha-personal" type="button" role="tab" aria-controls="ficha-personal" aria-selected="false"><i class="bi bi-person-badge"></i> <span class="label-text">Personal</span></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
                     <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-0" id="ficha-contact-tab" data-bs-toggle="tab" data-bs-target="#ficha-contact" type="button" role="tab" aria-controls="ficha-contact" aria-selected="false"><i class="bi bi-telephone-fill"></i> <span class="label-text">Contacto</span></button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-0" id="ficha-address-tab" data-bs-toggle="tab" data-bs-target="#ficha-address" type="button" role="tab" aria-controls="ficha-address" aria-selected="false"><i class="bi bi-house-fill"></i> <span class="label-text">Dirección</span></button>
                   </li>
                   <li class="nav-item" role="presentation">
                     <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span></button>
@@ -392,6 +432,9 @@
                       <label class="form-label fw-bold"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
                       <p class="form-control-plaintext" id="ficha_apellidos">-</p>
                     </div>
+                  </div>
+                  <!-- Tab 2: Personal -->
+                  <div class="tab-pane fade" id="ficha-personal" role="tabpanel" aria-labelledby="ficha-personal-tab">
                     <div class="mb-3">
                       <label class="form-label fw-bold"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
                       <p class="form-control-plaintext" id="ficha_fecha_nacimiento">-</p>
@@ -405,7 +448,7 @@
                       <p class="form-control-plaintext" id="ficha_genero">-</p>
                     </div>
                   </div>
-                  <!-- Tab 2: Puesto -->
+                  <!-- Tab 3: Puesto -->
                   <div class="tab-pane fade" id="ficha-puesto" role="tabpanel" aria-labelledby="ficha-puesto-tab">
                     <div class="mb-3">
                       <label class="form-label fw-bold"><span class="label-text" data-i18n="tab_position">Puesto</span></label>
@@ -416,7 +459,29 @@
                       <p class="form-control-plaintext" id="ficha_departamento">-</p>
                     </div>
                   </div>
-                  <!-- Tab 3: Others -->
+                  <!-- Tab 4: Contact -->
+                  <div class="tab-pane fade" id="ficha-contact" role="tabpanel" aria-labelledby="ficha-contact-tab">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold"><span class="label-text" data-i18n="email">Email</span></label>
+                      <p class="form-control-plaintext" id="ficha_email">-</p>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold"><span class="label-text" data-i18n="telefono">Teléfono</span></label>
+                      <p class="form-control-plaintext" id="ficha_telefono">-</p>
+                    </div>
+                  </div>
+                  <!-- Tab 5: Address -->
+                  <div class="tab-pane fade" id="ficha-address" role="tabpanel" aria-labelledby="ficha-address-tab">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold"><span class="label-text" data-i18n="direccion">Dirección</span></label>
+                      <p class="form-control-plaintext" id="ficha_direccion">-</p>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold"><span class="label-text" data-i18n="ciudad">Ciudad</span></label>
+                      <p class="form-control-plaintext" id="ficha_ciudad">-</p>
+                    </div>
+                  </div>
+                  <!-- Tab 6: Others -->
                   <div class="tab-pane fade" id="ficha-others" role="tabpanel" aria-labelledby="ficha-others-tab">
                     <div class="mb-3">
                       <label class="form-label fw-bold"><span class="label-text" data-i18n="comentarios">Comentarios</span></label>
