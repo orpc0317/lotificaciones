@@ -182,7 +182,11 @@
                         stateSave: false,
                         deferRender: true,
                         buttons: [
-                            { extend: 'colvis', text: 'Columnas' },
+                            { 
+                                extend: 'colvis', 
+                                text: 'Columnas',
+                                columns: ':not(.dt-no-colvis)'
+                            },
                             {
                                 extend: 'collection',
                                 text: translations['export'] || 'Exportar',

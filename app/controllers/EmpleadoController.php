@@ -34,12 +34,16 @@ class EmpleadoController
                 'es' => [
                     'id' => 'ID', 'codigo' => 'Código', 'nombres' => 'Nombres', 'apellidos' => 'Apellidos',
                     'edad' => 'Edad', 'fecha_nacimiento' => 'Fecha de Nacimiento', 'genero' => 'Género',
-                    'foto' => 'Foto', 'puesto' => 'Puesto', 'departamento' => 'Departamento', 'comentarios' => 'Comentarios', 'acciones' => 'Acciones'
+                    'foto' => 'Foto', 'puesto' => 'Puesto', 'departamento' => 'Departamento', 
+                    'email' => 'Email', 'telefono' => 'Teléfono', 'direccion' => 'Dirección', 'ciudad' => 'Ciudad',
+                    'comentarios' => 'Comentarios', 'acciones' => 'Acciones'
                 ],
                 'en' => [
                     'id' => 'ID', 'codigo' => 'Code', 'nombres' => 'First Name', 'apellidos' => 'Last Name',
                     'edad' => 'Age', 'fecha_nacimiento' => 'Birth Date', 'genero' => 'Gender',
-                    'foto' => 'Photo', 'puesto' => 'Position', 'departamento' => 'Department', 'comentarios' => 'Comments', 'acciones' => 'Actions'
+                    'foto' => 'Photo', 'puesto' => 'Position', 'departamento' => 'Department',
+                    'email' => 'Email', 'telefono' => 'Phone', 'direccion' => 'Address', 'ciudad' => 'City',
+                    'comentarios' => 'Comments', 'acciones' => 'Actions'
                 ]
             ];
 
@@ -56,8 +60,12 @@ class EmpleadoController
                 ['data' => 'genero', 'title' => $t['genero'], 'visible' => false],
                 ['data' => 'puesto_id', 'title' => $t['puesto'], 'visible' => false],
                 ['data' => 'departamento_id', 'title' => $t['departamento'], 'visible' => false],
+                ['data' => 'email', 'title' => $t['email'], 'visible' => false],
+                ['data' => 'telefono', 'title' => $t['telefono'], 'visible' => false],
+                ['data' => 'direccion', 'title' => $t['direccion'], 'visible' => false],
+                ['data' => 'ciudad', 'title' => $t['ciudad'], 'visible' => false],
                 ['data' => 'comentarios', 'title' => $t['comentarios'], 'visible' => false],
-                ['data' => null, 'title' => $t['acciones'], 'className' => 'no-export']
+                ['data' => null, 'title' => $t['acciones'], 'className' => 'no-export dt-no-colvis']
             ];
 
             header('Content-Type: application/json', true, 200);
