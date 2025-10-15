@@ -7,12 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Dynamic base so assets resolve correctly whether app is served from a subdirectory or as site root -->
-    <?php
-        // Compute application root relative to the webserver script name.
-        $APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-        if ($APP_ROOT === '') $APP_ROOT = '/';
-    ?>
-    <base href="<?= $APP_ROOT ?>/">
+        <base href="\/">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -145,45 +140,60 @@
                         <div class="card-body">
                             <div class="tab-content pt-2" id="newFormTabsContent">
                                 <div class="tab-pane fade show active" id="new-generals" role="tabpanel" aria-labelledby="new-generals-tab">
-                                    <div class="mb-3">
-                                        <label for="nuevo_nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
-                                        <input type="text" name="nombres" id="nuevo_nombres" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="nuevo_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
-                                        <input type="text" name="apellidos" id="nuevo_apellidos" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="nuevo_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
-                                        <input type="date" name="fecha_nacimiento" id="nuevo_fecha_nacimiento" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="nuevo_genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
-                                        <select name="genero" id="nuevo_genero" class="form-select">
-                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
-                                            <option value="Masculino" data-i18n="gender_male">Masculino</option>
-                                            <option value="Femenino" data-i18n="gender_female">Femenino</option>
-                                        </select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="nuevo_nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
+                                                <input type="text" name="nombres" id="nuevo_nombres" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nuevo_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
+                                                <input type="text" name="apellidos" id="nuevo_apellidos" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nuevo_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
+                                                <input type="date" name="fecha_nacimiento" id="nuevo_fecha_nacimiento" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nuevo_genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
+                                                <select name="genero" id="nuevo_genero" class="form-select">
+                                                    <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                    <option value="Masculino" data-i18n="gender_male">Masculino</option>
+                                                    <option value="Femenino" data-i18n="gender_female">Femenino</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="new-puesto" role="tabpanel" aria-labelledby="new-puesto-tab">
-                                    <div class="mb-3">
-                                        <label for="nuevo_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
-                                        <select name="puesto_id" id="nuevo_puesto_id" class="form-select">
-                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="nuevo_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
-                                        <select name="departamento_id" id="nuevo_departamento_id" class="form-select">
-                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
-                                        </select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="nuevo_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
+                                                <select name="puesto_id" id="nuevo_puesto_id" class="form-select">
+                                                    <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nuevo_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
+                                                <select name="departamento_id" id="nuevo_departamento_id" class="form-select">
+                                                    <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="new-others" role="tabpanel" aria-labelledby="new-others-tab">
-                                    <div class="mb-3">
-                                        <label for="nuevo_comentarios" class="form-label"><span class="label-text" data-i18n="comments">Comentarios</span></label>
-                                        <textarea name="comentarios" id="nuevo_comentarios" class="form-control"></textarea>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="nuevo_comentarios" class="form-label"><span class="label-text" data-i18n="comments">Comentarios</span></label>
+                                                <textarea name="comentarios" id="nuevo_comentarios" class="form-control"></textarea>
+                                            </div>
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-success"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="create">Crear</span></button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -192,9 +202,6 @@
                 </div>
             </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" form="formNuevo" class="btn btn-primary"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="create">Crear</span></button>
       </div>
     </div>
   </div>
@@ -241,39 +248,47 @@
                         <div class="card-body">
                             <div class="tab-content pt-2" id="editFormTabsContent">
                                 <div class="tab-pane fade show active" id="edit-generals" role="tabpanel" aria-labelledby="edit-generals-tab">
-                                    <div class="mb-3">
-                                        <label for="edit_codigo" class="form-label"><span class="label-text" data-i18n="codigo_label">Código</span></label>
-                                        <input type="text" name="codigo" id="edit_codigo" class="form-control" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
-                                        <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
-                                        <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
-                                        <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
-                                        <select name="genero" id="edit_genero" class="form-select">
-                                            <option value="" data-i18n="select_placeholder">Seleccione</option>
-                                            <option value="Masculino" data-i18n="gender_male">Masculino</option>
-                                            <option value="Femenino" data-i18n="gender_female">Femenino</option>
-                                        </select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="edit_codigo" class="form-label"><span class="label-text" data-i18n="codigo_label">Código</span></label>
+                                                <input type="text" name="codigo" id="edit_codigo" class="form-control" readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_nombres" class="form-label"><span class="label-text" data-i18n="nombres">Nombres</span></label>
+                                                <input type="text" name="nombres" id="edit_nombres" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_apellidos" class="form-label"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
+                                                <input type="text" name="apellidos" id="edit_apellidos" class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_fecha_nacimiento" class="form-label"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
+                                                <input type="date" name="fecha_nacimiento" id="edit_fecha_nacimiento" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_genero" class="form-label"><span class="label-text" data-i18n="genero">Género</span></label>
+                                                <select name="genero" id="edit_genero" class="form-select">
+                                                    <option value="" data-i18n="select_placeholder">Seleccione</option>
+                                                    <option value="Masculino" data-i18n="gender_male">Masculino</option>
+                                                    <option value="Femenino" data-i18n="gender_female">Femenino</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-puesto" role="tabpanel" aria-labelledby="edit-puesto-tab">
-                                    <div class="mb-3">
-                                        <label for="edit_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
-                                        <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
-                                        <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="edit_puesto_id" class="form-label"><span class="label-text" data-i18n="puesto">Puesto</span></label>
+                                                <select name="puesto_id" id="edit_puesto_id" class="form-select"></select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_departamento_id" class="form-label"><span class="label-text" data-i18n="departamento">Departamento</span></label>
+                                                <select name="departamento_id" id="edit_departamento_id" class="form-select"></select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="edit-others" role="tabpanel" aria-labelledby="edit-others-tab">
@@ -285,105 +300,12 @@
                             </div>
                         </div>
                     </div>
+                    <div class="d-grid mt-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="save_changes">Guardar Cambios</span></button>
+                    </div>
                 </div>
             </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" form="formEditar" class="btn btn-primary"><i class="bi bi-save me-1" aria-hidden="true"></i> <span class="label-text" data-i18n="save">Guardar</span></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Ver Ficha del Empleado -->
-<div class="modal fade" id="modalFicha" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header section-accent">
-        <h5 class="modal-title"><span class="label-text" data-i18n="employee_details">Ficha del Empleado</span></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row modal-split-row">
-          <div class="col-12 col-md-4">
-            <div class="tab-card card edit-photo-card position-relative">
-              <div class="card-body text-center text-md-start position-relative">
-                <img id="ficha_foto" src="uploads/placeholder.png" alt="Foto" class="img-fluid rounded mb-2 edit-photo-img mx-auto mx-md-0">
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-md-8 mt-md-0 mt-3">
-            <!-- Tabs for view -->
-            <div class="tab-card card">
-              <div class="card-header section-accent" style="padding:0;">
-                <ul class="nav nav-tabs" id="fichaFormTabs" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-0" id="ficha-generals-tab" data-bs-toggle="tab" data-bs-target="#ficha-generals" type="button" role="tab" aria-controls="ficha-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span></button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-0" id="ficha-puesto-tab" data-bs-toggle="tab" data-bs-target="#ficha-puesto" type="button" role="tab" aria-controls="ficha-puesto" aria-selected="false"><i class="bi bi-briefcase-fill"></i> <span class="label-text" data-i18n="tab_position">Puesto</span></button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-0" id="ficha-others-tab" data-bs-toggle="tab" data-bs-target="#ficha-others" type="button" role="tab" aria-controls="ficha-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span></button>
-                  </li>
-                </ul>
-              </div>
-              <div class="card-body">
-                <div class="tab-content pt-2" id="fichaFormTabsContent">
-                  <!-- Tab 1: Generals -->
-                  <div class="tab-pane fade show active" id="ficha-generals" role="tabpanel" aria-labelledby="ficha-generals-tab">
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="codigo_label">Código</span></label>
-                      <p class="form-control-plaintext" id="ficha_codigo">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="nombres">Nombres</span></label>
-                      <p class="form-control-plaintext" id="ficha_nombres">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="apellidos">Apellidos</span></label>
-                      <p class="form-control-plaintext" id="ficha_apellidos">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="fecha_nacimiento">Fecha de Nacimiento</span></label>
-                      <p class="form-control-plaintext" id="ficha_fecha_nacimiento">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="edad">Edad</span></label>
-                      <p class="form-control-plaintext" id="ficha_edad">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="genero">Género</span></label>
-                      <p class="form-control-plaintext" id="ficha_genero">-</p>
-                    </div>
-                  </div>
-                  <!-- Tab 2: Puesto -->
-                  <div class="tab-pane fade" id="ficha-puesto" role="tabpanel" aria-labelledby="ficha-puesto-tab">
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="tab_position">Puesto</span></label>
-                      <p class="form-control-plaintext" id="ficha_puesto">-</p>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="departamento">Departamento</span></label>
-                      <p class="form-control-plaintext" id="ficha_departamento">-</p>
-                    </div>
-                  </div>
-                  <!-- Tab 3: Others -->
-                  <div class="tab-pane fade" id="ficha-others" role="tabpanel" aria-labelledby="ficha-others-tab">
-                    <div class="mb-3">
-                      <label class="form-label fw-bold"><span class="label-text" data-i18n="comentarios">Comentarios</span></label>
-                      <p class="form-control-plaintext" id="ficha_comentarios">-</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> <span class="label-text" data-i18n="close">Cerrar</span></button>
       </div>
     </div>
   </div>

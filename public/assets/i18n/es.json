@@ -10,7 +10,8 @@
   "export_pdf": "Exportar PDF",
   "comments": "Comentarios",
   "edit_employee": "Editar Empleado",
-  "save_changes": "Guardar Cambios"
+  "save_changes": "Guardar Cambios",
+  "save": "Guardar"
   ,"codigo_label": "Código"
   ,"image_invalid": "Archivo de imagen inválido"
   ,"image_too_large": "El archivo excede el tamaño máximo de 2MB"
@@ -49,4 +50,6 @@
   ,"export_xls_sheetjs": "XLSX"
   ,"export_csv": "CSV"
   ,"export_txt": "TXT"
+  ,"close": "Cerrar"
+  ,"employee_details": "Ficha del Empleado"
 }

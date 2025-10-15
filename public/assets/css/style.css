@@ -318,18 +318,55 @@ table.dataTable td img {
 }
 
 /* Ensure edit modal body can scroll when content is taller than viewport
-   and allow JS to set a min-height to stabilize layout across tabs */
-#modalEditar .modal-body {
+   and set a fixed height to prevent resizing when switching tabs */
+#modalEditar .modal-body,
+#modalNuevoEmpleado .modal-body,
+#modalFicha .modal-body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* do not force a fixed height here; JS will set min-height when modal opens */
+    min-height: 450px !important;
+    max-height: calc(100vh - 200px) !important;
+}
+
+/* Fix the modal content area to prevent resizing */
+#modalEditar .modal-content,
+#modalNuevoEmpleado .modal-content,
+#modalFicha .modal-content {
+    height: auto;
+    min-height: 550px;
 }
 
 /* Smoothly animate min-height changes when we stabilize edit modal height across tabs */
 #modalEditar #editFormTabsContent,
-#modalEditar #editFormTabsContent .tab-pane {
-    transition: min-height 220ms ease;
-    will-change: min-height;
+#modalNuevoEmpleado #newFormTabsContent,
+#modalFicha #fichaFormTabsContent {
+    min-height: 400px !important;
+    height: 400px !important;
+}
+
+#modalEditar #editFormTabsContent .tab-pane,
+#modalNuevoEmpleado #newFormTabsContent .tab-pane,
+#modalFicha #fichaFormTabsContent .tab-pane {
+    transition: none;
+    min-height: 400px !important;
+    height: 400px !important;
+    overflow-y: auto;
+}
+
+/* Ensure cards inside tab panes maintain consistent height */
+#modalEditar .tab-pane > .card,
+#modalNuevoEmpleado .tab-pane > .card,
+#modalFicha .tab-pane > .card {
+    min-height: 400px !important;
+    height: 400px !important;
+    overflow-y: auto;
+}
+
+/* Prevent the card-body from collapsing */
+#modalEditar .tab-pane > .card > .card-body,
+#modalNuevoEmpleado .tab-pane > .card > .card-body,
+#modalFicha .tab-pane > .card > .card-body {
+    min-height: 370px !important;
 }
 .modal .nav-tabs .nav-link { color: #fff; border: none; }
 .modal .nav-tabs .nav-link.active { background: rgba(0,0,0,0.14); color: #fff; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08); }

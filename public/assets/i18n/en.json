@@ -10,7 +10,8 @@
   "export_pdf": "Export PDF",
   "comments": "Comments",
   "edit_employee": "Edit Employee",
-  "save_changes": "Save changes"
+  "save_changes": "Save changes",
+  "save": "Save"
   ,"codigo_label": "Code"
   ,"image_invalid": "Invalid image file"
   ,"image_too_large": "The file exceeds the maximum size of 2MB"
@@ -45,8 +46,10 @@
   ,"gender_female": "Female"
   ,"id": "ID"
   ,"actions": "Actions"
-    ,"export_xls": "XLS"
-    ,"export_xls_sheetjs": "XLSX"
-    ,"export_csv": "CSV"
-    ,"export_txt": "TXT"
+  ,"export_xls": "XLS"
+  ,"export_xls_sheetjs": "XLSX"
+  ,"export_csv": "CSV"
+  ,"export_txt": "TXT"
+  ,"close": "Close"
+  ,"employee_details": "Employee Details"
 }
