@@ -3,6 +3,128 @@
 (function(){
     'use strict';
     
+    // ========================================
+    // CENTRALIZED ERROR HANDLING
+    // ========================================
+    
+    /**
+     * Error Handler Utility
+     * Provides standardized error logging and user notification
+     */
+    var ErrorHandler = {
+        /**
+         * Log error to console with context
+         * @param {string} context - Where the error occurred
+         * @param {Error|string} error - The error object or message
+         * @param {Object} [metadata] - Additional context
+         */
+        log: function(context, error, metadata) {
+            var errorInfo = {
+                context: context,
+                message: error && error.message ? error.message : String(error),
+                timestamp: new Date().toISOString()
+            };
+            
+            if (error && error.stack) {
+                errorInfo.stack = error.stack;
+            }
+            
+            if (metadata) {
+                errorInfo.metadata = metadata;
+            }
+            
+            console.error('[' + context + ']', errorInfo);
+            
+            // Store last error for debugging
+            try {
+                window.__lastError = errorInfo;
+            } catch(e) {}
+        },
+        
+        /**
+         * Show user-friendly error toast
+         * @param {string} title - Error title
+         * @param {string} [detail] - Optional error detail
+         */
+        showToast: function(title, detail) {
+            try {
+                if (window.Swal) {
+                    Swal.fire({
+                        toast: true,
+                        position: TOAST_POSITION,
+                        icon: 'error',
+                        title: title || 'Ha ocurrido un error',
+                        text: detail || '',
+                        showConfirmButton: false,
+                        timer: TOAST_ERROR_DURATION
+                    });
+                } else {
+                    console.error('Toast notification:', title, detail);
+                }
+            } catch(e) {
+                console.error('Error showing toast:', e);
+            }
+        },
+        
+        /**
+         * Handle AJAX/fetch errors
+         * @param {string} context - Operation context
+         * @param {Error} error - The error object
+         * @param {boolean} [showToast=true] - Show user notification
+         */
+        handleAjaxError: function(context, error, showToast) {
+            showToast = showToast !== false; // Default true
+            
+            var errorMessage = 'Error de conexión';
+            if (error && error.message) {
+                errorMessage = error.message;
+            }
+            
+            this.log(context, error, { type: 'AJAX' });
+            
+            if (showToast) {
+                this.showToast(errorMessage);
+            }
+        },
+        
+        /**
+         * Handle validation errors
+         * @param {string} context - Operation context
+         * @param {Object} validationErrors - Validation error object
+         */
+        handleValidationError: function(context, validationErrors) {
+            this.log(context, 'Validation failed', { errors: validationErrors });
+            
+            var message = 'Por favor, corrija los errores en el formulario';
+            if (validationErrors && typeof validationErrors === 'object') {
+                var firstError = Object.values(validationErrors)[0];
+                if (firstError) {
+                    message = Array.isArray(firstError) ? firstError[0] : firstError;
+                }
+            }
+            
+            this.showToast('Error de validación', message);
+        },
+        
+        /**
+         * Handle server errors from response
+         * @param {string} context - Operation context
+         * @param {Object} response - Server response object
+         */
+        handleServerError: function(context, response) {
+            var errorMessage = 'Error en el servidor';
+            
+            if (response && response.error) {
+                errorMessage = response.error;
+            } else if (response && response.message) {
+                errorMessage = response.message;
+            }
+            
+            this.log(context, errorMessage, { response: response });
+            this.showToast(errorMessage);
+        }
+    };
+    
     // i18n translations cache
     var translations = {};
     
@@ -31,7 +153,7 @@
                 
                 console.log('Cross-tab sync initialized');
             } catch (e) {
-                console.error('Error initializing Broadcast Channel:', e);
+                ErrorHandler.log('CrossTabSync', e, { feature: 'BroadcastChannel' });
             }
         } else {
             console.warn('Broadcast Channel API not supported in this browser');
@@ -56,7 +178,7 @@
                 console.info('Employee data updated in another tab');
             }
         } catch (e) {
-            console.error('Error showing update notification:', e);
+            ErrorHandler.log('showUpdateNotification', e);
         }
     }
     
@@ -515,7 +637,7 @@
                 $btn.prop('disabled', false);
             }
         } catch(e) {
-            console.error('Error setting button loading state:', e);
+            ErrorHandler.log('setButtonLoading', e, { isLoading: isLoading });
         }
     }
 
@@ -553,39 +675,20 @@
                                 } 
                             }catch(e){} 
                         } else { 
-                            try{ 
-                                Swal.fire({ 
-                                    toast:true, 
-                                    position:TOAST_POSITION, 
-                                    icon:'error', 
-                                    title: (resp && resp.error) || 'Error', 
-                                    showConfirmButton:false, 
-                                    timer:TOAST_ERROR_DURATION 
-                                }); 
-                            }catch(e){} 
+                            ErrorHandler.handleServerError('CreateEmployee', resp);
                         } 
                     }catch(e){
-                        console.error('Error processing create response:', e);
+                        ErrorHandler.log('CreateEmployee.ResponseParsing', e);
                     } 
                 })
                 .catch(function(err) {
-                    console.error('Error creating employee:', err);
-                    try {
-                        Swal.fire({ 
-                            toast:true, 
-                            position:TOAST_POSITION, 
-                            icon:'error', 
-                            title: 'Error de conexión', 
-                            showConfirmButton:false, 
-                            timer:TOAST_ERROR_DURATION 
-                        });
-                    }catch(e){}
+                    ErrorHandler.handleAjaxError('CreateEmployee', err);
                 })
                 .finally(function(){ 
                     setButtonLoading($btn, false);
                 }); 
         }catch(e){
-            console.error('Form submit error:', e);
+            ErrorHandler.log('CreateEmployeeForm.Submit', e);
         } 
         return false; 
     });
@@ -631,39 +734,20 @@
                                 } 
                             }catch(e){} 
                         } else { 
-                            try{ 
-                                Swal.fire({ 
-                                    toast:true, 
-                                    position:TOAST_POSITION, 
-                                    icon:'error', 
-                                    title: (resp && resp.error) || 'Error', 
-                                    showConfirmButton:false, 
-                                    timer:TOAST_ERROR_DURATION 
-                                }); 
-                            }catch(e){} 
+                            ErrorHandler.handleServerError('UpdateEmployee', resp);
                         } 
                     }catch(e){
-                        console.error('Error processing update response:', e);
+                        ErrorHandler.log('UpdateEmployee.ResponseParsing', e);
                     } 
                 })
                 .catch(function(err) {
-                    console.error('Error updating employee:', err);
-                    try {
-                        Swal.fire({ 
-                            toast:true, 
-                            position:TOAST_POSITION, 
-                            icon:'error', 
-                            title: 'Error de conexión', 
-                            showConfirmButton:false, 
-                            timer:TOAST_ERROR_DURATION 
-                        });
-                    }catch(e){}
+                    ErrorHandler.handleAjaxError('UpdateEmployee', err);
                 })
                 .finally(function(){ 
                     setButtonLoading($btn, false);
                 }); 
         }catch(e){
-            console.error('Form submit error:', e);
+            ErrorHandler.log('UpdateEmployeeForm.Submit', e);
         } 
         return false; 
     });
@@ -676,7 +760,7 @@
             // Open employee view page in new tab
             window.open(api('empleados/view/' + encodeURIComponent(id)), '_blank');
         }catch(err){
-            console.error('ver-ficha click handler error:', err);
+            ErrorHandler.log('ViewEmployee.ClickHandler', err, { id: id });
         } 
     });
 
@@ -688,7 +772,7 @@
             // Open employee edit page in new tab
             window.open(api('empleados/edit/' + encodeURIComponent(id)), '_blank');
         }catch(err){ 
-            console.error('editar click handler error:', err); 
+            ErrorHandler.log('EditEmployee.ClickHandler', err, { id: id }); 
         } 
     });
 
@@ -723,7 +807,7 @@
                         } 
                     })
                     .catch(function(err){ 
-                        console.error('delete failed', err); 
+                        ErrorHandler.log('DeleteEmployee.Request', err, { id: id });
                         Swal.showValidationMessage('Error: ' + err.message);
                     });
                 },
@@ -746,7 +830,7 @@
                 }
             }); 
         }catch(e){ 
-            console.error('eliminar click handler error', e); 
+            ErrorHandler.log('DeleteEmployee.ClickHandler', e, { id: id });
         } 
     });
 
