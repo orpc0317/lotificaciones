@@ -59,9 +59,10 @@ class EmpleadoController
             };
 
             $columns = [
-                ['data' => 'id', 'title' => $t('id', 'ID')],
+                ['data' => null, 'title' => '', 'className' => 'no-export dt-no-colvis'],
+                ['data' => 'codigo', 'title' => $t('codigo', 'Código')],
                 ['data' => 'thumbnail', 'title' => $t('foto', 'Foto'), 'className' => 'no-export'],
-                ['data' => 'codigo', 'title' => $t('codigo', 'Código'), 'visible' => false],
+                ['data' => 'id', 'title' => $t('id', 'ID'), 'visible' => false],
                 ['data' => 'nombres', 'title' => $t('nombres', 'Nombres')],
                 ['data' => 'apellidos', 'title' => $t('apellidos', 'Apellidos')],
                 ['data' => 'edad', 'title' => $t('edad', 'Edad')],
@@ -73,8 +74,7 @@ class EmpleadoController
                 ['data' => 'telefono', 'title' => $t('telefono', 'Teléfono'), 'visible' => false],
                 ['data' => 'direccion', 'title' => $t('direccion', 'Dirección'), 'visible' => false],
                 ['data' => 'ciudad', 'title' => $t('ciudad', 'Ciudad'), 'visible' => false],
-                ['data' => 'comentarios', 'title' => $t('comentarios', 'Comentarios'), 'visible' => false],
-                ['data' => null, 'title' => $t('actions', 'Acciones'), 'className' => 'no-export dt-no-colvis']
+                ['data' => 'comentarios', 'title' => $t('comentarios', 'Comentarios'), 'visible' => false]
             ];
 
             header('Content-Type: application/json', true, 200);
@@ -226,19 +226,28 @@ class EmpleadoController
             
             if (!$empleado) {
                 http_response_code(404);
-                echo "Empleado no encontrado";
+                echo "Empleado no encontrado (ID: " . (int)$id . ")";
                 return;
             }
+
+            // Debug: Log that we found the employee
+            error_log("EmpleadoController::view - Found employee ID: " . $id . ", Name: " . $empleado['nombres']);
 
             // Load departments and positions for display
             $puestos = $model->getPuestos();
             $departamentos = $model->getDepartamentos();
 
-            include_once __DIR__ . '/../views/empleado_view.php';
+            // Debug: Verify view file exists
+            $viewPath = __DIR__ . '/../views/empleado_view.php';
+            if (!file_exists($viewPath)) {
+                throw new \Exception("View file not found: " . $viewPath);
+            }
+
+            include_once $viewPath;
         } catch (\Exception $e) {
             $this->logError($e);
             http_response_code(500);
-            echo "Error al cargar el empleado";
+            echo "Error al cargar el empleado: " . $e->getMessage();
         }
     }
 
