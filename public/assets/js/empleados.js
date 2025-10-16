@@ -220,8 +220,8 @@
                         obj.className=(obj.className||'')+' no-export';
                     }
                     if(!c.data){
-                        // Only View icon - no background, just the icon
-                        obj.render = function(data,type,row){ return '<a href="#" class="ver-ficha text-primary fs-5" data-id="'+row.id+'" title="Ver detalles"><i class="bi bi-eye-fill"></i></a>'; };
+                        // Only View icon - uses theme color
+                        obj.render = function(data,type,row){ return '<a href="#" class="ver-ficha action-icon fs-5" data-id="'+row.id+'" title="Ver detalles"><i class="bi bi-eye-fill"></i></a>'; };
                         obj.className=(obj.className||'')+' no-export text-center';
                     }
                     return obj;

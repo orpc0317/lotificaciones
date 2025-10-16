@@ -46,6 +46,16 @@
         .card .card-body { padding: 0.75rem; }
         .nav-tabs .nav-link.rounded-0 { border-radius: 0 !important; }
         .list-group-item { padding: 0.5rem 0.75rem; background: transparent; border: none; }
+        /* Action icons use theme color */
+        .action-icon { 
+            color: var(--primary-600); 
+            text-decoration: none;
+            transition: color 220ms ease, transform 150ms ease;
+        }
+        .action-icon:hover { 
+            color: var(--primary-700); 
+            transform: scale(1.1);
+        }
     /* Keep tab-card headers visually minimal but do not override .section-accent headers */
     .tab-card .card-header { padding: 0; background: transparent; border-bottom: 0; }
     /* Make sure general card headers that are marked as section-accent keep their themed background */
