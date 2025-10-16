@@ -11,12 +11,17 @@ if (!isset($empleado)) {
     echo "Empleado no encontrado";
     exit;
 }
+
+// Calculate APP_ROOT for base href
+$APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+if ($APP_ROOT === '') $APP_ROOT = '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="<?= $APP_ROOT ?>/">
     <title>Editing Employee #<?= htmlspecialchars($empleado['codigo']) ?> - <?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?> | Lotificaciones</title>
     
     <!-- Bootstrap 5.3.2 -->
@@ -24,9 +29,9 @@ if (!isset($empleado)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="../assets/css/theme.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     
     <style>
         .form-section {
@@ -102,10 +107,10 @@ if (!isset($empleado)) {
                                 <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
                                     <i class="bi bi-x-circle"></i> <span id="btnCancel">Cancelar</span>
                                 </button>
-                                <a href="../view/<?= htmlspecialchars($empleado['codigo']) ?>" class="btn btn-outline-secondary">
+                                <a href="empleados/view/<?= htmlspecialchars($empleado['codigo']) ?>" class="btn btn-outline-secondary">
                                     <i class="bi bi-eye"></i> <span id="btnViewMode">Ver sin editar</span>
                                 </a>
-                                <a href="../empleados" class="btn btn-outline-secondary ms-auto">
+                                <a href="empleados" class="btn btn-outline-secondary ms-auto">
                                     <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                                 </a>
                             </div>
@@ -118,7 +123,7 @@ if (!isset($empleado)) {
                                     <div class="section-title"><i class="bi bi-camera-fill"></i> <span id="lblPhoto">Fotografía</span></div>
                                     <div class="photo-preview-container mb-3">
                                         <img id="photoPreview" 
-                                             src="../uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
+                                             src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
                                              alt="Employee Photo" 
                                              class="photo-preview-img">
                                     </div>
@@ -307,8 +312,8 @@ if (!isset($empleado)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom Scripts -->
-    <script src="../assets/js/theme.js"></script>
-    <script src="../assets/js/layout.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/layout.js"></script>
     
     <script>
         // Employee data for JavaScript
@@ -409,7 +414,7 @@ if (!isset($empleado)) {
             alert('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde.\n\nSerá redirigido a la vista de solo lectura.');
             
             // Redirect to view mode
-            window.location.href = `../view/${empleadoId}`;
+            window.location.href = `empleados/view/${empleadoId}`;
         }
 
         function proceedWithEdit() {
@@ -456,7 +461,7 @@ if (!isset($empleado)) {
                 const formData = new FormData(form);
                 
                 try {
-                    const response = await fetch('../empleados/update', {
+                    const response = await fetch('empleados/update', {
                         method: 'POST',
                         body: formData
                     });
@@ -477,7 +482,7 @@ if (!isset($empleado)) {
                         alert('Empleado actualizado correctamente');
                         
                         // Redirect to view mode
-                        window.location.href = `../view/${empleadoId}`;
+                        window.location.href = `empleados/view/${empleadoId}`;
                     } else {
                         alert('Error al actualizar: ' + (result.message || 'Error desconocido'));
                     }
@@ -492,10 +497,10 @@ if (!isset($empleado)) {
             if (formModified) {
                 if (confirm('Tienes cambios sin guardar. ¿Deseas cancelar?')) {
                     formModified = false;
-                    window.location.href = `../view/${empleadoId}`;
+                    window.location.href = `empleados/view/${empleadoId}`;
                 }
             } else {
-                window.location.href = `../view/${empleadoId}`;
+                window.location.href = `empleados/view/${empleadoId}`;
             }
         }
 
@@ -521,7 +526,7 @@ if (!isset($empleado)) {
             const lang = window.themeManager ? window.themeManager.getLanguage() : 'es';
             
             try {
-                const response = await fetch(`../assets/i18n/${lang}.json`);
+                const response = await fetch(`assets/i18n/${lang}.json`);
                 const t = await response.json();
                 
                 // Update UI text

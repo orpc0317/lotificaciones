@@ -11,12 +11,17 @@ if (!isset($empleado)) {
     echo "Empleado no encontrado";
     exit;
 }
+
+// Calculate APP_ROOT for base href
+$APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+if ($APP_ROOT === '') $APP_ROOT = '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="<?= $APP_ROOT ?>/">
     <title>Employee #<?= htmlspecialchars($empleado['codigo']) ?> - <?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?> | Lotificaciones</title>
     
     <!-- Bootstrap 5.3.2 -->
@@ -24,9 +29,9 @@ if (!isset($empleado)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="../assets/css/theme.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <?php include __DIR__ . '/layouts/main.php'; ?>
@@ -68,7 +73,7 @@ if (!isset($empleado)) {
                             <button class="btn btn-secondary" onclick="window.close()">
                                 <i class="bi bi-x-circle"></i> <span id="btnClose">Cerrar</span>
                             </button>
-                            <a href="../empleados" class="btn btn-outline-secondary">
+                            <a href="empleados" class="btn btn-outline-secondary">
                                 <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                             </a>
                             <a href="#" id="editButton" class="btn btn-primary" onclick="checkEditLockAndNavigate(event)">
@@ -245,8 +250,8 @@ if (!isset($empleado)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom Scripts -->
-    <script src="../assets/js/theme.js"></script>
-    <script src="../assets/js/layout.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/layout.js"></script>
     
     <script>
         // Employee data for JavaScript
@@ -320,7 +325,7 @@ if (!isset($empleado)) {
         }
 
         function navigateToEditMode() {
-            window.location.href = `edit/${empleadoId}`;
+            window.location.href = `empleados/edit/${empleadoId}`;
         }
 
         function showEditBlockedMessage() {
@@ -331,7 +336,7 @@ if (!isset($empleado)) {
             const lang = window.themeManager ? window.themeManager.getLanguage() : 'es';
             
             try {
-                const response = await fetch(`../assets/i18n/${lang}.json`);
+                const response = await fetch(`assets/i18n/${lang}.json`);
                 const translations = await response.json();
                 
                 // Update UI text
