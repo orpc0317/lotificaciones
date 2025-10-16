@@ -29,13 +29,6 @@ if (!isset($empleado)) {
     <link rel="stylesheet" href="../assets/css/style.css">
     
     <style>
-        .edit-lock-warning {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1050;
-            max-width: 400px;
-        }
         .form-section {
             background: var(--card-bg);
             border-radius: 8px;
@@ -63,14 +56,7 @@ if (!isset($empleado)) {
 <body>
     <?php include __DIR__ . '/layouts/main.php'; ?>
     
-    <!-- Edit Lock Warning (will be shown/hidden by JavaScript) -->
-    <div id="editLockWarning" class="edit-lock-warning alert alert-warning alert-dismissible fade" role="alert" style="display: none;">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <strong id="warningTitle">¡Advertencia!</strong>
-        <p class="mb-0" id="warningMessage">Este empleado está siendo editado en otra pestaña.</p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    
+
     <div class="app-container">
         <!-- Sidebar placeholder (will be rendered by layout.js) -->
         <div id="sidebar-container"></div>
@@ -332,14 +318,11 @@ if (!isset($empleado)) {
         // Cross-tab communication channel
         let editChannel = null;
         let formModified = false;
-        let isEditingInOtherTab = false;
+        let editLockAcquired = false;
+        let checkingLock = false;
 
         document.addEventListener('DOMContentLoaded', function() {
-            initializeEditPage();
-            setupEditLockDetection();
-            setupFormChangeTracking();
-            setupPhotoPreview();
-            loadTranslations();
+            checkEditLockAndProceed();
         });
 
         // Update translations when language changes
@@ -347,54 +330,98 @@ if (!isset($empleado)) {
             loadTranslations();
         });
 
+        // Check if another tab is editing before allowing edit mode
+        function checkEditLockAndProceed() {
+            if (!('BroadcastChannel' in window)) {
+                // Browser doesn't support Broadcast Channel, proceed anyway
+                proceedWithEdit();
+                return;
+            }
+
+            checkingLock = true;
+            editChannel = new BroadcastChannel('lotificaciones-employee-edit');
+            
+            let responseReceived = false;
+            const timeout = setTimeout(() => {
+                if (!responseReceived && !editLockAcquired) {
+                    // No response = no one else is editing, safe to proceed
+                    acquireEditLock();
+                }
+            }, 200); // Wait 200ms for responses
+
+            // Listen for lock status responses
+            editChannel.onmessage = (event) => {
+                if (event.data.action === 'lock-check' && event.data.empleadoId === empleadoId) {
+                    // Another tab is asking if we're editing
+                    if (editLockAcquired) {
+                        editChannel.postMessage({ 
+                            action: 'lock-exists', 
+                            empleadoId: empleadoId 
+                        });
+                    }
+                } else if (event.data.action === 'lock-exists' && event.data.empleadoId === empleadoId) {
+                    // Another tab responded - they're already editing!
+                    responseReceived = true;
+                    clearTimeout(timeout);
+                    blockEditMode();
+                } else if (event.data.action === 'lock-released' && event.data.empleadoId === empleadoId) {
+                    // Edit lock was released in another tab
+                    console.log('Edit lock released by another tab');
+                } else if (event.data.action === 'data-updated' && event.data.empleadoId === empleadoId) {
+                    showDataUpdatedNotification();
+                }
+            };
+
+            // Ask if anyone else is editing this employee
+            editChannel.postMessage({ 
+                action: 'lock-check', 
+                empleadoId: empleadoId 
+            });
+        }
+
+        function acquireEditLock() {
+            editLockAcquired = true;
+            checkingLock = false;
+            console.log('Edit lock acquired for employee', empleadoId);
+            proceedWithEdit();
+
+            // Announce that we have the lock
+            editChannel.postMessage({ 
+                action: 'lock-acquired', 
+                empleadoId: empleadoId 
+            });
+
+            // Release lock on page unload
+            window.addEventListener('beforeunload', function() {
+                editChannel.postMessage({ 
+                    action: 'lock-released', 
+                    empleadoId: empleadoId 
+                });
+                editChannel.close();
+            });
+        }
+
+        function blockEditMode() {
+            checkingLock = false;
+            console.log('Edit mode blocked - already being edited in another tab');
+            
+            // Show error message
+            alert('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde.\n\nSerá redirigido a la vista de solo lectura.');
+            
+            // Redirect to view mode
+            window.location.href = `../view/${empleadoId}`;
+        }
+
+        function proceedWithEdit() {
+            initializeEditPage();
+            setupFormChangeTracking();
+            setupPhotoPreview();
+            loadTranslations();
+        }
+
         function initializeEditPage() {
             const nombre = empleadoData.nombres + ' ' + empleadoData.apellidos;
             document.title = `Editing Employee #${empleadoData.codigo} - ${nombre} | Lotificaciones`;
-        }
-
-        // Edit lock detection using Broadcast Channel API
-        function setupEditLockDetection() {
-            if ('BroadcastChannel' in window) {
-                editChannel = new BroadcastChannel('lotificaciones-employee-edit');
-                
-                // Listen for edit start messages from other tabs
-                editChannel.onmessage = (event) => {
-                    if (event.data.action === 'edit-started' && event.data.empleadoId === empleadoId) {
-                        showEditLockWarning();
-                        isEditingInOtherTab = true;
-                    } else if (event.data.action === 'edit-closed' && event.data.empleadoId === empleadoId) {
-                        hideEditLockWarning();
-                        isEditingInOtherTab = false;
-                    } else if (event.data.action === 'data-updated' && event.data.empleadoId === empleadoId) {
-                        showDataUpdatedNotification();
-                    }
-                };
-                
-                // Announce that we're editing this employee
-                editChannel.postMessage({ action: 'edit-started', empleadoId: empleadoId });
-                
-                // Cleanup on page unload
-                window.addEventListener('beforeunload', function() {
-                    editChannel.postMessage({ action: 'edit-closed', empleadoId: empleadoId });
-                    editChannel.close();
-                });
-            }
-        }
-
-        function showEditLockWarning() {
-            const warning = document.getElementById('editLockWarning');
-            warning.style.display = 'block';
-            setTimeout(() => {
-                warning.classList.add('show');
-            }, 10);
-        }
-
-        function hideEditLockWarning() {
-            const warning = document.getElementById('editLockWarning');
-            warning.classList.remove('show');
-            setTimeout(() => {
-                warning.style.display = 'none';
-            }, 150);
         }
 
         function showDataUpdatedNotification() {
@@ -425,12 +452,6 @@ if (!isset($empleado)) {
             // Form submission
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                if (isEditingInOtherTab) {
-                    if (!confirm('Este empleado está siendo editado en otra pestaña. ¿Desea continuar y sobrescribir los cambios?')) {
-                        return;
-                    }
-                }
                 
                 const formData = new FormData(form);
                 

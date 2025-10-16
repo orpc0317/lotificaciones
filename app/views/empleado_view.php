@@ -71,7 +71,7 @@ if (!isset($empleado)) {
                             <a href="../empleados" class="btn btn-outline-secondary">
                                 <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                             </a>
-                            <a href="edit/<?= htmlspecialchars($empleado['codigo']) ?>" class="btn btn-primary">
+                            <a href="#" id="editButton" class="btn btn-primary" onclick="checkEditLockAndNavigate(event)">
                                 <i class="bi bi-pencil"></i> <span id="btnEdit">Editar</span>
                             </a>
                         </div>
@@ -251,6 +251,7 @@ if (!isset($empleado)) {
     <script>
         // Employee data for JavaScript
         const empleadoData = <?= json_encode($empleado) ?>;
+        const empleadoId = <?= json_encode($empleado['codigo']) ?>;
         
         // Set dynamic page title with employee name
         document.addEventListener('DOMContentLoaded', function() {
@@ -266,6 +267,64 @@ if (!isset($empleado)) {
         function updatePageTitle() {
             const nombre = empleadoData.nombres + ' ' + empleadoData.apellidos;
             document.title = `Employee #${empleadoData.codigo} - ${nombre} | Lotificaciones`;
+        }
+
+        // Check if record is being edited before navigating to edit mode
+        function checkEditLockAndNavigate(event) {
+            event.preventDefault();
+            
+            if (!('BroadcastChannel' in window)) {
+                // Browser doesn't support Broadcast Channel, proceed anyway
+                navigateToEditMode();
+                return;
+            }
+
+            const editChannel = new BroadcastChannel('lotificaciones-employee-edit');
+            let lockExists = false;
+            let checkComplete = false;
+
+            const timeout = setTimeout(() => {
+                if (!lockExists) {
+                    // No response = no one is editing, safe to proceed
+                    checkComplete = true;
+                    editChannel.close();
+                    navigateToEditMode();
+                }
+            }, 200); // Wait 200ms for responses
+
+            // Listen for lock status responses
+            editChannel.onmessage = (event) => {
+                if (event.data.action === 'lock-check' && event.data.empleadoId === empleadoId) {
+                    // Another tab is asking if we're editing - we're not (this is view mode)
+                    // Do nothing
+                } else if (event.data.action === 'lock-exists' && event.data.empleadoId === empleadoId) {
+                    // Another tab responded - someone is already editing!
+                    lockExists = true;
+                    clearTimeout(timeout);
+                    editChannel.close();
+                    showEditBlockedMessage();
+                } else if (event.data.action === 'lock-acquired' && event.data.empleadoId === empleadoId) {
+                    // Someone just acquired the lock
+                    lockExists = true;
+                    clearTimeout(timeout);
+                    editChannel.close();
+                    showEditBlockedMessage();
+                }
+            };
+
+            // Ask if anyone else is editing this employee
+            editChannel.postMessage({ 
+                action: 'lock-check', 
+                empleadoId: empleadoId 
+            });
+        }
+
+        function navigateToEditMode() {
+            window.location.href = `edit/${empleadoId}`;
+        }
+
+        function showEditBlockedMessage() {
+            alert('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde los cambios.');
         }
 
         async function loadTranslations() {

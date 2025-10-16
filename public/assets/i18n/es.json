@@ -90,5 +90,6 @@
   "tipo_sangre": "Tipo de Sangre",
   "alergias": "Alergias",
   "warning": "¡Advertencia!",
-  "edit_conflict_warning": "Este empleado está siendo editado en otra pestaña."
+  "edit_blocked_message": "Este empleado está siendo editado en otra pestaña. No puede entrar en modo de edición hasta que la otra pestaña cierre o guarde los cambios.",
+  "edit_blocked_title": "Edición Bloqueada"
 }

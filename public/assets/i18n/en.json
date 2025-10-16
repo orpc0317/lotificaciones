@@ -90,5 +90,6 @@
   "tipo_sangre": "Blood Type",
   "alergias": "Allergies",
   "warning": "Warning!",
-  "edit_conflict_warning": "This employee is being edited in another tab."
+  "edit_blocked_message": "This employee is being edited in another tab. You cannot enter edit mode until the other tab closes or saves the changes.",
+  "edit_blocked_title": "Edit Blocked"
 }

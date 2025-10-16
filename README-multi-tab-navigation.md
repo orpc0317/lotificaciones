@@ -17,7 +17,7 @@ The system uses clean, RESTful URLs with record-specific routes:
 ### Key Features
 1. **Multi-Tab Support**: Users can open multiple employees in separate browser tabs
 2. **Dynamic Tab Titles**: Each tab shows "Employee #ID - Name" for easy identification
-3. **Edit Conflict Detection**: Warns when the same employee is being edited in multiple tabs
+3. **Edit Lock Protection**: Prevents multiple tabs from editing the same employee simultaneously
 4. **Cross-Tab Synchronization**: Updates are broadcasted to all open tabs
 5. **Read-Only View First**: View button opens read-only, with explicit "Edit" action required
 
@@ -101,25 +101,58 @@ Uses the **Broadcast Channel API** for real-time synchronization across tabs.
 ```javascript
 const editChannel = new BroadcastChannel('lotificaciones-employee-edit');
 
-// Announce editing started
+// Check if another tab is already editing on page load
 editChannel.postMessage({ 
-    action: 'edit-started', 
+    action: 'lock-check', 
     empleadoId: empleadoId 
 });
 
-// Listen for conflicts
+// Listen for lock responses
 editChannel.onmessage = (event) => {
-    if (event.data.action === 'edit-started' && 
+    if (event.data.action === 'lock-exists' && 
         event.data.empleadoId === empleadoId) {
-        showEditLockWarning(); // Show warning banner
+        // Another tab is editing - BLOCK access
+        alert('This employee is being edited in another tab.');
+        window.location.href = `../view/${empleadoId}`; // Redirect to view mode
     }
 };
 
-// Notify on save
-editChannel.postMessage({ 
-    action: 'data-updated', 
-    empleadoId: empleadoId 
-});
+// If no lock exists after 200ms, acquire it
+setTimeout(() => {
+    editChannel.postMessage({ 
+        action: 'lock-acquired', 
+        empleadoId: empleadoId 
+    });
+}, 200);
+```
+
+#### View Page (empleado_view.php)
+```javascript
+// Check lock before allowing navigation to edit mode
+function checkEditLockAndNavigate(event) {
+    event.preventDefault();
+    
+    const editChannel = new BroadcastChannel('lotificaciones-employee-edit');
+    
+    // Ask if anyone is editing
+    editChannel.postMessage({ 
+        action: 'lock-check', 
+        empleadoId: empleadoId 
+    });
+    
+    // Listen for responses
+    editChannel.onmessage = (event) => {
+        if (event.data.action === 'lock-exists') {
+            // Editing blocked - show error
+            alert('This employee is being edited in another tab.');
+        }
+    };
+    
+    // If no response after 200ms, proceed to edit
+    setTimeout(() => {
+        window.location.href = `edit/${empleadoId}`;
+    }, 200);
+}
 ```
 
 #### List Page (empleados.js)
@@ -170,16 +203,21 @@ window.addEventListener('beforeunload', (e) => {
    - Close tab or return to list
 
 ### Editing an Employee
-1. User clicks "Edit" (pencil icon) on any employee row
-2. New tab opens with `/empleados/edit/{id}`
-3. Tab title shows "Editing Employee #1005 - Juan Pérez | Lotificaciones"
-4. If another tab is already editing this employee:
-   - Warning banner appears: "This employee is being edited in another tab"
+1. User clicks "Edit" (pencil icon) on any employee row OR clicks "Edit" button in view mode
+2. System checks if employee is already being edited in another tab
+3. **If locked**: 
+   - Alert shown: "This employee is being edited in another tab. You cannot enter edit mode..."
+   - User stays in current page (or redirected to view mode if from direct URL)
+4. **If available**:
+   - New tab opens with `/empleados/edit/{id}` (or navigates to edit mode)
+   - Tab title shows "Editing Employee #1005 - Juan Pérez | Lotificaciones"
+   - Edit lock is acquired for this tab
 5. User makes changes
 6. If they try to leave without saving:
    - Browser shows "You have unsaved changes" warning
 7. On save:
    - Form submits to `/empleados/update`
+   - Edit lock is released
    - All other tabs are notified
    - List views automatically refresh
    - User redirected to view mode
@@ -199,12 +237,53 @@ window.addEventListener('beforeunload', (e) => {
 
 | Event | Payload | Purpose |
 |-------|---------|---------|
-| `edit-started` | `{ action, empleadoId }` | Notify other tabs editing has begun |
-| `edit-closed` | `{ action, empleadoId }` | Notify other tabs editing has ended |
+| `lock-check` | `{ action, empleadoId }` | Ask if anyone is editing this employee |
+| `lock-exists` | `{ action, empleadoId }` | Response: Yes, someone is editing |
+| `lock-acquired` | `{ action, empleadoId }` | Announce edit lock has been acquired |
+| `lock-released` | `{ action, empleadoId }` | Announce edit lock has been released |
 | `data-updated` | `{ action, empleadoId }` | Notify data was saved |
 
 ### Channel Name
 `lotificaciones-employee-edit`
+
+### Edit Lock Flow
+
+```
+Tab 1 (View Mode)              Tab 2 (Trying to Edit)
+     |                                 |
+     |                                 | Opens edit page
+     |                                 |
+     |        ← lock-check ─────────   | Asks if editing
+     |                                 |
+     |        ─ lock-exists ────────→  | Tab 1 responds: YES
+     |                                 |
+     |                                 | ❌ BLOCKED!
+     |                                 | Alert + Redirect
+     
+     
+Tab 1 (Editing)                Tab 2 (Trying to Edit)
+     |                                 |
+     | Has active lock                 | Opens edit page
+     |                                 |
+     |        ← lock-check ─────────   | Asks if editing
+     |                                 |
+     |        ─ lock-exists ────────→  | Tab 1 responds: YES
+     |                                 |
+     |                                 | ❌ BLOCKED!
+     |                                 | Alert + Redirect
+
+
+Tab 1 (Editing)                Tab 2 (Trying to Edit)
+     |                                 |
+     | NO active locks                 | Opens edit page
+     |                                 |
+     |        ← lock-check ─────────   | Asks if editing
+     |                                 |
+     |        (no response)            | 200ms timeout...
+     |                                 |
+     |        ← lock-acquired ──────   | ✅ Lock acquired!
+     |                                 | Edit mode enabled
+```
 
 ## Browser Compatibility
 
@@ -290,6 +369,14 @@ English (en.json):
 - Add conflict resolution UI when saves collide
 
 ## Troubleshooting
+
+### Issue: Edit button doesn't work
+**Cause**: Another tab has the record open in edit mode  
+**Solution**: Close or save changes in the other tab first
+
+### Issue: "Edit blocked" message appears incorrectly
+**Cause**: Previous tab didn't release lock (browser crash, etc.)  
+**Solution**: Close all tabs for that employee and try again
 
 ### Issue: New tabs not opening
 **Cause**: Popup blocker  
