@@ -102,7 +102,7 @@ $baseHref = $APP_ROOT . '/';
                 <div class="container-fluid">
                     <!-- Action Buttons -->
                     <div class="row mb-3">
-                        <div class="col-12">
+                        <div class="col-12 d-flex gap-2">
                             <button class="btn btn-secondary" onclick="window.close()">
                                 <i class="bi bi-x-circle"></i> <span id="btnClose">Cerrar</span>
                             </button>
@@ -112,6 +112,9 @@ $baseHref = $APP_ROOT . '/';
                             <a href="#" id="editButton" class="btn btn-primary" onclick="checkEditLockAndNavigate(event)">
                                 <i class="bi bi-pencil"></i> <span id="btnEdit">Editar</span>
                             </a>
+                            <button class="btn btn-danger ms-auto" onclick="deleteEmployee(<?= htmlspecialchars($empleado['id']) ?>)">
+                                <i class="bi bi-trash"></i> <span id="btnDelete">Eliminar</span>
+                            </button>
                         </div>
                     </div>
 
@@ -296,6 +299,9 @@ $baseHref = $APP_ROOT . '/';
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- SweetAlert2 for confirmation dialogs -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Custom Scripts -->
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/layout.js"></script>
@@ -304,6 +310,75 @@ $baseHref = $APP_ROOT . '/';
         // Employee data for JavaScript
         const empleadoData = <?= json_encode($empleado) ?>;
         const empleadoId = <?= json_encode($empleado['codigo']) ?>;
+        
+        // Get base URL from base tag
+        function api(path) {
+            try {
+                const baseEl = document.querySelector('base');
+                const base = baseEl ? baseEl.getAttribute('href') : '/';
+                return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+            } catch(e) {
+                return '/' + path.replace(/^\/+/, '');
+            }
+        }
+        
+        // Delete employee function
+        function deleteEmployee(id) {
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(api('empleados/delete'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'id=' + encodeURIComponent(id)
+                    })
+                    .then(r => r.json().catch(() => null))
+                    .then(resp => {
+                        if (resp && resp.success) {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Empleado eliminado',
+                                showConfirmButton: false,
+                                timer: 1800
+                            }).then(() => {
+                                // Close current tab and go back to list
+                                window.location.href = api('empleados');
+                            });
+                        } else {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: (resp && resp.error) || 'Error al eliminar',
+                                showConfirmButton: false,
+                                timer: 2500
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error('delete failed', err);
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
+                    });
+                }
+            });
+        }
         
         // Set dynamic page title with employee name
         document.addEventListener('DOMContentLoaded', function() {
@@ -392,6 +467,7 @@ $baseHref = $APP_ROOT . '/';
                     btnClose: translations.close || 'Cerrar',
                     btnBackToList: translations.back_to_list || 'Volver a la lista',
                     btnEdit: translations.edit || 'Editar',
+                    btnDelete: translations.delete || 'Eliminar',
                     cardTitleInfo: translations.employee_information || 'Información del Empleado',
                     
                     // Tab titles

@@ -220,7 +220,8 @@
                         obj.className=(obj.className||'')+' no-export';
                     }
                     if(!c.data){
-                        obj.render = function(data,type,row){ return '<button class="btn btn-sm btn-info ver-ficha" data-id="'+row.id+'"><i class="bi bi-eye"></i></button> <button class="btn btn-sm btn-warning editar" data-id="'+row.id+'"><i class="bi bi-pencil-square"></i></button> <button class="btn btn-sm btn-danger eliminar" data-id="'+row.id+'"><i class="bi bi-trash"></i></button>'; };
+                        // Only View button - Edit and Delete moved to view page
+                        obj.render = function(data,type,row){ return '<button class="btn btn-sm btn-info ver-ficha" data-id="'+row.id+'" title="Ver detalles"><i class="bi bi-eye"></i></button>'; };
                         obj.className=(obj.className||'')+' no-export';
                     }
                     return obj;
