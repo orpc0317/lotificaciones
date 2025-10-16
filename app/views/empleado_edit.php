@@ -86,7 +86,7 @@ if (!isset($empleado)) {
         }
     </style>
 </head>
-<body>
+<body data-csrf-token="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">
     <div class="app-container">
         <!-- Sidebar placeholder (will be rendered by layout.js) -->
         <div id="sidebar-container"></div>
@@ -133,10 +133,10 @@ if (!isset($empleado)) {
                                 <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
                                     <i class="bi bi-x-circle"></i> <span id="btnCancel">Cancelar</span>
                                 </button>
-                                <a href="empleados/view/<?= htmlspecialchars($empleado['codigo']) ?>" class="btn btn-outline-secondary">
+                                <a href="<?= PathHelper::url('empleados/view/' . $empleado['id']) ?>" class="btn btn-outline-secondary">
                                     <i class="bi bi-eye"></i> <span id="btnViewMode">Ver sin editar</span>
                                 </a>
-                                <a href="empleados" class="btn btn-outline-secondary ms-auto">
+                                <a href="<?= PathHelper::url('empleados') ?>" class="btn btn-outline-secondary ms-auto">
                                     <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                                 </a>
                             </div>
@@ -350,7 +350,19 @@ if (!isset($empleado)) {
     <script>
         // Employee data for JavaScript
         const empleadoData = <?= json_encode($empleado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-        const empleadoId = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const empleadoNumericId = <?= (int)$empleado['id'] ?>; // Numeric ID for routes
+        const empleadoId = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; // Code for BroadcastChannel (backward compatibility)
+        
+        // Get base URL from base tag
+        function api(path) {
+            try {
+                const baseEl = document.querySelector('base');
+                const base = baseEl ? baseEl.getAttribute('href') : '/';
+                return base.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '');
+            } catch(e) {
+                return '/' + path.replace(/^\/+/, '');
+            }
+        }
         
         // Cross-tab communication channel
         let editChannel = null;
@@ -446,7 +458,7 @@ if (!isset($empleado)) {
             alert('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde.\n\nSerá redirigido a la vista de solo lectura.');
             
             // Redirect to view mode
-            window.location.href = `empleados/view/${empleadoId}`;
+            window.location.href = api(`empleados/view/${empleadoNumericId}`);
         }
 
         function proceedWithEdit() {
@@ -514,7 +526,7 @@ if (!isset($empleado)) {
                         alert('Empleado actualizado correctamente');
                         
                         // Redirect to view mode
-                        window.location.href = `empleados/view/${empleadoId}`;
+                        window.location.href = api(`empleados/view/${empleadoNumericId}`);
                     } else {
                         alert('Error al actualizar: ' + (result.message || 'Error desconocido'));
                     }
@@ -529,10 +541,10 @@ if (!isset($empleado)) {
             if (formModified) {
                 if (confirm('Tienes cambios sin guardar. ¿Deseas cancelar?')) {
                     formModified = false;
-                    window.location.href = `empleados/view/${empleadoId}`;
+                    window.location.href = api(`empleados/view/${empleadoNumericId}`);
                 }
             } else {
-                window.location.href = `empleados/view/${empleadoId}`;
+                window.location.href = api(`empleados/view/${empleadoNumericId}`);
             }
         }
 

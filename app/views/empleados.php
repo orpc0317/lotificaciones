@@ -668,12 +668,25 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <!-- DataTables ColReorder -->
 <script src="https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js"></script>
+
+<!-- Application Constants -->
+<script src="assets/js/constants.js"></script>
+
 <!-- Theme Manager (must load before layout and empleados) -->
 <script src="assets/js/theme.js"></script>
 <!-- Layout script -->
 <script src="assets/js/layout.js"></script>
-<!-- Local app JS -->
-<script src="assets/js/empleados.js"></script>
+
+<!-- Empleados Modules (load in dependency order) -->
+<script src="assets/js/modules/errorHandler.js"></script>
+<script src="assets/js/modules/i18n.js"></script>
+<script src="assets/js/modules/dataTable.js"></script>
+<script src="assets/js/modules/fileUpload.js"></script>
+<script src="assets/js/modules/formHandlers.js"></script>
+<script src="assets/js/modules/validation.js"></script>
+
+<!-- Main Application Coordinator -->
+<script src="assets/js/empleados-main.js"></script>
 
 </body>
 

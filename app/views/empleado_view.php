@@ -64,7 +64,7 @@ if (!isset($empleado)) {
         }
     </style>
 </head>
-<body>
+<body data-csrf-token="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">
     <div class="app-container">
         <!-- Sidebar placeholder (will be rendered by layout.js) -->
         <div id="sidebar-container"></div>
@@ -102,7 +102,7 @@ if (!isset($empleado)) {
                             <button class="btn btn-secondary" onclick="window.close()">
                                 <i class="bi bi-x-circle"></i> <span id="btnClose">Cerrar</span>
                             </button>
-                            <a href="empleados" class="btn btn-outline-secondary">
+                            <a href="<?= PathHelper::url('empleados') ?>" class="btn btn-outline-secondary">
                                 <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                             </a>
                             <a href="#" id="editButton" class="btn btn-primary" onclick="checkEditLockAndNavigate(event)">
@@ -304,8 +304,9 @@ if (!isset($empleado)) {
     
     <script>
         // Employee data for JavaScript
-        const empleadoData = <?= json_encode($empleado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-        const empleadoId = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const empleadoData = <?= json_encode($empleado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
+        const empleadoId = <?= (int)$empleado['id'] ?>; // Numeric ID for routes
+        const empleadoCodigo = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>; // Code for display
         
         // Get base URL from base tag
         function api(path) {
@@ -321,18 +322,18 @@ if (!isset($empleado)) {
         // Delete employee function
         function deleteEmployee(id) {
             Swal.fire({
-                title: '¿Está seguro?',
-                text: 'Esta acción no se puede deshacer',
+                title: <?= json_encode('¿Está seguro?', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                text: <?= json_encode('Esta acción no se puede deshacer', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonText: <?= json_encode('Sí, eliminar', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                cancelButtonText: <?= json_encode('Cancelar', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Get CSRF token
-                    const csrfToken = '<?= CsrfProtection::getToken() ?>';
+                    // Get CSRF token from body data attribute
+                    const csrfToken = document.body.getAttribute('data-csrf-token');
                     
                     fetch(api('empleados/delete'), {
                         method: 'POST',
@@ -346,7 +347,7 @@ if (!isset($empleado)) {
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'success',
-                                title: 'Empleado eliminado',
+                                title: <?= json_encode('Empleado eliminado', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                                 showConfirmButton: false,
                                 timer: 1800
                             }).then(() => {
@@ -358,7 +359,7 @@ if (!isset($empleado)) {
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'error',
-                                title: (resp && resp.error) || 'Error al eliminar',
+                                title: (resp && resp.error) || <?= json_encode('Error al eliminar', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                                 showConfirmButton: false,
                                 timer: 2500
                             });
@@ -370,7 +371,7 @@ if (!isset($empleado)) {
                             toast: true,
                             position: 'top-end',
                             icon: 'error',
-                            title: 'Error de conexión',
+                            title: <?= json_encode('Error de conexión', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                             showConfirmButton: false,
                             timer: 2500
                         });
@@ -405,52 +406,59 @@ if (!isset($empleado)) {
                 return;
             }
 
-            const editChannel = new BroadcastChannel('lotificaciones-employee-edit');
-            let lockExists = false;
-            let checkComplete = false;
+            try {
+                const editChannel = new BroadcastChannel('lotificaciones-employee-edit');
+                let lockExists = false;
+                let checkComplete = false;
 
-            const timeout = setTimeout(() => {
-                if (!lockExists) {
-                    // No response = no one is editing, safe to proceed
-                    checkComplete = true;
-                    editChannel.close();
-                    navigateToEditMode();
-                }
-            }, 200); // Wait 200ms for responses
+                const timeout = setTimeout(() => {
+                    if (!lockExists) {
+                        // No response = no one is editing, safe to proceed
+                        checkComplete = true;
+                        editChannel.close();
+                        navigateToEditMode();
+                    }
+                }, 200); // Wait 200ms for responses
 
-            // Listen for lock status responses
-            editChannel.onmessage = (event) => {
-                if (event.data.action === 'lock-check' && event.data.empleadoId === empleadoId) {
-                    // Another tab is asking if we're editing - we're not (this is view mode)
-                    // Do nothing
-                } else if (event.data.action === 'lock-exists' && event.data.empleadoId === empleadoId) {
-                    // Another tab responded - someone is already editing!
-                    lockExists = true;
-                    clearTimeout(timeout);
-                    editChannel.close();
-                    showEditBlockedMessage();
-                } else if (event.data.action === 'lock-acquired' && event.data.empleadoId === empleadoId) {
-                    // Someone just acquired the lock
-                    lockExists = true;
-                    clearTimeout(timeout);
-                    editChannel.close();
-                    showEditBlockedMessage();
-                }
-            };
+                // Listen for lock status responses
+                editChannel.onmessage = (event) => {
+                    if (event.data.action === 'lock-check' && event.data.empleadoId === empleadoCodigo) {
+                        // Another tab is asking if we're editing - we're not (this is view mode)
+                        // Do nothing
+                    } else if (event.data.action === 'lock-exists' && event.data.empleadoId === empleadoCodigo) {
+                        // Another tab responded - someone is already editing!
+                        lockExists = true;
+                        clearTimeout(timeout);
+                        editChannel.close();
+                        showEditBlockedMessage();
+                    } else if (event.data.action === 'lock-acquired' && event.data.empleadoId === empleadoCodigo) {
+                        // Someone just acquired the lock
+                        lockExists = true;
+                        clearTimeout(timeout);
+                        editChannel.close();
+                        showEditBlockedMessage();
+                    }
+                };
 
-            // Ask if anyone else is editing this employee
-            editChannel.postMessage({ 
-                action: 'lock-check', 
-                empleadoId: empleadoId 
-            });
+                // Ask if anyone else is editing this employee
+                editChannel.postMessage({ 
+                    action: 'lock-check', 
+                    empleadoId: empleadoCodigo 
+                });
+            } catch(error) {
+                console.error('Error in checkEditLockAndNavigate:', error);
+                // If there's an error, proceed anyway
+                navigateToEditMode();
+            }
         }
 
         function navigateToEditMode() {
-            window.location.href = `empleados/edit/${empleadoId}`;
+            const url = api(`empleados/edit/${empleadoId}`);
+            window.location.href = url;
         }
 
         function showEditBlockedMessage() {
-            alert('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde los cambios.');
+            alert(<?= json_encode('Este empleado está siendo editado en otra pestaña.\n\nNo puede entrar en modo de edición hasta que la otra pestaña cierre o guarde los cambios.', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>);
         }
 
         async function loadTranslations() {

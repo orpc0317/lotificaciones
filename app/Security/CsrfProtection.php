@@ -43,7 +43,13 @@ class CsrfProtection
     private static function initSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+            // Only start session if headers haven't been sent
+            if (!headers_sent()) {
+                session_start();
+            } else {
+                // Headers already sent - try to start session without warning
+                @session_start();
+            }
         }
     }
     
