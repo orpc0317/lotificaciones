@@ -500,3 +500,34 @@ table.dataTable td img {
 
     /* Align icons in DataTables button collections */
     .dt-button-collection .bi { vertical-align: -.125em; margin-right: .5rem; }
+
+/* Button Loading States */
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.btn:disabled .spinner-border {
+    animation: spinner-border 0.75s linear infinite;
+}
+
+/* Smooth button transitions */
+.btn {
+    transition: all 0.15s ease-in-out;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Spinner sizing for buttons */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}

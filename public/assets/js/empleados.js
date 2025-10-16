@@ -320,6 +320,32 @@
                         }
                     };
 
+                    // Add loading indicators for DataTable processing
+                    tabla.on('processing.dt', function(e, settings, processing) {
+                        try {
+                            if (processing) {
+                                showLoading();
+                            } else {
+                                hideLoading();
+                            }
+                        } catch(err) {
+                            console.error('Error handling DataTable processing event:', err);
+                        }
+                    });
+
+                    // Add visual feedback for DataTable draw
+                    tabla.on('draw.dt', function() {
+                        try {
+                            // Update employee count after table draws
+                            var info = tabla.page.info();
+                            if (info) {
+                                updateEmployeeCount(info.recordsTotal);
+                            }
+                        } catch(err) {
+                            console.error('Error handling DataTable draw event:', err);
+                        }
+                    });
+
                     attachTableHandlers(tabla);
                     try{ window.__tabla = tabla; }catch(e){}
                 }catch(e){ console.error('Error initializing DataTable', e); }
@@ -471,10 +497,176 @@
         } 
     });
 
-    // forms
-    $(document).on('submit', '#formNuevoEmpleado, #formEmpleado', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/create'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'success', title: resp.message||'Empleado creado', showConfirmButton:false, timer:TOAST_SUCCESS_DURATION }); }catch(e){} try{ $form.get(0).reset(); }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:TOAST_ERROR_DURATION }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
+    // Helper function to set button loading state
+    function setButtonLoading($btn, isLoading) {
+        try {
+            if (isLoading) {
+                // Store original text and add spinner
+                var originalText = $btn.html();
+                $btn.data('original-text', originalText);
+                $btn.prop('disabled', true);
+                $btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...');
+            } else {
+                // Restore original text
+                var originalText = $btn.data('original-text');
+                if (originalText) {
+                    $btn.html(originalText);
+                }
+                $btn.prop('disabled', false);
+            }
+        } catch(e) {
+            console.error('Error setting button loading state:', e);
+        }
+    }
 
-    $(document).on('submit', '#formEditar', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/update'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'success', title: resp.message||'Empleado actualizado', showConfirmButton:false, timer:TOAST_SUCCESS_DURATION }); }catch(e){} try{ var modalEl = document.getElementById('modalEditar'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.hide(); }catch(e){} } }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:TOAST_ERROR_DURATION }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
+    // forms
+    $(document).on('submit', '#formNuevoEmpleado, #formEmpleado', function(ev){ 
+        ev.preventDefault(); 
+        try{ 
+            var $form = $(this); 
+            var fd = new FormData($form.get(0)); 
+            var $btn = $form.find('button[type=submit]'); 
+            
+            setButtonLoading($btn, true);
+            
+            fetch(api('empleados/create'), { method:'POST', body: fd })
+                .then(function(r){ return r.json().catch(function(){ return null; }); })
+                .then(function(resp){ 
+                    try{ 
+                        if(resp && resp.success){ 
+                            try{ 
+                                Swal.fire({ 
+                                    toast:true, 
+                                    position:TOAST_POSITION, 
+                                    icon:'success', 
+                                    title: resp.message||'Empleado creado', 
+                                    showConfirmButton:false, 
+                                    timer:TOAST_SUCCESS_DURATION 
+                                }); 
+                            }catch(e){} 
+                            try{ $form.get(0).reset(); }catch(e){} 
+                            try{ 
+                                if(tabla && tabla.reloadData){ 
+                                    tabla.reloadData(); 
+                                } else { 
+                                    reloadOrBuild(); 
+                                } 
+                            }catch(e){} 
+                        } else { 
+                            try{ 
+                                Swal.fire({ 
+                                    toast:true, 
+                                    position:TOAST_POSITION, 
+                                    icon:'error', 
+                                    title: (resp && resp.error) || 'Error', 
+                                    showConfirmButton:false, 
+                                    timer:TOAST_ERROR_DURATION 
+                                }); 
+                            }catch(e){} 
+                        } 
+                    }catch(e){
+                        console.error('Error processing create response:', e);
+                    } 
+                })
+                .catch(function(err) {
+                    console.error('Error creating employee:', err);
+                    try {
+                        Swal.fire({ 
+                            toast:true, 
+                            position:TOAST_POSITION, 
+                            icon:'error', 
+                            title: 'Error de conexión', 
+                            showConfirmButton:false, 
+                            timer:TOAST_ERROR_DURATION 
+                        });
+                    }catch(e){}
+                })
+                .finally(function(){ 
+                    setButtonLoading($btn, false);
+                }); 
+        }catch(e){
+            console.error('Form submit error:', e);
+        } 
+        return false; 
+    });
+
+    $(document).on('submit', '#formEditar', function(ev){ 
+        ev.preventDefault(); 
+        try{ 
+            var $form = $(this); 
+            var fd = new FormData($form.get(0)); 
+            var $btn = $form.find('button[type=submit]'); 
+            
+            setButtonLoading($btn, true);
+            
+            fetch(api('empleados/update'), { method:'POST', body: fd })
+                .then(function(r){ return r.json().catch(function(){ return null; }); })
+                .then(function(resp){ 
+                    try{ 
+                        if(resp && resp.success){ 
+                            try{ 
+                                Swal.fire({ 
+                                    toast:true, 
+                                    position:TOAST_POSITION, 
+                                    icon:'success', 
+                                    title: resp.message||'Empleado actualizado', 
+                                    showConfirmButton:false, 
+                                    timer:TOAST_SUCCESS_DURATION 
+                                }); 
+                            }catch(e){} 
+                            try{ 
+                                var modalEl = document.getElementById('modalEditar'); 
+                                if(modalEl){ 
+                                    try{ 
+                                        var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); 
+                                        m.hide(); 
+                                    }catch(e){} 
+                                } 
+                            }catch(e){} 
+                            try{ 
+                                if(tabla && tabla.reloadData){ 
+                                    tabla.reloadData(); 
+                                } else { 
+                                    reloadOrBuild(); 
+                                } 
+                            }catch(e){} 
+                        } else { 
+                            try{ 
+                                Swal.fire({ 
+                                    toast:true, 
+                                    position:TOAST_POSITION, 
+                                    icon:'error', 
+                                    title: (resp && resp.error) || 'Error', 
+                                    showConfirmButton:false, 
+                                    timer:TOAST_ERROR_DURATION 
+                                }); 
+                            }catch(e){} 
+                        } 
+                    }catch(e){
+                        console.error('Error processing update response:', e);
+                    } 
+                })
+                .catch(function(err) {
+                    console.error('Error updating employee:', err);
+                    try {
+                        Swal.fire({ 
+                            toast:true, 
+                            position:TOAST_POSITION, 
+                            icon:'error', 
+                            title: 'Error de conexión', 
+                            showConfirmButton:false, 
+                            timer:TOAST_ERROR_DURATION 
+                        });
+                    }catch(e){}
+                })
+                .finally(function(){ 
+                    setButtonLoading($btn, false);
+                }); 
+        }catch(e){
+            console.error('Form submit error:', e);
+        } 
+        return false; 
+    });
 
     // ficha - Open in new tab instead of modal
     $(document).on('click', '.ver-ficha', function(e){ 
@@ -501,7 +693,62 @@
     });
 
     // eliminar
-    $(document).on('click', '.eliminar', function(){ try{ var id = $(this).data('id'); Swal.fire({ title: '¿Está seguro?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){ if(result.isConfirmed){ fetch(api('empleados/delete'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ if(resp && resp.success){ Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'success', title: resp.message || 'Empleado eliminado', showConfirmButton: false, timer: TOAST_SUCCESS_DURATION }); if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } } else { Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'error', title: (resp && resp.error) || 'Error al eliminar', showConfirmButton: false, timer: TOAST_ERROR_DURATION }); } }).catch(function(err){ console.error('delete failed', err); Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'error', title: 'Error de conexión', showConfirmButton: false, timer: TOAST_ERROR_DURATION }); }); } }); }catch(e){ console.error('eliminar click handler error', e); } });
+    $(document).on('click', '.eliminar', function(){ 
+        try{ 
+            var id = $(this).data('id'); 
+            Swal.fire({ 
+                title: '¿Está seguro?', 
+                text: 'Esta acción no se puede deshacer', 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#d33', 
+                cancelButtonColor: '#3085d6', 
+                confirmButtonText: 'Sí, eliminar', 
+                cancelButtonText: 'Cancelar',
+                showLoaderOnConfirm: true,
+                preConfirm: function() {
+                    return fetch(api('empleados/delete'), { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+                        body: 'id=' + encodeURIComponent(id) 
+                    })
+                    .then(function(r){ 
+                        return r.json().catch(function(){ return null; }); 
+                    })
+                    .then(function(resp){ 
+                        if(resp && resp.success){ 
+                            return resp;
+                        } else { 
+                            throw new Error((resp && resp.error) || 'Error al eliminar');
+                        } 
+                    })
+                    .catch(function(err){ 
+                        console.error('delete failed', err); 
+                        Swal.showValidationMessage('Error: ' + err.message);
+                    });
+                },
+                allowOutsideClick: function() { return !Swal.isLoading(); }
+            }).then(function(result){ 
+                if(result.isConfirmed && result.value){ 
+                    Swal.fire({ 
+                        toast: true, 
+                        position: TOAST_POSITION, 
+                        icon: 'success', 
+                        title: result.value.message || 'Empleado eliminado', 
+                        showConfirmButton: false, 
+                        timer: TOAST_SUCCESS_DURATION 
+                    }); 
+                    if(tabla && tabla.reloadData){ 
+                        tabla.reloadData(); 
+                    } else { 
+                        reloadOrBuild(); 
+                    } 
+                }
+            }); 
+        }catch(e){ 
+            console.error('eliminar click handler error', e); 
+        } 
+    });
 
     // lang
     try{ 
