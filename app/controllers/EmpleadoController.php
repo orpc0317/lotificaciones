@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\EmpleadoModel;
 use App\Security\CsrfProtection;
+use App\Security\InputValidator;
 
 class EmpleadoController
 {
@@ -93,23 +94,49 @@ class EmpleadoController
             // Validate CSRF token
             CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
             
-            // Basic server-side validation
-            $errors = [];
-            $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
-            $apellidos = isset($_POST['apellidos']) ? trim($_POST['apellidos']) : '';
-            if ($nombres === '') $errors['nombres'] = 'Nombres es obligatorio';
-            if ($apellidos === '') $errors['apellidos'] = 'Apellidos es obligatorio';
+            // Comprehensive input validation and sanitization
+            $validator = new InputValidator($_POST);
+            
+            // Required fields
+            $validator->required('nombres', 'Nombres')->string()->maxLength(255)->minLength(2);
+            $validator->required('apellidos', 'Apellidos')->string()->maxLength(255)->minLength(2);
+            
+            // Optional fields with validation
+            $validator->optional('fecha_nacimiento')->date();
+            $validator->optional('edad')->integer()->min(18)->max(100);
+            $validator->optional('email')->email()->maxLength(255);
+            $validator->optional('telefono')->phone()->maxLength(50);
+            $validator->optional('direccion')->string()->maxLength(500);
+            $validator->optional('ciudad')->string()->maxLength(100);
+            $validator->optional('genero')->string()->in(['Masculino', 'Femenino', 'Otro', '']);
+            $validator->optional('puesto_id')->integer()->min(1);
+            $validator->optional('departamento_id')->integer()->min(1);
+            $validator->optional('comentarios')->string()->maxLength(1000);
 
-            if (!empty($errors)) {
+            if ($validator->hasErrors()) {
                 header('Content-Type: application/json', true, 422);
-                echo json_encode(['success' => false, 'error' => 'Validation failed', 'errors' => $errors]);
+                echo json_encode([
+                    'success' => false, 
+                    'error' => 'Validation failed', 
+                    'errors' => $validator->getErrors()
+                ]);
                 return;
             }
 
+            // Get sanitized data
+            $sanitizedData = $validator->getSanitized();
+            
+            // Merge with other POST data (like codigo which is generated server-side)
+            $data = array_merge($_POST, $sanitizedData);
+            
             $model = new EmpleadoModel();
-            $result = $model->create($_POST, $_FILES);
+            $result = $model->create($data, $_FILES);
+            
             header('Content-Type: application/json', true, 200);
-            echo json_encode(['success' => (bool)$result, 'message' => $result ? 'Empleado creado' : 'No se pudo crear el empleado']);
+            echo json_encode([
+                'success' => (bool)$result, 
+                'message' => $result ? 'Empleado creado exitosamente' : 'No se pudo crear el empleado'
+            ]);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json', true, 500);
@@ -123,24 +150,51 @@ class EmpleadoController
             // Validate CSRF token
             CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
             
-            $errors = [];
-            $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-            if ($id <= 0) $errors['id'] = 'ID inválido';
-            $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
-            $apellidos = isset($_POST['apellidos']) ? trim($_POST['apellidos']) : '';
-            if ($nombres === '') $errors['nombres'] = 'Nombres es obligatorio';
-            if ($apellidos === '') $errors['apellidos'] = 'Apellidos es obligatorio';
+            // Comprehensive input validation and sanitization
+            $validator = new InputValidator($_POST);
+            
+            // Required fields
+            $validator->required('id', 'ID')->integer()->min(1);
+            $validator->required('nombres', 'Nombres')->string()->maxLength(255)->minLength(2);
+            $validator->required('apellidos', 'Apellidos')->string()->maxLength(255)->minLength(2);
+            
+            // Optional fields with validation
+            $validator->optional('fecha_nacimiento')->date();
+            $validator->optional('edad')->integer()->min(18)->max(100);
+            $validator->optional('email')->email()->maxLength(255);
+            $validator->optional('telefono')->phone()->maxLength(50);
+            $validator->optional('direccion')->string()->maxLength(500);
+            $validator->optional('ciudad')->string()->maxLength(100);
+            $validator->optional('genero')->string()->in(['Masculino', 'Femenino', 'Otro', '']);
+            $validator->optional('puesto_id')->integer()->min(1);
+            $validator->optional('departamento_id')->integer()->min(1);
+            $validator->optional('comentarios')->string()->maxLength(1000);
+            $validator->optional('foto_actual')->string()->maxLength(255);
 
-            if (!empty($errors)) {
+            if ($validator->hasErrors()) {
                 header('Content-Type: application/json; charset=utf-8', true, 422);
-                echo json_encode(['success' => false, 'error' => 'Validation failed', 'errors' => $errors]);
+                echo json_encode([
+                    'success' => false, 
+                    'error' => 'Validation failed', 
+                    'errors' => $validator->getErrors()
+                ]);
                 return;
             }
 
+            // Get sanitized data
+            $sanitizedData = $validator->getSanitized();
+            
+            // Merge with other POST data
+            $data = array_merge($_POST, $sanitizedData);
+            
             $model = new EmpleadoModel();
-            $result = $model->update($_POST, $_FILES);
+            $result = $model->update($data, $_FILES);
+            
             header('Content-Type: application/json; charset=utf-8', true, 200);
-            echo json_encode(['success' => (bool)$result, 'message' => $result ? 'Empleado actualizado' : 'No se realizaron cambios']);
+            echo json_encode([
+                'success' => (bool)$result, 
+                'message' => $result ? 'Empleado actualizado exitosamente' : 'No se realizaron cambios'
+            ]);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json; charset=utf-8', true, 500);
@@ -154,14 +208,32 @@ class EmpleadoController
             // Validate CSRF token
             CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
             
+            // Validate ID
+            $validator = new InputValidator($_POST);
+            $validator->required('id', 'ID')->integer()->min(1);
+            
+            if ($validator->hasErrors()) {
+                header('Content-Type: application/json', true, 422);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Validation failed',
+                    'errors' => $validator->getErrors()
+                ]);
+                return;
+            }
+            
             $model = new EmpleadoModel();
-            $result = $model->delete($_POST['id']);
+            $result = $model->delete($validator->get('id'));
+            
             header('Content-Type: application/json', true, 200);
-            echo json_encode(['success' => $result]);
+            echo json_encode([
+                'success' => $result,
+                'message' => $result ? 'Empleado eliminado exitosamente' : 'No se pudo eliminar el empleado'
+            ]);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json', true, 500);
-            echo json_encode(['error' => 'Ocurrió un error al eliminar el empleado.']);
+            echo json_encode(['success' => false, 'error' => 'Ocurrió un error al eliminar el empleado.']);
         }
     }
 
