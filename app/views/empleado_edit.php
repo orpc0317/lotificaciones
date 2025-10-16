@@ -12,16 +12,19 @@ if (!isset($empleado)) {
     exit;
 }
 
-// Calculate APP_ROOT for base href
-$APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-if ($APP_ROOT === '') $APP_ROOT = '/';
+// Calculate APP_ROOT for base href (normalize to forward slashes for URLs)
+// SCRIPT_NAME will be something like /lotificaciones/public/index.php
+$APP_ROOT = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$APP_ROOT = rtrim($APP_ROOT, '/');
+// Ensure trailing slash for base href
+$baseHref = $APP_ROOT . '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="<?= $APP_ROOT ?>/">
+    <base href="<?= $baseHref ?>">
     <title>Editing Employee #<?= htmlspecialchars($empleado['codigo']) ?> - <?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?> | Lotificaciones</title>
     
     <!-- Bootstrap 5.3.2 -->
@@ -34,12 +37,41 @@ if ($APP_ROOT === '') $APP_ROOT = '/';
     <link rel="stylesheet" href="assets/css/style.css">
     
     <style>
-        .form-section {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+        /* Modal-style theming for tabs */
+        .section-accent {
+            background: var(--primary-600) !important;
+            color: #fff !important;
         }
+        
+        .nav-tabs .nav-link {
+            color: #fff;
+            border: none;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: rgba(0,0,0,0.14);
+            color: #fff;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+        }
+        
+        .nav-tabs .nav-link i {
+            margin-right: 6px;
+        }
+        
+        .nav-tabs .nav-link.rounded-0 {
+            border-radius: 0 !important;
+        }
+        
+        /* Tab content styling */
+        .tab-content {
+            min-height: 300px;
+        }
+        
+        /* Photo card styling */
+        .edit-photo-card {
+            position: relative;
+        }
+    </style>
         .section-title {
             font-size: 1.1rem;
             font-weight: 600;
@@ -59,9 +91,6 @@ if ($APP_ROOT === '') $APP_ROOT = '/';
     </style>
 </head>
 <body>
-    <?php include __DIR__ . '/layouts/main.php'; ?>
-    
-
     <div class="app-container">
         <!-- Sidebar placeholder (will be rendered by layout.js) -->
         <div id="sidebar-container"></div>
@@ -116,63 +145,69 @@ if ($APP_ROOT === '') $APP_ROOT = '/';
                             </div>
                         </div>
 
-                        <!-- Photo Section -->
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="form-section text-center">
-                                    <div class="section-title"><i class="bi bi-camera-fill"></i> <span id="lblPhoto">Fotografía</span></div>
-                                    <div class="photo-preview-container mb-3">
-                                        <img id="photoPreview" 
-                                             src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
-                                             alt="Employee Photo" 
-                                             class="photo-preview-img">
+                        <!-- Modal-style Split Layout -->
+                        <div class="row">
+                            <!-- Left Column: Photo -->
+                            <div class="col-12 col-md-4">
+                                <div class="card edit-photo-card">
+                                    <div class="card-body text-center">
+                                        <div class="photo-preview-container mb-3">
+                                            <img id="photoPreview" 
+                                                 src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
+                                                 alt="Employee Photo" 
+                                                 class="img-fluid rounded">
+                                        </div>
+                                        <input type="file" name="foto" id="photoInput" accept="image/*" class="d-none">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('photoInput').click()">
+                                            <i class="bi bi-camera-fill"></i> <span id="btnChangePhoto">Cambiar Foto</span>
+                                        </button>
                                     </div>
-                                    <input type="file" name="foto" id="photoInput" accept="image/*" class="d-none">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('photoInput').click()">
-                                        <i class="bi bi-camera-fill"></i> <span id="btnChangePhoto">Cambiar Foto</span>
-                                    </button>
                                 </div>
                             </div>
                             
-                            <!-- Main Form Tabs -->
-                            <div class="col-md-9">
-                                <div class="form-section">
-                                    <!-- Tab Navigation -->
-                                    <ul class="nav nav-tabs mb-3" id="employeeTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                                <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
-                                            </button>
+                            <!-- Right Column: Tabbed Form -->
+                            <div class="col-12 col-md-8 mt-3 mt-md-0">
+                                <div class="card">
+                                    <!-- Tab Header with Theme Color -->
+                                    <div class="card-header section-accent" style="padding:0;">
+                                        <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                                    <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
+                                                    <i class="bi bi-person-badge"></i> <span id="tabPersonal">Personal</span>
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="employment-tab" data-bs-toggle="tab" data-bs-target="#employment" type="button" role="tab">
+                                                    <i class="bi bi-briefcase-fill"></i> <span id="tabEmployment">Laboral</span>
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                                    <i class="bi bi-telephone-fill"></i> <span id="tabContact">Contacto</span>
+                                                </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
-                                                <i class="bi bi-person-badge"></i> <span id="tabPersonal">Personal</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="employment-tab" data-bs-toggle="tab" data-bs-target="#employment" type="button" role="tab">
-                                                <i class="bi bi-briefcase-fill"></i> <span id="tabEmployment">Laboral</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
-                                                <i class="bi bi-telephone-fill"></i> <span id="tabContact">Contacto</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" type="button" role="tab">
-                                                <i class="bi bi-house-fill"></i> <span id="tabAddress">Dirección</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
-                                                <i class="bi bi-three-dots"></i> <span id="tabOther">Otros</span>
-                                            </button>
-                                        </li>
-                                    </ul>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" type="button" role="tab">
+                                                    <i class="bi bi-house-fill"></i> <span id="tabAddress">Dirección</span>
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
+                                                    <i class="bi bi-three-dots"></i> <span id="tabOther">Otros</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
 
                                     <!-- Tab Content -->
-                                    <div class="tab-content" id="employeeTabContent">
+                                    <div class="card-body">
+                                        <div class="tab-content" id="employeeTabContent"
                                         <!-- General Tab -->
                                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                                             <div class="row g-3">

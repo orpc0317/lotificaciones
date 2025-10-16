@@ -12,16 +12,19 @@ if (!isset($empleado)) {
     exit;
 }
 
-// Calculate APP_ROOT for base href
-$APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-if ($APP_ROOT === '') $APP_ROOT = '/';
+// Calculate APP_ROOT for base href (normalize to forward slashes for URLs)
+// SCRIPT_NAME will be something like /lotificaciones/public/index.php
+$APP_ROOT = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$APP_ROOT = rtrim($APP_ROOT, '/');
+// Ensure trailing slash for base href
+$baseHref = $APP_ROOT . '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="<?= $APP_ROOT ?>/">
+    <base href="<?= $baseHref ?>">
     <title>Employee #<?= htmlspecialchars($empleado['codigo']) ?> - <?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?> | Lotificaciones</title>
     
     <!-- Bootstrap 5.3.2 -->
@@ -32,10 +35,40 @@ if ($APP_ROOT === '') $APP_ROOT = '/';
     <link rel="stylesheet" href="assets/css/theme.css">
     <link rel="stylesheet" href="assets/css/layout.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        /* Modal-style theming for tabs */
+        .section-accent {
+            background: var(--primary-600) !important;
+            color: #fff !important;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #fff;
+            border: none;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: rgba(0,0,0,0.14);
+            color: #fff;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+        }
+        
+        .nav-tabs .nav-link i {
+            margin-right: 6px;
+        }
+        
+        .nav-tabs .nav-link.rounded-0 {
+            border-radius: 0 !important;
+        }
+        
+        /* Tab content styling */
+        .tab-content {
+            min-height: 300px;
+        }
+    </style>
 </head>
 <body>
-    <?php include __DIR__ . '/layouts/main.php'; ?>
-    
     <div class="app-container">
         <!-- Sidebar placeholder (will be rendered by layout.js) -->
         <div id="sidebar-container"></div>
@@ -82,53 +115,67 @@ if ($APP_ROOT === '') $APP_ROOT = '/';
                         </div>
                     </div>
 
-                    <!-- Employee Information Card -->
+                    <!-- Employee Information - Modal-style Layout -->
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="mb-0">
-                                        <i class="bi bi-info-circle"></i>
-                                        <span id="cardTitleInfo">Información del Empleado</span>
-                                    </h5>
+                            <!-- Split Layout: Photo left, Tabs right -->
+                            <div class="row">
+                                <!-- Left Column: Photo -->
+                                <div class="col-12 col-md-4">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <img src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
+                                                 alt="<?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?>" 
+                                                 class="img-fluid rounded mb-3"
+                                                 style="max-width: 100%; height: auto;">
+                                            <h5 class="mb-1"><?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?></h5>
+                                            <p class="text-muted mb-0"><?= htmlspecialchars($empleado['codigo']) ?></p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <!-- Tab Navigation -->
-                                    <ul class="nav nav-tabs mb-3" id="employeeTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                                <span id="tabGeneral">General</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
-                                                <span id="tabContact">Contacto</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="employment-tab" data-bs-toggle="tab" data-bs-target="#employment" type="button" role="tab">
-                                                <span id="tabEmployment">Laboral</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency" type="button" role="tab">
-                                                <span id="tabEmergency">Emergencia</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="medical-tab" data-bs-toggle="tab" data-bs-target="#medical" type="button" role="tab">
-                                                <span id="tabMedical">Médico</span>
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
-                                                <span id="tabOther">Otros</span>
-                                            </button>
-                                        </li>
-                                    </ul>
 
-                                    <!-- Tab Content -->
-                                    <div class="tab-content" id="employeeTabContent">
+                                <!-- Right Column: Tabbed Information -->
+                                <div class="col-12 col-md-8 mt-3 mt-md-0">
+                                    <div class="card">
+                                        <!-- Tab Header with Theme Color -->
+                                        <div class="card-header section-accent" style="padding:0;">
+                                            <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                                        <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                                        <i class="bi bi-telephone-fill"></i> <span id="tabContact">Contacto</span>
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="employment-tab" data-bs-toggle="tab" data-bs-target="#employment" type="button" role="tab">
+                                                        <i class="bi bi-briefcase-fill"></i> <span id="tabEmployment">Laboral</span>
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency" type="button" role="tab">
+                                                        <i class="bi bi-heart-pulse-fill"></i> <span id="tabEmergency">Emergencia</span>
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="medical-tab" data-bs-toggle="tab" data-bs-target="#medical" type="button" role="tab">
+                                                        <i class="bi bi-clipboard2-pulse-fill"></i> <span id="tabMedical">Médico</span>
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
+                                                        <i class="bi bi-three-dots"></i> <span id="tabOther">Otros</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Tab Content -->
+                                        <div class="card-body">
+                                            <div class="tab-content" id="employeeTabContent"
                                         <!-- General Tab -->
                                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                                             <div class="row g-3">
