@@ -216,4 +216,54 @@ class EmpleadoController
             echo json_encode(['error' => 'Error al obtener el empleado']);
         }
     }
+
+    // View single employee record (read-only)
+    public function view($id)
+    {
+        try {
+            $model = new EmpleadoModel();
+            $empleado = $model->getById((int)$id);
+            
+            if (!$empleado) {
+                http_response_code(404);
+                echo "Empleado no encontrado";
+                return;
+            }
+
+            // Load departments and positions for display
+            $puestos = $model->getPuestos();
+            $departamentos = $model->getDepartamentos();
+
+            include_once __DIR__ . '/../views/empleado_view.php';
+        } catch (\Exception $e) {
+            $this->logError($e);
+            http_response_code(500);
+            echo "Error al cargar el empleado";
+        }
+    }
+
+    // Edit single employee record
+    public function edit($id)
+    {
+        try {
+            $model = new EmpleadoModel();
+            $empleado = $model->getById((int)$id);
+            
+            if (!$empleado) {
+                http_response_code(404);
+                echo "Empleado no encontrado";
+                return;
+            }
+
+            // Load departments and positions for dropdowns
+            $puestos = $model->getPuestos();
+            $departamentos = $model->getDepartamentos();
+
+            include_once __DIR__ . '/../views/empleado_edit.php';
+        } catch (\Exception $e) {
+            $this->logError($e);
+            http_response_code(500);
+            echo "Error al cargar el empleado";
+        }
+    }
 }

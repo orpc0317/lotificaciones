@@ -52,6 +52,21 @@ switch ($uri) {
         break;
 
     default:
+        // Handle dynamic routes with parameters
+        // Match /empleados/view/{id}
+        if (preg_match('#^/empleados/view/(\d+)$#', $uri, $matches)) {
+            $id = $matches[1];
+            (new EmpleadoController())->view($id);
+            break;
+        }
+        
+        // Match /empleados/edit/{id}
+        if (preg_match('#^/empleados/edit/(\d+)$#', $uri, $matches)) {
+            $id = $matches[1];
+            (new EmpleadoController())->edit($id);
+            break;
+        }
+
         http_response_code(404);
         echo "Página no encontrada";
         break;

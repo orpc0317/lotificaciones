@@ -6,6 +6,60 @@
     // i18n translations cache
     var translations = {};
     
+    // Cross-tab communication channel for employee updates
+    var employeeChannel = null;
+    
+    // Initialize Broadcast Channel for cross-tab sync
+    function initCrossTabSync() {
+        if ('BroadcastChannel' in window) {
+            try {
+                employeeChannel = new BroadcastChannel('lotificaciones-employee-edit');
+                
+                // Listen for updates from other tabs
+                employeeChannel.onmessage = function(event) {
+                    if (event.data.action === 'data-updated') {
+                        console.log('Employee data updated in another tab:', event.data.empleadoId);
+                        // Show notification and reload table
+                        showUpdateNotification();
+                        if (tabla && tabla.reloadData) {
+                            tabla.reloadData();
+                        } else {
+                            reloadOrBuild();
+                        }
+                    }
+                };
+                
+                console.log('Cross-tab sync initialized');
+            } catch (e) {
+                console.error('Error initializing Broadcast Channel:', e);
+            }
+        } else {
+            console.warn('Broadcast Channel API not supported in this browser');
+        }
+    }
+    
+    // Show notification when data is updated in another tab
+    function showUpdateNotification() {
+        try {
+            // Use SweetAlert2 if available
+            if (window.Swal) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Datos actualizados en otra pestaña',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                // Fallback to console
+                console.info('Employee data updated in another tab');
+            }
+        } catch (e) {
+            console.error('Error showing update notification:', e);
+        }
+    }
+    
     // Load and apply translations
     function loadTranslations(lang){
         return fetch('assets/i18n/' + lang + '.json')
@@ -421,11 +475,29 @@
 
     $(document).on('submit', '#formEditar', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/update'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message||'Empleado actualizado', showConfirmButton:false, timer:1800 }); }catch(e){} try{ var modalEl = document.getElementById('modalEditar'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.hide(); }catch(e){} } }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:2500 }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
 
-    // ficha
-    $(document).on('click', '.ver-ficha', function(){ try{ var id = $(this).data('id'); fetch(api('empleados/get?id='+encodeURIComponent(id))).then(function(r){ return r.json(); }).then(function(json){ if(json && json.data){ var e = json.data; try{ document.getElementById('ficha_codigo').textContent = e.codigo||''; document.getElementById('ficha_nombres').textContent = e.nombres||''; document.getElementById('ficha_apellidos').textContent = e.apellidos||''; document.getElementById('ficha_fecha_nacimiento').textContent = e.fecha_nacimiento||''; document.getElementById('ficha_edad').textContent = e.edad||''; document.getElementById('ficha_genero').textContent = e.genero||''; document.getElementById('ficha_puesto').textContent = e.puesto_nombre||''; document.getElementById('ficha_departamento').textContent = e.departamento_nombre||''; document.getElementById('ficha_email').textContent = e.email||'-'; document.getElementById('ficha_telefono').textContent = e.telefono||'-'; document.getElementById('ficha_direccion').textContent = e.direccion||'-'; document.getElementById('ficha_ciudad').textContent = e.ciudad||'-'; document.getElementById('ficha_comentarios').textContent = e.comentarios||''; var img = document.getElementById('ficha_foto'); if(img){ if(e.thumbnail) img.src = e.thumbnail; else if(e.foto) img.src = 'uploads/'+e.foto; else img.src = 'uploads/placeholder.png'; } }catch(e){} var modalEl = document.getElementById('modalFicha'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.show(); }catch(e){} } } }).catch(function(err){ console.error('empleados/get failed', err); }); }catch(e){} });
+    // ficha - Open in new tab instead of modal
+    $(document).on('click', '.ver-ficha', function(e){ 
+        try{ 
+            e.preventDefault();
+            var id = $(this).data('id'); 
+            // Open employee view page in new tab
+            window.open(api('empleados/view/' + encodeURIComponent(id)), '_blank');
+        }catch(err){
+            console.error('ver-ficha click handler error:', err);
+        } 
+    });
 
-    // editar
-    $(document).on('click', '.editar', function(){ try{ var id = $(this).data('id'); fetch(api('empleados/get?id='+encodeURIComponent(id))).then(function(r){ return r.json(); }).then(function(json){ if(json && json.data){ var e = json.data; try{ document.getElementById('edit_id').value = e.id||''; document.getElementById('edit_codigo').value = e.codigo||''; document.getElementById('edit_nombres').value = e.nombres||''; document.getElementById('edit_apellidos').value = e.apellidos||''; document.getElementById('edit_fecha_nacimiento').value = e.fecha_nacimiento||''; document.getElementById('edit_genero').value = e.genero||''; document.getElementById('edit_puesto_id').value = e.puesto_id||''; document.getElementById('edit_departamento_id').value = e.departamento_id||''; document.getElementById('edit_email').value = e.email||''; document.getElementById('edit_telefono').value = e.telefono||''; document.getElementById('edit_direccion').value = e.direccion||''; document.getElementById('edit_ciudad').value = e.ciudad||''; document.getElementById('edit_comentarios').value = e.comentarios||''; document.getElementById('edit_foto_actual').value = e.foto||''; var img = document.getElementById('edit_foto_preview'); if(img){ if(e.thumbnail) img.src = e.thumbnail; else if(e.foto) img.src = 'uploads/'+e.foto; else img.src = 'uploads/placeholder.png'; } }catch(err){ console.error('Error populating edit form', err); } var modalEl = document.getElementById('modalEditar'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.show(); }catch(err){ console.error('Error showing modal', err); } } } }).catch(function(err){ console.error('empleados/get failed', err); }); }catch(e){ console.error('editar click handler error', e); } });
+    // editar - Open in new tab instead of modal
+    $(document).on('click', '.editar', function(e){ 
+        try{ 
+            e.preventDefault();
+            var id = $(this).data('id'); 
+            // Open employee edit page in new tab
+            window.open(api('empleados/edit/' + encodeURIComponent(id)), '_blank');
+        }catch(err){ 
+            console.error('editar click handler error:', err); 
+        } 
+    });
 
     // eliminar
     $(document).on('click', '.eliminar', function(){ try{ var id = $(this).data('id'); Swal.fire({ title: '¿Está seguro?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){ if(result.isConfirmed){ fetch(api('empleados/delete'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ if(resp && resp.success){ Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: resp.message || 'Empleado eliminado', showConfirmButton: false, timer: 1800 }); if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } } else { Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: (resp && resp.error) || 'Error al eliminar', showConfirmButton: false, timer: 2500 }); } }).catch(function(err){ console.error('delete failed', err); Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error de conexión', showConfirmButton: false, timer: 2500 }); }); } }); }catch(e){ console.error('eliminar click handler error', e); } });
@@ -563,7 +635,8 @@
         var saved = localStorage.getItem('lotificaciones_lang') || (document.getElementById('langSelect') && document.getElementById('langSelect').value) || 'es'; 
         if(document.getElementById('langSelect')) document.getElementById('langSelect').value = saved; 
         loadTranslations(saved); // Load translations on page load
-        buildTable(saved); 
+        buildTable(saved);
+        initCrossTabSync(); // Initialize cross-tab communication
     }catch(e){}
 
     // Attach validation listeners on page load
