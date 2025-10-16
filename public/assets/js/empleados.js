@@ -45,11 +45,11 @@
             if (window.Swal) {
                 Swal.fire({
                     toast: true,
-                    position: 'top-end',
+                    position: TOAST_POSITION,
                     icon: 'info',
                     title: 'Datos actualizados en otra pestaña',
                     showConfirmButton: false,
-                    timer: 2000
+                    timer: TOAST_INFO_DURATION
                 });
             } else {
                 // Fallback to console
@@ -179,7 +179,7 @@
     function updateEmployeeCount(n){ try{ var el = document.getElementById('empleadosCount'); if(!el) return; el.textContent = Number(n||0); el.style.display = (n&&n>0)?'inline-block':'none'; }catch(e){}
     }
 
-    function showLoading(){ try{ if(document.getElementById('tabla-loading')) return; var t = document.getElementById('tablaEmpleados'); if(!t) return; var container = t.closest ? t.closest('.card-body') : t.parentNode || document.body; try{ var st = window.getComputedStyle(container); if(st && st.position==='static') container.style.position='relative'; }catch(e){} var ov = document.createElement('div'); ov.id='tabla-loading'; ov.style.position='absolute'; ov.style.top='0'; ov.style.left='0'; ov.style.right='0'; ov.style.bottom='0'; ov.style.display='flex'; ov.style.alignItems='center'; ov.style.justifyContent='center'; ov.style.zIndex='9999'; ov.innerHTML='<div class="text-center"><div class="spinner-border text-primary" role="status" aria-hidden="true"></div><div class="mt-2 small">Cargando...</div></div>'; container.appendChild(ov); requestAnimationFrame(function(){ try{ ov.style.background='rgba(255,255,255,0.7)'; }catch(e){} }); }catch(e){} }
+    function showLoading(){ try{ if(document.getElementById('tabla-loading')) return; var t = document.getElementById('tablaEmpleados'); if(!t) return; var container = t.closest ? t.closest('.card-body') : t.parentNode || document.body; try{ var st = window.getComputedStyle(container); if(st && st.position==='static') container.style.position='relative'; }catch(e){} var ov = document.createElement('div'); ov.id='tabla-loading'; ov.style.position='absolute'; ov.style.top='0'; ov.style.left='0'; ov.style.right='0'; ov.style.bottom='0'; ov.style.display='flex'; ov.style.alignItems='center'; ov.style.justifyContent='center'; ov.style.zIndex=Z_INDEX_LOADING_OVERLAY; ov.innerHTML='<div class="text-center"><div class="spinner-border text-primary" role="status" aria-hidden="true"></div><div class="mt-2 small">Cargando...</div></div>'; container.appendChild(ov); requestAnimationFrame(function(){ try{ ov.style.background='rgba(255,255,255,0.7)'; }catch(e){} }); }catch(e){} }
     function hideLoading(){ try{ var el = document.getElementById('tabla-loading'); if(!el) return; try{ el.parentNode.removeChild(el); }catch(e){} }catch(e){} }
 
     function attachTableHandlers(dt){ try{ dt.on('error.dt', function(e, settings, techNote, message){ try{ console.error('DataTable error.dt', { techNote: techNote, message: message, table: (settings && settings.nTable && settings.nTable.id) || null }); if(message && message.indexOf && message.indexOf('Requested unknown parameter')!==-1){ try{ dt.state.clear(); }catch(_){} try{ localStorage.removeItem('DataTables_' + settings.sInstance + '_' + location.pathname); }catch(_){} location.reload(); } }catch(_){} }); }catch(e){} }
@@ -362,11 +362,11 @@
                 try{ 
                     Swal.fire({ 
                         toast:true, 
-                        position:'top-end', 
+                        position:TOAST_POSITION, 
                         icon:'error', 
                         title:'Solo se permiten imágenes (JPG, PNG, GIF, WebP)', 
                         showConfirmButton:false, 
-                        timer:3000 
+                        timer:TOAST_WARNING_DURATION 
                     }); 
                 }catch(e){} 
                 input.value=''; 
@@ -379,11 +379,11 @@
                 try{ 
                     Swal.fire({ 
                         toast:true, 
-                        position:'top-end', 
+                        position:TOAST_POSITION, 
                         icon:'error', 
                         title:'La imagen no debe superar 2MB', 
                         showConfirmButton:false, 
-                        timer:2500 
+                        timer:TOAST_ERROR_DURATION 
                     }); 
                 }catch(e){} 
                 input.value=''; 
@@ -415,11 +415,11 @@
                         try{
                             Swal.fire({ 
                                 toast:true, 
-                                position:'top-end', 
+                                position:TOAST_POSITION, 
                                 icon:'error', 
                                 title:'El archivo no es una imagen válida', 
                                 showConfirmButton:false, 
-                                timer:3000 
+                                timer:TOAST_WARNING_DURATION 
                             });
                         }catch(err){}
                         input.value='';
@@ -445,11 +445,11 @@
                                 try{
                                     Swal.fire({ 
                                         toast:true, 
-                                        position:'top-end', 
+                                        position:TOAST_POSITION, 
                                         icon:'error', 
                                         title:'Error al cargar la imagen', 
                                         showConfirmButton:false, 
-                                        timer:2500 
+                                        timer:TOAST_ERROR_DURATION 
                                     });
                                 }catch(err){}
                                 input.value='';
@@ -472,9 +472,9 @@
     });
 
     // forms
-    $(document).on('submit', '#formNuevoEmpleado, #formEmpleado', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/create'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message||'Empleado creado', showConfirmButton:false, timer:1800 }); }catch(e){} try{ $form.get(0).reset(); }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:2500 }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
+    $(document).on('submit', '#formNuevoEmpleado, #formEmpleado', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/create'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'success', title: resp.message||'Empleado creado', showConfirmButton:false, timer:TOAST_SUCCESS_DURATION }); }catch(e){} try{ $form.get(0).reset(); }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:TOAST_ERROR_DURATION }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
 
-    $(document).on('submit', '#formEditar', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/update'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:'top-end', icon:'success', title: resp.message||'Empleado actualizado', showConfirmButton:false, timer:1800 }); }catch(e){} try{ var modalEl = document.getElementById('modalEditar'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.hide(); }catch(e){} } }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:'top-end', icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:2500 }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
+    $(document).on('submit', '#formEditar', function(ev){ ev.preventDefault(); try{ var $form = $(this); var fd = new FormData($form.get(0)); var btn = $form.find('button[type=submit]'); try{ btn.prop('disabled', true); }catch(e){} fetch(api('empleados/update'), { method:'POST', body: fd }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ try{ if(resp && resp.success){ try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'success', title: resp.message||'Empleado actualizado', showConfirmButton:false, timer:TOAST_SUCCESS_DURATION }); }catch(e){} try{ var modalEl = document.getElementById('modalEditar'); if(modalEl){ try{ var m = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl); m.hide(); }catch(e){} } }catch(e){} try{ if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } }catch(e){} } else { try{ Swal.fire({ toast:true, position:TOAST_POSITION, icon:'error', title: (resp && resp.error) || 'Error', showConfirmButton:false, timer:TOAST_ERROR_DURATION }); }catch(e){} } }catch(e){} }).finally(function(){ try{ btn.prop('disabled', false); }catch(e){} }); }catch(e){} return false; });
 
     // ficha - Open in new tab instead of modal
     $(document).on('click', '.ver-ficha', function(e){ 
@@ -501,7 +501,7 @@
     });
 
     // eliminar
-    $(document).on('click', '.eliminar', function(){ try{ var id = $(this).data('id'); Swal.fire({ title: '¿Está seguro?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){ if(result.isConfirmed){ fetch(api('empleados/delete'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ if(resp && resp.success){ Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: resp.message || 'Empleado eliminado', showConfirmButton: false, timer: 1800 }); if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } } else { Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: (resp && resp.error) || 'Error al eliminar', showConfirmButton: false, timer: 2500 }); } }).catch(function(err){ console.error('delete failed', err); Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Error de conexión', showConfirmButton: false, timer: 2500 }); }); } }); }catch(e){ console.error('eliminar click handler error', e); } });
+    $(document).on('click', '.eliminar', function(){ try{ var id = $(this).data('id'); Swal.fire({ title: '¿Está seguro?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(function(result){ if(result.isConfirmed){ fetch(api('empleados/delete'), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'id=' + encodeURIComponent(id) }).then(function(r){ return r.json().catch(function(){ return null; }); }).then(function(resp){ if(resp && resp.success){ Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'success', title: resp.message || 'Empleado eliminado', showConfirmButton: false, timer: TOAST_SUCCESS_DURATION }); if(tabla && tabla.reloadData){ tabla.reloadData(); } else { reloadOrBuild(); } } else { Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'error', title: (resp && resp.error) || 'Error al eliminar', showConfirmButton: false, timer: TOAST_ERROR_DURATION }); } }).catch(function(err){ console.error('delete failed', err); Swal.fire({ toast: true, position: TOAST_POSITION, icon: 'error', title: 'Error de conexión', showConfirmButton: false, timer: TOAST_ERROR_DURATION }); }); } }); }catch(e){ console.error('eliminar click handler error', e); } });
 
     // lang
     try{ 
