@@ -220,9 +220,9 @@
                         obj.className=(obj.className||'')+' no-export';
                     }
                     if(!c.data){
-                        // Only View button - Edit and Delete moved to view page
-                        obj.render = function(data,type,row){ return '<button class="btn btn-sm btn-info ver-ficha" data-id="'+row.id+'" title="Ver detalles"><i class="bi bi-eye"></i></button>'; };
-                        obj.className=(obj.className||'')+' no-export';
+                        // Only View icon - no background, just the icon
+                        obj.render = function(data,type,row){ return '<a href="#" class="ver-ficha text-primary fs-5" data-id="'+row.id+'" title="Ver detalles"><i class="bi bi-eye-fill"></i></a>'; };
+                        obj.className=(obj.className||'')+' no-export text-center';
                     }
                     return obj;
                 });
