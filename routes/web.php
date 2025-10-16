@@ -19,6 +19,10 @@ switch ($uri) {
     case '/public':
     case '/lotificaciones/public':
     case '/lotificaciones/public/':
+        // Show dashboard as landing page
+        require __DIR__ . '/../app/views/dashboard.php';
+        break;
+
     case '/empleados':
         (new EmpleadoController())->index();
         break;

@@ -1,4 +1,4 @@
-{
+﻿{
   "new_employee": "Nuevo Empleado",
   "tab_generals": "Generales",
   "tab_position": "Puesto",
@@ -11,50 +11,60 @@
   "comments": "Comentarios",
   "edit_employee": "Editar Empleado",
   "save_changes": "Guardar Cambios",
-  "save": "Guardar"
-  ,"codigo_label": "Código"
-  ,"image_invalid": "Archivo de imagen inválido"
-  ,"image_too_large": "El archivo excede el tamaño máximo de 2MB"
-  ,"image_too_large_dimensions": "La imagen supera las dimensiones máximas de 2000×2000 px"
-  ,"image_cannot_process": "No se puede procesar la imagen"
-  ,"change_photo": "Cambiar foto"
-  ,"confirm_delete_title": "¿Eliminar empleado?"
-  ,"confirm_delete_text": "Esta acción no se puede deshacer."
-  ,"confirm_delete_confirm": "Sí, eliminar"
-  ,"confirm_delete_cancel": "Cancelar"
-  ,"employee_deleted": "Empleado eliminado"
-  ,"error_deleting": "Error al eliminar"
-  ,"error_fetching_ficha": "Error al obtener ficha"
-  ,"error_fetching_data": "Error al obtener datos"
-  ,"employee_created": "Empleado creado"
-  ,"form_errors": "Errores en el formulario"
-  ,"error_creating": "Error al crear"
-  ,"network_error_creating": "Error de red al crear"
-  ,"employee_updated": "Empleado actualizado"
-  ,"error_updating": "Error al actualizar"
-  ,"network_error_updating": "Error de red al actualizar"
-  ,"nombres": "Nombres"
-  ,"apellidos": "Apellidos"
-  ,"fecha_nacimiento": "Fecha de Nacimiento"
-  ,"genero": "Género"
-  ,"puesto": "Puesto"
-  ,"departamento": "Departamento"
-  ,"foto": "Foto"
-  ,"edad": "Edad"
-  ,"select_placeholder": "Seleccione"
-  ,"gender_male": "Masculino"
-  ,"gender_female": "Femenino"
-  ,"id": "ID"
-  ,"actions": "Acciones"
-  ,"export_xls": "XLS"
-  ,"export_xls_sheetjs": "XLSX"
-  ,"export_csv": "CSV"
-  ,"export_txt": "TXT"
-  ,"export": "Exportar"
-  ,"close": "Cerrar"
-  ,"employee_details": "Ficha del Empleado"
-  ,"email": "Email"
-  ,"telefono": "Teléfono"
-  ,"direccion": "Dirección"
-  ,"ciudad": "Ciudad"
+  "save": "Guardar",
+  "codigo": "Código",
+  "codigo_label": "Código",
+  "comentarios": "Comentarios",
+  "image_invalid": "Archivo de imagen inválido",
+  "image_too_large": "El archivo excede el tamaño máximo de 2MB",
+  "image_too_large_dimensions": "La imagen supera las dimensiones máximas de 20002000 px",
+  "image_cannot_process": "No se puede procesar la imagen",
+  "change_photo": "Cambiar foto",
+  "confirm_delete_title": "¿Eliminar empleado?",
+  "confirm_delete_text": "Esta acción no se puede deshacer.",
+  "confirm_delete_confirm": "Sí, eliminar",
+  "confirm_delete_cancel": "Cancelar",
+  "employee_deleted": "Empleado eliminado",
+  "error_deleting": "Error al eliminar",
+  "error_fetching_ficha": "Error al obtener ficha",
+  "error_fetching_data": "Error al obtener datos",
+  "employee_created": "Empleado creado",
+  "form_errors": "Errores en el formulario",
+  "error_creating": "Error al crear",
+  "network_error_creating": "Error de red al crear",
+  "employee_updated": "Empleado actualizado",
+  "error_updating": "Error al actualizar",
+  "network_error_updating": "Error de red al actualizar",
+  "nombres": "Nombres",
+  "apellidos": "Apellidos",
+  "fecha_nacimiento": "Fecha de Nacimiento",
+  "genero": "Género",
+  "puesto": "Puesto",
+  "departamento": "Departamento",
+  "foto": "Foto",
+  "edad": "Edad",
+  "select_placeholder": "Seleccione",
+  "gender_male": "Masculino",
+  "gender_female": "Femenino",
+  "id": "ID",
+  "actions": "Acciones",
+  "export_xls": "XLS",
+  "export_xls_sheetjs": "XLSX",
+  "export_csv": "CSV",
+  "export_txt": "TXT",
+  "export": "Exportar",
+  "close": "Cerrar",
+  "employee_details": "Ficha del Empleado",
+  "email": "Email",
+  "telefono": "Teléfono",
+  "direccion": "Dirección",
+  "ciudad": "Ciudad",
+  "filters": "Filtros",
+  "all": "Todos",
+  "age_from": "Edad desde",
+  "age_to": "Edad hasta",
+  "birth_date_from": "Fecha Nac. desde",
+  "birth_date_to": "Fecha Nac. hasta",
+  "apply_filters": "Aplicar Filtros",
+  "clear_filters": "Limpiar Filtros"
 }

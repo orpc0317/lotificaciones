@@ -28,6 +28,45 @@ body {
 }
 
 /* In dark theme, keep the accent visible but prefer a softer primary shade; always keep title text white for contrast */
+
+/* Filter Panel Styles */
+.filter-panel {
+    border-radius: 4px;
+}
+
+.filter-panel h6 {
+    color: var(--primary-600);
+    font-weight: 600;
+}
+
+.filter-panel .card-body {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.filter-panel .form-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.filter-panel .btn-link {
+    color: var(--primary-600);
+    padding: 0;
+}
+
+.filter-panel .btn-link:hover {
+    color: var(--primary-600);
+    opacity: 0.8;
+}
+
+#filterToggleIcon {
+    transition: transform 0.3s ease;
+}
+
+#filterCollapse.show ~ .d-flex #filterToggleIcon {
+    transform: rotate(180deg);
+}
 /* palette-only UI: no dark-mode specific overrides */
 
 /* Force white for title elements inside an accented header/modal for maximum legibility */

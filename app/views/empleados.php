@@ -29,10 +29,11 @@
     <!-- Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/theme.css" rel="stylesheet">
+    <link href="assets/css/layout.css" rel="stylesheet">
     <style>
         /* Keep small layout helpers inline while main tokens live in theme.css */
-        html,body{height:100%;}
-        body{background:var(--bg); color:var(--text); font-family: 'Inter', 'Segoe UI', Roboto, Arial, Helvetica, sans-serif;}
+        html,body{height:100%; margin:0; padding:0;}
+        body{background:var(--bg); color:var(--text); font-family: 'Inter', 'Segoe UI', Roboto, Arial, Helvetica, sans-serif; overflow-x: hidden;}
         /* smooth transitions for theme/palette changes */
         body, .card, .modal-content, .btn, .nav-tabs .nav-link { transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease; }
         .card{background:var(--card-bg); border:1px solid var(--border);} 
@@ -50,9 +51,6 @@
     /* Make sure general card headers that are marked as section-accent keep their themed background */
     .card-header.section-accent { background: var(--primary-600) !important; color: #fff !important; }
         .tab-card .card-body { padding-top: 0.5rem; }
-    /* dark mode toggle removed */
-        .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px }
-        .palette-swatch.active { outline:2px solid var(--primary-600); transform:scale(1.05); }
         .nav-tabs .nav-link i { margin-right:6px; }
         /* Make labels in the Nuevo Empleado left-column card bold for emphasis */
         .col-md-4 .card .form-label { font-weight: 600; }
@@ -60,29 +58,165 @@
            to keep styles centralized. */
     </style>
     <body>
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-building-fill text-white fs-4 me-2" id="appIcon"></i>
+                    <span class="sidebar-title text-white fw-bold" id="sidebarTitle">Lotificaciones</span>
+                </div>
+                <button class="btn btn-sm btn-link text-white p-0" id="toggleSidebar" title="Contraer menú">
+                    <i class="bi bi-chevron-left fs-5"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav flex-column" id="mainMenu">
+                    <!-- Menu items will be generated here -->
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-sm btn-link d-lg-none" id="toggleSidebarMobile">
+                            <i class="bi bi-list fs-4"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <!-- Theme palette swatches -->
+                        <button class="btn btn-sm btn-outline-secondary me-2 d-flex align-items-center" id="btnPaletteHint" title="Palette">
+                            <i class="bi bi-palette"></i>
+                        </button>
+                        <div class="palette-swatch" data-palette="blue" title="Blue" role="button" aria-pressed="false"></div>
+                        <div class="palette-swatch" data-palette="teal" title="Teal" role="button" aria-pressed="false"></div>
+                        <div class="palette-swatch" data-palette="violet" title="Violet" role="button" aria-pressed="false"></div>
+                        <select id="langSelect" class="form-select form-select-sm ms-3" style="width:auto;">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="page-content">
                 <div class="card">
                     <div class="card-header section-accent d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <h5 class="mb-0 section-title-on-accent me-3"><span class="label-text" data-i18n="list_employees">Empleados</span></h5>
-                            <button class="btn btn-primary me-2" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="new_employee">Nuevo Empleado</span></button>
+                            <button class="btn btn-light btn-sm me-2" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="new_employee">Nuevo Empleado</span></button>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <div id="exportButtons" class="btn-group me-2"></div>
-                            <!-- Theme palette swatches / icons -->
-                            <button class="btn btn-sm btn-outline-light me-2 d-flex align-items-center" id="btnPaletteHint" title="Palette"><i class="bi bi-palette"></i></button>
-                            <div class="palette-swatch" data-palette="blue" title="Blue" role="button" aria-pressed="false"></div>
-                            <div class="palette-swatch" data-palette="teal" title="Teal" role="button" aria-pressed="false"></div>
-                            <div class="palette-swatch" data-palette="violet" title="Violet" role="button" aria-pressed="false"></div>
-                            <select id="langSelect" class="form-select form-select-sm ms-3" style="width:auto;">
-                                <option value="es">Español</option>
-                                <option value="en">English</option>
-                            </select>
-                        </div>
+                        <div id="exportButtons" class="btn-group"></div>
                     </div>
                     <div class="card-body">
+                        <!-- Filter Panel -->
+                        <div class="filter-panel mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-funnel"></i> <span data-i18n="filters">Filtros</span>
+                                </h6>
+                                <button class="btn btn-sm btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                                    <i class="bi bi-chevron-down" id="filterToggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="collapse show" id="filterCollapse">
+                                <div class="card card-body bg-light">
+                                    <form id="filterForm">
+                                        <div class="row g-3">
+                                            <!-- ID Filter -->
+                                            <div class="col-md-2">
+                                                <label for="filter_id" class="form-label small"><span data-i18n="id">ID</span></label>
+                                                <input type="number" class="form-control form-control-sm" id="filter_id" placeholder="123">
+                                            </div>
+                                            
+                                            <!-- Name Filter -->
+                                            <div class="col-md-3">
+                                                <label for="filter_nombres" class="form-label small"><span data-i18n="nombres">Nombres</span></label>
+                                                <input type="text" class="form-control form-control-sm" id="filter_nombres" placeholder="">
+                                            </div>
+                                            
+                                            <!-- Last Name Filter -->
+                                            <div class="col-md-3">
+                                                <label for="filter_apellidos" class="form-label small"><span data-i18n="apellidos">Apellidos</span></label>
+                                                <input type="text" class="form-control form-control-sm" id="filter_apellidos" placeholder="">
+                                            </div>
+                                            
+                                            <!-- Gender Filter -->
+                                            <div class="col-md-2">
+                                                <label for="filter_genero" class="form-label small"><span data-i18n="genero">Género</span></label>
+                                                <select class="form-select form-select-sm" id="filter_genero">
+                                                    <option value="" data-i18n="all">Todos</option>
+                                                    <option value="Masculino" data-i18n="gender_male">Masculino</option>
+                                                    <option value="Femenino" data-i18n="gender_female">Femenino</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <!-- Department Filter -->
+                                            <div class="col-md-2">
+                                                <label for="filter_departamento" class="form-label small"><span data-i18n="departamento">Departamento</span></label>
+                                                <select class="form-select form-select-sm" id="filter_departamento">
+                                                    <option value="" data-i18n="all">Todos</option>
+                                                    <?php if(isset($departamentos) && is_array($departamentos)): foreach($departamentos as $d): ?>
+                                                    <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nombre']) ?></option>
+                                                    <?php endforeach; endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mt-1">
+                                            <!-- Position Filter -->
+                                            <div class="col-md-3">
+                                                <label for="filter_puesto" class="form-label small"><span data-i18n="puesto">Puesto</span></label>
+                                                <select class="form-select form-select-sm" id="filter_puesto">
+                                                    <option value="" data-i18n="all">Todos</option>
+                                                    <?php if(isset($puestos) && is_array($puestos)): foreach($puestos as $p): ?>
+                                                    <option value="<?= htmlspecialchars($p['id']) ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                                                    <?php endforeach; endif; ?>
+                                                </select>
+                                            </div>
+                                            
+                                            <!-- Age Range Filter -->
+                                            <div class="col-md-2">
+                                                <label for="filter_edad_min" class="form-label small"><span data-i18n="age_from">Edad desde</span></label>
+                                                <input type="number" class="form-control form-control-sm" id="filter_edad_min" placeholder="18" min="0" max="120">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="filter_edad_max" class="form-label small"><span data-i18n="age_to">Edad hasta</span></label>
+                                                <input type="number" class="form-control form-control-sm" id="filter_edad_max" placeholder="65" min="0" max="120">
+                                            </div>
+                                            
+                                            <!-- Birth Date Range Filter -->
+                                            <div class="col-md-3">
+                                                <label for="filter_fecha_nacimiento_desde" class="form-label small"><span data-i18n="birth_date_from">Fecha Nac. desde</span></label>
+                                                <input type="date" class="form-control form-control-sm" id="filter_fecha_nacimiento_desde">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="filter_fecha_nacimiento_hasta" class="form-label small"><span data-i18n="birth_date_to">Fecha Nac. hasta</span></label>
+                                                <input type="date" class="form-control form-control-sm" id="filter_fecha_nacimiento_hasta">
+                                            </div>
+                                            
+                                            <!-- Filter Buttons -->
+                                            <div class="col-md-4 d-flex align-items-end">
+                                                <button type="submit" class="btn btn-primary btn-sm me-2">
+                                                    <i class="bi bi-search"></i> <span data-i18n="apply_filters">Aplicar Filtros</span>
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm" id="btnClearFilters">
+                                                    <i class="bi bi-x-circle"></i> <span data-i18n="clear_filters">Limpiar</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Filter Panel -->
+                        
                         <table id="tablaEmpleados" class="table table-striped table-bordered" style="width:100%">
                             <thead>
                                 <tr>
@@ -503,6 +637,11 @@
 
 <!-- Modal de confirmación de borrado -->
 <!-- confirmDeleteModal removed: handled by SweetAlert2 -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
 <!-- JS dependencies -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -520,7 +659,11 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
 <!-- DataTables ColReorder -->
 <script src="https://cdn.datatables.net/colreorder/1.6.2/js/dataTables.colReorder.min.js"></script>
-<!-- local app JS -->
+<!-- Theme Manager (must load before layout and empleados) -->
+<script src="assets/js/theme.js"></script>
+<!-- Layout script -->
+<script src="assets/js/layout.js"></script>
+<!-- Local app JS -->
 <script src="assets/js/empleados.js"></script>
 
 </body>

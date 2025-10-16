@@ -1,4 +1,4 @@
-{
+﻿{
   "new_employee": "New Employee",
   "tab_generals": "General",
   "tab_position": "Position",
@@ -11,50 +11,60 @@
   "comments": "Comments",
   "edit_employee": "Edit Employee",
   "save_changes": "Save changes",
-  "save": "Save"
-  ,"codigo_label": "Code"
-  ,"image_invalid": "Invalid image file"
-  ,"image_too_large": "The file exceeds the maximum size of 2MB"
-  ,"image_too_large_dimensions": "The image exceeds the maximum dimensions of 2000×2000 px"
-  ,"image_cannot_process": "Cannot process the image"
-  ,"change_photo": "Change photo"
-  ,"confirm_delete_title": "Delete employee?"
-  ,"confirm_delete_text": "This action cannot be undone."
-  ,"confirm_delete_confirm": "Yes, delete"
-  ,"confirm_delete_cancel": "Cancel"
-  ,"employee_deleted": "Employee deleted"
-  ,"error_deleting": "Error deleting"
-  ,"error_fetching_ficha": "Error fetching record"
-  ,"error_fetching_data": "Error fetching data"
-  ,"employee_created": "Employee created"
-  ,"form_errors": "Form errors"
-  ,"error_creating": "Error creating"
-  ,"network_error_creating": "Network error creating"
-  ,"employee_updated": "Employee updated"
-  ,"error_updating": "Error updating"
-  ,"network_error_updating": "Network error updating"
-  ,"nombres": "First name(s)"
-  ,"apellidos": "Last name(s)"
-  ,"fecha_nacimiento": "Date of birth"
-  ,"genero": "Gender"
-  ,"puesto": "Position"
-  ,"departamento": "Department"
-  ,"foto": "Photo"
-  ,"edad": "Age"
-  ,"select_placeholder": "Select"
-  ,"gender_male": "Male"
-  ,"gender_female": "Female"
-  ,"id": "ID"
-  ,"actions": "Actions"
-  ,"export_xls": "XLS"
-  ,"export_xls_sheetjs": "XLSX"
-  ,"export_csv": "CSV"
-  ,"export_txt": "TXT"
-  ,"export": "Export"
-  ,"close": "Close"
-  ,"employee_details": "Employee Details"
-  ,"email": "Email"`n  ,"telefono": "Phone"`n  ,"direccion": "Address"`n  ,"ciudad": "City"`n}
-  ,"email": "Email"
-  ,"telefono": "Phone"
-  ,"direccion": "Address"
-  ,"ciudad": "City"
+  "save": "Save",
+  "codigo": "Code",
+  "codigo_label": "Code",
+  "comentarios": "Comments",
+  "image_invalid": "Invalid image file",
+  "image_too_large": "The file exceeds the maximum size of 2MB",
+  "image_too_large_dimensions": "The image exceeds the maximum dimensions of 20002000 px",
+  "image_cannot_process": "Cannot process the image",
+  "change_photo": "Change photo",
+  "confirm_delete_title": "Delete employee?",
+  "confirm_delete_text": "This action cannot be undone.",
+  "confirm_delete_confirm": "Yes, delete",
+  "confirm_delete_cancel": "Cancel",
+  "employee_deleted": "Employee deleted",
+  "error_deleting": "Error deleting",
+  "error_fetching_ficha": "Error fetching record",
+  "error_fetching_data": "Error fetching data",
+  "employee_created": "Employee created",
+  "form_errors": "Form errors",
+  "error_creating": "Error creating",
+  "network_error_creating": "Network error creating",
+  "employee_updated": "Employee updated",
+  "error_updating": "Error updating",
+  "network_error_updating": "Network error updating",
+  "nombres": "First name(s)",
+  "apellidos": "Last name(s)",
+  "fecha_nacimiento": "Date of birth",
+  "genero": "Gender",
+  "puesto": "Position",
+  "departamento": "Department",
+  "foto": "Photo",
+  "edad": "Age",
+  "select_placeholder": "Select",
+  "gender_male": "Male",
+  "gender_female": "Female",
+  "id": "ID",
+  "actions": "Actions",
+  "export_xls": "XLS",
+  "export_xls_sheetjs": "XLSX",
+  "export_csv": "CSV",
+  "export_txt": "TXT",
+  "export": "Export",
+  "close": "Close",
+  "employee_details": "Employee Details",
+  "email": "Email",
+  "telefono": "Phone",
+  "direccion": "Address",
+  "ciudad": "City",
+  "filters": "Filters",
+  "all": "All",
+  "age_from": "Age from",
+  "age_to": "Age to",
+  "birth_date_from": "Birth date from",
+  "birth_date_to": "Birth date to",
+  "apply_filters": "Apply Filters",
+  "clear_filters": "Clear Filters"
+}

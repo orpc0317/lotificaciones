@@ -45,42 +45,36 @@ class EmpleadoController
             // Support language for column titles (es / en)
             $lang = isset($_GET['lang']) && $_GET['lang'] === 'en' ? 'en' : 'es';
 
-            $titles = [
-                'es' => [
-                    'id' => 'ID', 'codigo' => 'Código', 'nombres' => 'Nombres', 'apellidos' => 'Apellidos',
-                    'edad' => 'Edad', 'fecha_nacimiento' => 'Fecha de Nacimiento', 'genero' => 'Género',
-                    'foto' => 'Foto', 'puesto' => 'Puesto', 'departamento' => 'Departamento', 
-                    'email' => 'Email', 'telefono' => 'Teléfono', 'direccion' => 'Dirección', 'ciudad' => 'Ciudad',
-                    'comentarios' => 'Comentarios', 'acciones' => 'Acciones'
-                ],
-                'en' => [
-                    'id' => 'ID', 'codigo' => 'Code', 'nombres' => 'First Name', 'apellidos' => 'Last Name',
-                    'edad' => 'Age', 'fecha_nacimiento' => 'Birth Date', 'genero' => 'Gender',
-                    'foto' => 'Photo', 'puesto' => 'Position', 'departamento' => 'Department',
-                    'email' => 'Email', 'telefono' => 'Phone', 'direccion' => 'Address', 'ciudad' => 'City',
-                    'comentarios' => 'Comments', 'acciones' => 'Actions'
-                ]
-            ];
+            // Load translations from i18n JSON file
+            $i18nPath = __DIR__ . '/../../public/assets/i18n/' . $lang . '.json';
+            $translations = [];
+            if (file_exists($i18nPath)) {
+                $jsonContent = file_get_contents($i18nPath);
+                $translations = json_decode($jsonContent, true);
+            }
 
-            $t = $titles[$lang];
+            // Helper function to get translation with fallback
+            $t = function($key, $fallback = '') use ($translations) {
+                return isset($translations[$key]) ? $translations[$key] : $fallback;
+            };
 
             $columns = [
-                ['data' => 'id', 'title' => $t['id']],
-                ['data' => 'thumbnail', 'title' => $t['foto'], 'className' => 'no-export'],
-                ['data' => 'codigo', 'title' => $t['codigo'], 'visible' => false],
-                ['data' => 'nombres', 'title' => $t['nombres']],
-                ['data' => 'apellidos', 'title' => $t['apellidos']],
-                ['data' => 'edad', 'title' => $t['edad']],
-                ['data' => 'fecha_nacimiento', 'title' => $t['fecha_nacimiento'], 'visible' => false],
-                ['data' => 'genero', 'title' => $t['genero'], 'visible' => false],
-                ['data' => 'puesto_id', 'title' => $t['puesto'], 'visible' => false],
-                ['data' => 'departamento_id', 'title' => $t['departamento'], 'visible' => false],
-                ['data' => 'email', 'title' => $t['email'], 'visible' => false],
-                ['data' => 'telefono', 'title' => $t['telefono'], 'visible' => false],
-                ['data' => 'direccion', 'title' => $t['direccion'], 'visible' => false],
-                ['data' => 'ciudad', 'title' => $t['ciudad'], 'visible' => false],
-                ['data' => 'comentarios', 'title' => $t['comentarios'], 'visible' => false],
-                ['data' => null, 'title' => $t['acciones'], 'className' => 'no-export dt-no-colvis']
+                ['data' => 'id', 'title' => $t('id', 'ID')],
+                ['data' => 'thumbnail', 'title' => $t('foto', 'Foto'), 'className' => 'no-export'],
+                ['data' => 'codigo', 'title' => $t('codigo', 'Código'), 'visible' => false],
+                ['data' => 'nombres', 'title' => $t('nombres', 'Nombres')],
+                ['data' => 'apellidos', 'title' => $t('apellidos', 'Apellidos')],
+                ['data' => 'edad', 'title' => $t('edad', 'Edad')],
+                ['data' => 'fecha_nacimiento', 'title' => $t('fecha_nacimiento', 'Fecha de Nacimiento'), 'visible' => false],
+                ['data' => 'genero', 'title' => $t('genero', 'Género'), 'visible' => false],
+                ['data' => 'puesto_id', 'title' => $t('puesto', 'Puesto'), 'visible' => false],
+                ['data' => 'departamento_id', 'title' => $t('departamento', 'Departamento'), 'visible' => false],
+                ['data' => 'email', 'title' => $t('email', 'Email'), 'visible' => false],
+                ['data' => 'telefono', 'title' => $t('telefono', 'Teléfono'), 'visible' => false],
+                ['data' => 'direccion', 'title' => $t('direccion', 'Dirección'), 'visible' => false],
+                ['data' => 'ciudad', 'title' => $t('ciudad', 'Ciudad'), 'visible' => false],
+                ['data' => 'comentarios', 'title' => $t('comentarios', 'Comentarios'), 'visible' => false],
+                ['data' => null, 'title' => $t('actions', 'Acciones'), 'className' => 'no-export dt-no-colvis']
             ];
 
             header('Content-Type: application/json', true, 200);

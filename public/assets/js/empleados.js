@@ -180,6 +180,20 @@
                         ajax: {
                             url: api('empleados/ajax?lang=' + encodeURIComponent(lang||'es')),
                             type: 'POST',
+                            data: function(d) {
+                                // Add filter parameters to the request
+                                d.filter_id = $('#filter_id').val();
+                                d.filter_nombres = $('#filter_nombres').val();
+                                d.filter_apellidos = $('#filter_apellidos').val();
+                                d.filter_genero = $('#filter_genero').val();
+                                d.filter_departamento = $('#filter_departamento').val();
+                                d.filter_puesto = $('#filter_puesto').val();
+                                d.filter_edad_min = $('#filter_edad_min').val();
+                                d.filter_edad_max = $('#filter_edad_max').val();
+                                d.filter_fecha_nacimiento_desde = $('#filter_fecha_nacimiento_desde').val();
+                                d.filter_fecha_nacimiento_hasta = $('#filter_fecha_nacimiento_hasta').val();
+                                return d;
+                            },
                             error: function(xhr, error, thrown){
                                 console.error('DataTables ajax error:', error, thrown);
                             }
@@ -267,10 +281,6 @@
             console.error('[reloadOrBuild] Error:', e);
         } 
     }
-
-    // palette
-    function applyPalette(name){ try{ var palettes = { blue:{'--primary-600':'#1e6fb3'}, teal:{'--primary-600':'#0c857a'}, violet:{'--primary-600':'#7c5aa8'} }; var p = palettes[name]||palettes.blue; Object.keys(p).forEach(function(k){ try{ document.documentElement.style.setProperty(k,p[k]); }catch(e){} }); try{ localStorage.setItem('lotificaciones_palette', name); }catch(e){} }catch(e){} }
-    try{ document.querySelectorAll('.palette-swatch').forEach(function(s){ s.addEventListener('click', function(){ try{ applyPalette(s.getAttribute('data-palette')); }catch(e){} }); }); var sp = localStorage.getItem('lotificaciones_palette')||'blue'; applyPalette(sp); }catch(e){}
 
     // Change photo button click handler
     $(document).on('click', '.change-photo-btn', function(){ 
@@ -530,6 +540,22 @@
     
     $(document).on('shown.bs.modal', '#modalEditar', function(){
         updateTabBadges('formEditar');
+    });
+
+    // Filter form submit handler
+    $(document).on('submit', '#filterForm', function(e){
+        e.preventDefault();
+        if(tabla && tabla.ajax){
+            tabla.ajax.reload();
+        }
+    });
+
+    // Clear filters button handler
+    $(document).on('click', '#btnClearFilters', function(){
+        document.getElementById('filterForm').reset();
+        if(tabla && tabla.ajax){
+            tabla.ajax.reload();
+        }
     });
 
     // init

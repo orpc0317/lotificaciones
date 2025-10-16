@@ -55,6 +55,18 @@ class EmpleadoModel
         $orderColumnIndex = isset($params['order'][0]['column']) ? (int)$params['order'][0]['column'] : 0;
         $orderDir = isset($params['order'][0]['dir']) && $params['order'][0]['dir'] === 'asc' ? 'ASC' : 'DESC';
 
+        // Extract filter parameters
+        $filterId = isset($params['filter_id']) && $params['filter_id'] !== '' ? (int)$params['filter_id'] : null;
+        $filterNombres = isset($params['filter_nombres']) && $params['filter_nombres'] !== '' ? trim($params['filter_nombres']) : '';
+        $filterApellidos = isset($params['filter_apellidos']) && $params['filter_apellidos'] !== '' ? trim($params['filter_apellidos']) : '';
+        $filterGenero = isset($params['filter_genero']) && $params['filter_genero'] !== '' ? trim($params['filter_genero']) : '';
+        $filterDepartamento = isset($params['filter_departamento']) && $params['filter_departamento'] !== '' ? (int)$params['filter_departamento'] : null;
+        $filterPuesto = isset($params['filter_puesto']) && $params['filter_puesto'] !== '' ? (int)$params['filter_puesto'] : null;
+        $filterEdadMin = isset($params['filter_edad_min']) && $params['filter_edad_min'] !== '' ? (int)$params['filter_edad_min'] : null;
+        $filterEdadMax = isset($params['filter_edad_max']) && $params['filter_edad_max'] !== '' ? (int)$params['filter_edad_max'] : null;
+        $filterFechaNacimientoDesde = isset($params['filter_fecha_nacimiento_desde']) && $params['filter_fecha_nacimiento_desde'] !== '' ? trim($params['filter_fecha_nacimiento_desde']) : '';
+        $filterFechaNacimientoHasta = isset($params['filter_fecha_nacimiento_hasta']) && $params['filter_fecha_nacimiento_hasta'] !== '' ? trim($params['filter_fecha_nacimiento_hasta']) : '';
+
         // Column mapping (based on DataTables column order)
         $columns = ['e.id', 'e.foto', 'e.codigo', 'e.nombres', 'e.apellidos', 'e.edad', 'e.fecha_nacimiento', 
                     'e.genero', 'p.nombre', 'd.nombre', 'e.email', 'e.telefono', 'e.direccion', 'e.ciudad', 'e.comentarios'];
@@ -66,15 +78,90 @@ class EmpleadoModel
                       LEFT JOIN puestos p ON e.puesto_id = p.id 
                       LEFT JOIN departamentos d ON e.departamento_id = d.id";
 
-        // WHERE clause for search
-        $whereClause = '';
+        // Build WHERE clause
+        $conditions = [];
         $params_bind = [];
+
+        // Global search
         if ($searchValue !== '') {
-            $whereClause = " WHERE (e.codigo LIKE :search OR e.nombres LIKE :search OR e.apellidos LIKE :search 
+            $conditions[] = "(e.codigo LIKE :search OR e.nombres LIKE :search OR e.apellidos LIKE :search 
                             OR e.email LIKE :search OR e.telefono LIKE :search OR e.ciudad LIKE :search 
                             OR p.nombre LIKE :search OR d.nombre LIKE :search)";
             $params_bind[':search'] = '%' . $searchValue . '%';
         }
+
+        // Filter by ID (exact match)
+        if ($filterId !== null) {
+            $conditions[] = "e.id = :filter_id";
+            $params_bind[':filter_id'] = $filterId;
+        }
+
+        // Filter by nombres (LIKE)
+        if ($filterNombres !== '') {
+            $conditions[] = "e.nombres LIKE :filter_nombres";
+            $params_bind[':filter_nombres'] = '%' . $filterNombres . '%';
+        }
+
+        // Filter by apellidos (LIKE)
+        if ($filterApellidos !== '') {
+            $conditions[] = "e.apellidos LIKE :filter_apellidos";
+            $params_bind[':filter_apellidos'] = '%' . $filterApellidos . '%';
+        }
+
+        // Filter by genero (exact match)
+        if ($filterGenero !== '') {
+            $conditions[] = "e.genero = :filter_genero";
+            $params_bind[':filter_genero'] = $filterGenero;
+        }
+
+        // Filter by departamento (exact match)
+        if ($filterDepartamento !== null) {
+            $conditions[] = "e.departamento_id = :filter_departamento";
+            $params_bind[':filter_departamento'] = $filterDepartamento;
+        }
+
+        // Filter by puesto (exact match)
+        if ($filterPuesto !== null) {
+            $conditions[] = "e.puesto_id = :filter_puesto";
+            $params_bind[':filter_puesto'] = $filterPuesto;
+        }
+
+        // Filter by edad (age range logic)
+        // If only "from" is provided: exact match
+        // If only "to" is provided: ignore filter
+        // If both provided: range filter
+        if ($filterEdadMin !== null && $filterEdadMax === null) {
+            // Only "from" provided - exact match
+            $conditions[] = "e.edad = :filter_edad_exact";
+            $params_bind[':filter_edad_exact'] = $filterEdadMin;
+        } elseif ($filterEdadMin !== null && $filterEdadMax !== null) {
+            // Both provided - range filter
+            $conditions[] = "e.edad >= :filter_edad_min";
+            $conditions[] = "e.edad <= :filter_edad_max";
+            $params_bind[':filter_edad_min'] = $filterEdadMin;
+            $params_bind[':filter_edad_max'] = $filterEdadMax;
+        }
+        // If only "to" is provided (filterEdadMax !== null && filterEdadMin === null): ignore
+
+        // Filter by fecha_nacimiento (birth date range logic)
+        // If only "from" is provided: exact match
+        // If only "to" is provided: ignore filter
+        // If both provided: range filter
+        if ($filterFechaNacimientoDesde !== '' && $filterFechaNacimientoHasta === '') {
+            // Only "from" provided - exact match
+            $conditions[] = "e.fecha_nacimiento = :filter_fecha_nacimiento_exact";
+            $params_bind[':filter_fecha_nacimiento_exact'] = $filterFechaNacimientoDesde;
+        } elseif ($filterFechaNacimientoDesde !== '' && $filterFechaNacimientoHasta !== '') {
+            // Both provided - range filter
+            $conditions[] = "e.fecha_nacimiento >= :filter_fecha_nacimiento_desde";
+            $conditions[] = "e.fecha_nacimiento <= :filter_fecha_nacimiento_hasta";
+            $params_bind[':filter_fecha_nacimiento_desde'] = $filterFechaNacimientoDesde;
+            $params_bind[':filter_fecha_nacimiento_hasta'] = $filterFechaNacimientoHasta;
+        }
+        // If only "to" is provided (filterFechaNacimientoHasta !== '' && filterFechaNacimientoDesde === ''): ignore
+
+        // Construct WHERE clause
+        $whereClause = !empty($conditions) ? ' WHERE ' . implode(' AND ', $conditions) : '';
 
         // Count total records (without filtering)
         $stmtTotal = $this->db->query("SELECT COUNT(*) as total FROM empleados");
