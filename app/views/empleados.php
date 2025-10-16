@@ -110,6 +110,9 @@
                     <div class="card-header section-accent d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <h5 class="mb-0 section-title-on-accent me-3"><span class="label-text" data-i18n="list_employees">Empleados</span></h5>
+                            <a href="./" class="btn btn-outline-light btn-sm me-2" title="Ir al inicio">
+                                <i class="bi bi-house-fill me-1"></i><span class="label-text" data-i18n="home">Inicio</span>
+                            </a>
                             <button class="btn btn-light btn-sm me-2" id="btnNuevoEmpleado" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado"><i class="bi bi-person-plus-fill me-1"></i><span class="label-text" data-i18n="new_employee">Nuevo Empleado</span></button>
                         </div>
                         <div id="exportButtons" class="btn-group"></div>
