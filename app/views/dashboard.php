@@ -5,11 +5,8 @@
     <title>Dashboard - Lotificaciones</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <?php
-        $APP_ROOT = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-        if ($APP_ROOT === '') $APP_ROOT = '/';
-    ?>
-    <base href="<?= $APP_ROOT ?>/">
+    <?php use App\Helpers\PathHelper; ?>
+    <?= PathHelper::baseTag() ?>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">

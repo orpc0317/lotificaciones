@@ -6,6 +6,7 @@
  */
 
 use App\Security\CsrfProtection;
+use App\Helpers\PathHelper;
 
 // Ensure $empleado is available from controller
 if (!isset($empleado)) {
@@ -13,20 +14,13 @@ if (!isset($empleado)) {
     echo "Empleado no encontrado";
     exit;
 }
-
-// Calculate APP_ROOT for base href (normalize to forward slashes for URLs)
-// SCRIPT_NAME will be something like /lotificaciones/public/index.php
-$APP_ROOT = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-$APP_ROOT = rtrim($APP_ROOT, '/');
-// Ensure trailing slash for base href
-$baseHref = $APP_ROOT . '/';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="<?= $baseHref ?>">
+    <?= PathHelper::baseTag() ?>
     <title>Employee #<?= htmlspecialchars($empleado['codigo']) ?> - <?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?> | Lotificaciones</title>
     
     <!-- Bootstrap 5.3.2 -->
