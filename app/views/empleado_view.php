@@ -5,6 +5,8 @@
  * Part of multi-tab navigation system
  */
 
+use App\Security\CsrfProtection;
+
 // Ensure $empleado is available from controller
 if (!isset($empleado)) {
     http_response_code(404);
@@ -308,8 +310,8 @@ $baseHref = $APP_ROOT . '/';
     
     <script>
         // Employee data for JavaScript
-        const empleadoData = <?= json_encode($empleado) ?>;
-        const empleadoId = <?= json_encode($empleado['codigo']) ?>;
+        const empleadoData = <?= json_encode($empleado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const empleadoId = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         
         // Get base URL from base tag
         function api(path) {
@@ -335,10 +337,13 @@ $baseHref = $APP_ROOT . '/';
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Get CSRF token
+                    const csrfToken = '<?= CsrfProtection::getToken() ?>';
+                    
                     fetch(api('empleados/delete'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: 'id=' + encodeURIComponent(id)
+                        body: 'id=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(csrfToken)
                     })
                     .then(r => r.json().catch(() => null))
                     .then(resp => {

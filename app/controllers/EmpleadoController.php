@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\EmpleadoModel;
+use App\Security\CsrfProtection;
 
 class EmpleadoController
 {
@@ -89,6 +90,9 @@ class EmpleadoController
     public function create()
     {
         try {
+            // Validate CSRF token
+            CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
+            
             // Basic server-side validation
             $errors = [];
             $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
@@ -116,6 +120,9 @@ class EmpleadoController
     public function update()
     {
         try {
+            // Validate CSRF token
+            CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
+            
             $errors = [];
             $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
             if ($id <= 0) $errors['id'] = 'ID inválido';
@@ -144,6 +151,9 @@ class EmpleadoController
     public function delete()
     {
         try {
+            // Validate CSRF token
+            CsrfProtection::validateOrDie($_POST['csrf_token'] ?? '');
+            
             $model = new EmpleadoModel();
             $result = $model->delete($_POST['id']);
             header('Content-Type: application/json', true, 200);

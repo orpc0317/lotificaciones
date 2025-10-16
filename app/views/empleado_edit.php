@@ -5,6 +5,8 @@
  * Part of multi-tab navigation system with conflict detection
  */
 
+use App\Security\CsrfProtection;
+
 // Ensure $empleado is available from controller
 if (!isset($empleado)) {
     http_response_code(404);
@@ -124,6 +126,7 @@ $baseHref = $APP_ROOT . '/';
                 <div class="container-fluid">
                     <!-- Form -->
                     <form id="formEditEmpleado" method="post" enctype="multipart/form-data">
+                        <?= CsrfProtection::getTokenInput() ?>
                         <input type="hidden" name="id" value="<?= htmlspecialchars($empleado['codigo']) ?>">
                         <input type="hidden" name="foto_actual" value="<?= htmlspecialchars($empleado['foto'] ?? '') ?>">
                         
@@ -352,8 +355,8 @@ $baseHref = $APP_ROOT . '/';
     
     <script>
         // Employee data for JavaScript
-        const empleadoData = <?= json_encode($empleado) ?>;
-        const empleadoId = <?= json_encode($empleado['codigo']) ?>;
+        const empleadoData = <?= json_encode($empleado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        const empleadoId = <?= json_encode($empleado['codigo'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         
         // Cross-tab communication channel
         let editChannel = null;
