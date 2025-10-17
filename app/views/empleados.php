@@ -686,7 +686,7 @@
 <script src="assets/js/modules/validation.js"></script>
 
 <!-- Main Application Coordinator -->
-<script src="assets/js/empleados-main.js"></script>
+<script src="assets/js/empleados.js"></script>
 
 </body>
 

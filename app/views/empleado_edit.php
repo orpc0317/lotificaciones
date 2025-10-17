@@ -67,7 +67,7 @@ if (!isset($empleado)) {
         .edit-photo-card {
             position: relative;
         }
-    </style>
+        
         .section-title {
             font-size: 1.1rem;
             font-weight: 600;
@@ -102,17 +102,6 @@ if (!isset($empleado)) {
                     <i class="bi bi-pencil-square"></i>
                     <span id="pageTitle">Editing Employee #<?= htmlspecialchars($empleado['codigo']) ?></span>
                 </h1>
-                <div class="top-bar-actions">
-                    <div class="theme-palette-selector">
-                        <span class="palette-swatch" data-palette="blue" title="Blue"></span>
-                        <span class="palette-swatch" data-palette="teal" title="Teal"></span>
-                        <span class="palette-swatch" data-palette="violet" title="Violet"></span>
-                    </div>
-                    <select id="languageSelector" class="form-select form-select-sm">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
             </div>
 
             <!-- Page Content -->
@@ -133,9 +122,6 @@ if (!isset($empleado)) {
                                 <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
                                     <i class="bi bi-x-circle"></i> <span id="btnCancel">Cancelar</span>
                                 </button>
-                                <a href="<?= PathHelper::url('empleados/view/' . $empleado['id']) ?>" class="btn btn-outline-secondary">
-                                    <i class="bi bi-eye"></i> <span id="btnViewMode">Ver sin editar</span>
-                                </a>
                                 <a href="<?= PathHelper::url('empleados') ?>" class="btn btn-outline-secondary ms-auto">
                                     <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
                                 </a>
@@ -171,32 +157,37 @@ if (!isset($empleado)) {
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
                                                     <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
+                                                    <span class="badge-tab ms-2" data-tab="general" style="display:none;"></span>
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
                                                     <i class="bi bi-person-badge"></i> <span id="tabPersonal">Personal</span>
+                                                    <span class="badge-tab ms-2" data-tab="personal" style="display:none;"></span>
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="employment-tab" data-bs-toggle="tab" data-bs-target="#employment" type="button" role="tab">
                                                     <i class="bi bi-briefcase-fill"></i> <span id="tabEmployment">Laboral</span>
+                                                    <span class="badge-tab ms-2" data-tab="employment" style="display:none;"></span>
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
                                                     <i class="bi bi-telephone-fill"></i> <span id="tabContact">Contacto</span>
+                                                    <span class="badge-tab ms-2" data-tab="contact" style="display:none;"></span>
                                                 </button>
-                                        </li>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" type="button" role="tab">
                                                     <i class="bi bi-house-fill"></i> <span id="tabAddress">Dirección</span>
+                                                    <span class="badge-tab ms-2" data-tab="address" style="display:none;"></span>
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
                                                     <i class="bi bi-three-dots"></i> <span id="tabOther">Otros</span>
+                                                    <span class="badge-tab ms-2" data-tab="other" style="display:none;"></span>
                                                 </button>
                                             </li>
                                         </ul>
@@ -372,6 +363,10 @@ if (!isset($empleado)) {
 
         document.addEventListener('DOMContentLoaded', function() {
             checkEditLockAndProceed();
+            // Initialize tab validation badges
+            if (typeof attachValidationListeners === 'function') {
+                attachValidationListeners();
+            }
         });
 
         // Update translations when language changes
@@ -626,6 +621,92 @@ if (!isset($empleado)) {
             } catch (error) {
                 console.error('Error loading translations:', error);
             }
+        }
+
+        /**
+         * Tab Validation Badge System
+         * Updates badges and underlines to show missing required fields per tab
+         */
+        function updateTabBadges() {
+            const form = document.getElementById('formEditEmpleado');
+            if (!form) {
+                console.warn('Tab Badges: Form #formEditEmpleado not found');
+                return;
+            }
+
+            const tabIds = ['general', 'personal', 'employment', 'contact', 'address', 'other'];
+
+            tabIds.forEach(function(tabId) {
+                const pane = document.getElementById(tabId);
+                if (!pane) return;
+
+                // Find all required fields in this tab
+                const requiredFields = pane.querySelectorAll('input[required], textarea[required], select[required]');
+                let invalidCount = 0;
+
+                requiredFields.forEach(function(field) {
+                    const val = (field.value || '').trim();
+                    if (!val || val === '') {
+                        invalidCount++;
+                    }
+                });
+
+                // Update badge
+                const badge = document.querySelector('.badge-tab[data-tab="' + tabId + '"]');
+                if (badge) {
+                    if (invalidCount > 0) {
+                        badge.textContent = invalidCount;
+                        badge.style.display = 'inline-block';
+                        badge.style.background = '#dc3545';
+                        badge.style.color = '#fff';
+                        badge.style.fontSize = '11px';
+                        badge.style.minWidth = '18px';
+                        badge.style.height = '18px';
+                        badge.style.lineHeight = '16px';
+                        badge.style.padding = '0 6px';
+                        badge.style.borderRadius = '999px';
+                        badge.style.textAlign = 'center';
+                        badge.style.verticalAlign = 'middle';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                // Update tab title underline
+                const tabButton = document.getElementById(tabId + '-tab');
+                if (tabButton) {
+                    if (invalidCount > 0) {
+                        tabButton.classList.add('tab-invalid');
+                    } else {
+                        tabButton.classList.remove('tab-invalid');
+                    }
+                }
+            });
+        }
+
+        /**
+         * Attach validation listeners to all required fields
+         */
+        function attachValidationListeners() {
+            const form = document.getElementById('formEditEmpleado');
+            if (!form) {
+                console.warn('Tab Badges: Form #formEditEmpleado not found');
+                return;
+            }
+
+            const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+            console.log('Tab Badges: Found ' + requiredFields.length + ' required fields');
+            
+            requiredFields.forEach(function(field) {
+                ['input', 'change', 'blur'].forEach(function(eventType) {
+                    field.addEventListener(eventType, function() {
+                        updateTabBadges();
+                    });
+                });
+            });
+
+            // Initial update
+            updateTabBadges();
         }
     </script>
 </body>

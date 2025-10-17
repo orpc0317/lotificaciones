@@ -62,6 +62,12 @@ if (!isset($empleado)) {
         .tab-content {
             min-height: 300px;
         }
+        
+        /* Photo preview styling */
+        .photo-preview-container {
+            max-width: 200px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body data-csrf-token="<?= htmlspecialchars(CsrfProtection::getToken()) ?>">
@@ -80,17 +86,6 @@ if (!isset($empleado)) {
                     <i class="bi bi-person-badge"></i>
                     <span id="pageTitle">Employee #<?= htmlspecialchars($empleado['codigo']) ?></span>
                 </h1>
-                <div class="top-bar-actions">
-                    <div class="theme-palette-selector">
-                        <span class="palette-swatch" data-palette="blue" title="Blue"></span>
-                        <span class="palette-swatch" data-palette="teal" title="Teal"></span>
-                        <span class="palette-swatch" data-palette="violet" title="Violet"></span>
-                    </div>
-                    <select id="languageSelector" class="form-select form-select-sm">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
             </div>
 
             <!-- Page Content -->
@@ -102,9 +97,6 @@ if (!isset($empleado)) {
                             <button class="btn btn-secondary" onclick="window.close()">
                                 <i class="bi bi-x-circle"></i> <span id="btnClose">Cerrar</span>
                             </button>
-                            <a href="<?= PathHelper::url('empleados') ?>" class="btn btn-outline-secondary">
-                                <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
-                            </a>
                             <a href="#" id="editButton" class="btn btn-primary" onclick="checkEditLockAndNavigate(event)">
                                 <i class="bi bi-pencil"></i> <span id="btnEdit">Editar</span>
                             </a>
@@ -123,12 +115,11 @@ if (!isset($empleado)) {
                                 <div class="col-12 col-md-4">
                                     <div class="card">
                                         <div class="card-body text-center">
-                                            <img src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
-                                                 alt="<?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?>" 
-                                                 class="img-fluid rounded mb-3"
-                                                 style="max-width: 100%; height: auto;">
-                                            <h5 class="mb-1"><?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?></h5>
-                                            <p class="text-muted mb-0"><?= htmlspecialchars($empleado['codigo']) ?></p>
+                                            <div class="photo-preview-container">
+                                                <img src="uploads/<?= htmlspecialchars($empleado['foto'] ?? 'placeholder.png') ?>" 
+                                                     alt="<?= htmlspecialchars($empleado['nombres'] . ' ' . $empleado['apellidos']) ?>" 
+                                                     class="img-fluid rounded">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
