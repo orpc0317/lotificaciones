@@ -10,7 +10,33 @@
     document.addEventListener('DOMContentLoaded', function() {
         initializeTheme();
         initializeLanguage();
+        initializeTranslations();
     });
+
+    // Initialize translations
+    function initializeTranslations() {
+        // Load translations if I18nModule is available
+        if (window.I18nModule && typeof window.I18nModule.loadTranslations === 'function') {
+            const savedLang = localStorage.getItem('lotificaciones_lang') || 'es';
+            window.I18nModule.loadTranslations(savedLang).then(function() {
+                // Translations loaded successfully
+                console.log('Translations loaded for:', savedLang);
+                // Update palette dropdown after translations load
+                updatePaletteDropdown();
+            }).catch(function(err) {
+                console.error('Error loading translations:', err);
+            });
+        }
+        
+        // Listen for language changes from other parts of the app
+        window.addEventListener('languageChanged', function(e) {
+            console.log('Language changed event received:', e.detail.lang);
+            // Force palette dropdown update after language change
+            setTimeout(function() {
+                updatePaletteDropdown();
+            }, 100);
+        });
+    }
 
     // Initialize theme
     function initializeTheme() {
@@ -18,16 +44,17 @@
         currentPalette = localStorage.getItem('theme_palette') || 'blue';
         applyPalette(currentPalette);
 
-        // Setup palette swatch click handlers
-        document.querySelectorAll('.palette-swatch').forEach(swatch => {
-            swatch.addEventListener('click', function() {
+        // Setup palette dropdown click handlers
+        document.querySelectorAll('.palette-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
                 const palette = this.dataset.palette;
                 setPalette(palette);
             });
         });
 
-        // Mark active swatch
-        updateActiveSwatchIndicator();
+        // Update dropdown display
+        updatePaletteDropdown();
     }
 
     // Apply palette to document
@@ -35,7 +62,7 @@
         currentPalette = palette;
         document.documentElement.setAttribute('data-palette', palette);
         localStorage.setItem('theme_palette', palette);
-        updateActiveSwatchIndicator();
+        updatePaletteDropdown();
         
         // Dispatch event for other components
         window.dispatchEvent(new CustomEvent('themeChanged', { 
@@ -48,12 +75,29 @@
         applyPalette(palette);
     }
 
-    // Update active swatch visual indicator
-    function updateActiveSwatchIndicator() {
-        document.querySelectorAll('.palette-swatch').forEach(s => {
-            s.classList.remove('active');
-            if (s.dataset.palette === currentPalette) {
-                s.classList.add('active');
+    // Update palette dropdown display
+    function updatePaletteDropdown() {
+        const currentPaletteNameEl = document.getElementById('currentPaletteName');
+        if (currentPaletteNameEl) {
+            // Update the data-i18n attribute to match the current palette
+            const i18nKey = 'theme_' + currentPalette;
+            currentPaletteNameEl.setAttribute('data-i18n', i18nKey);
+            
+            // Apply translations immediately using I18nModule
+            if (window.I18nModule && typeof window.I18nModule.applyTranslations === 'function') {
+                window.I18nModule.applyTranslations();
+            }
+        }
+
+        // Mark active option in dropdown
+        document.querySelectorAll('.palette-option').forEach(option => {
+            const parent = option.parentElement;
+            if (option.dataset.palette === currentPalette) {
+                option.classList.add('active');
+                if (parent) parent.classList.add('active');
+            } else {
+                option.classList.remove('active');
+                if (parent) parent.classList.remove('active');
             }
         });
     }
@@ -79,6 +123,19 @@
     function setLanguage(lang) {
         currentLang = lang;
         localStorage.setItem('lotificaciones_lang', lang);
+        
+        // Load translations for new language
+        if (window.I18nModule && typeof window.I18nModule.loadTranslations === 'function') {
+            window.I18nModule.loadTranslations(lang).then(function() {
+                console.log('Language changed to:', lang);
+                // Update palette dropdown after translations load
+                setTimeout(function() {
+                    updatePaletteDropdown();
+                }, 50);
+            }).catch(function(err) {
+                console.error('Error loading translations for language change:', err);
+            });
+        }
         
         // Dispatch event for other components
         window.dispatchEvent(new CustomEvent('languageChanged', { 

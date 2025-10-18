@@ -122,9 +122,6 @@ if (!isset($empleado)) {
                                 <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
                                     <i class="bi bi-x-circle"></i> <span id="btnCancel">Cancelar</span>
                                 </button>
-                                <a href="<?= PathHelper::url('empleados') ?>" class="btn btn-outline-secondary ms-auto">
-                                    <i class="bi bi-list-ul"></i> <span id="btnBackToList">Volver a la lista</span>
-                                </a>
                             </div>
                         </div>
 
@@ -152,14 +149,18 @@ if (!isset($empleado)) {
                             <div class="col-12 col-md-8 mt-3 mt-md-0">
                                 <div class="card">
                                     <!-- Tab Header with Theme Color -->
-                                    <div class="card-header section-accent" style="padding:0;">
-                                        <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                                    <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
-                                                    <span class="badge-tab ms-2" data-tab="general" style="display:none;"></span>
-                                                </button>
-                                            </li>
+                                    <div class="card-header section-accent" style="padding:0; position: relative;">
+                                        <button type="button" class="tab-scroll-btn tab-scroll-left" id="editTabScrollLeft">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <div class="tab-container-wrapper">
+                                            <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                                        <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
+                                                        <span class="badge-tab ms-2" data-tab="general" style="display:none;"></span>
+                                                    </button>
+                                                </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link rounded-0" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">
                                                     <i class="bi bi-person-badge"></i> <span id="tabPersonal">Personal</span>
@@ -190,7 +191,17 @@ if (!isset($empleado)) {
                                                     <span class="badge-tab ms-2" data-tab="other" style="display:none;"></span>
                                                 </button>
                                             </li>
-                                        </ul>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0" id="training-tab" data-bs-toggle="tab" data-bs-target="#training" type="button" role="tab">
+                                                    <i class="bi bi-book-fill"></i> <span id="tabTraining">Capacitación</span>
+                                                    <span class="badge-tab ms-2" data-tab="training" style="display:none;"></span>
+                                                </button>
+                                            </li>
+                                            </ul>
+                                        </div>
+                                        <button type="button" class="tab-scroll-btn tab-scroll-right" id="editTabScrollRight">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
                                     </div>
 
                                     <!-- Tab Content -->
@@ -318,6 +329,72 @@ if (!isset($empleado)) {
                                                 <div class="col-12">
                                                     <label for="comentarios" class="form-label"><span id="lblComments">Comentarios</span></label>
                                                     <textarea name="comentarios" class="form-control" id="comentarios" rows="3"><?= htmlspecialchars($empleado['comentarios'] ?? '') ?></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Training Tab -->
+                                        <div class="tab-pane fade" id="training" role="tabpanel">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <div class="card">
+                                                        <div class="card-header bg-light">
+                                                            <h6 class="mb-0"><i class="bi bi-book-fill me-2"></i><span id="lblTrainingTitle">Cursos y Capacitaciones</span></h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <!-- Add Training Form -->
+                                                            <div class="row g-3 mb-3 p-3 bg-light rounded">
+                                                                <div class="col-md-4">
+                                                                    <label for="curso_nombre" class="form-label"><span id="lblCourseName">Nombre del Curso</span> <span class="text-danger">*</span></label>
+                                                                    <input type="text" class="form-control" id="curso_nombre" placeholder="Ej: Seguridad Industrial">
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <label for="curso_fecha" class="form-label"><span id="lblCourseDate">Fecha Aprobado</span> <span class="text-danger">*</span></label>
+                                                                    <input type="date" class="form-control" id="curso_fecha">
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                    <label for="curso_recursos" class="form-label"><span id="lblCourseResources">Recursos Aprobados</span></label>
+                                                                    <input type="number" class="form-control" id="curso_recursos" placeholder="0.00" step="0.01">
+                                                                </div>
+                                                                <div class="col-md-2 d-flex align-items-end">
+                                                                    <button type="button" class="btn btn-primary w-100" id="btnAddCourse">
+                                                                        <i class="bi bi-plus-circle"></i> <span id="lblAddButton">Agregar</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <label for="curso_comentarios" class="form-label"><span id="lblCourseComments">Comentarios</span></label>
+                                                                    <textarea class="form-control" id="curso_comentarios" rows="2" placeholder="Observaciones sobre el curso..."></textarea>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Training Table -->
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped table-hover" id="trainingTable">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th><span id="thCourseName">Curso</span></th>
+                                                                            <th><span id="thCourseDate">Fecha</span></th>
+                                                                            <th><span id="thCourseResources">Recursos</span></th>
+                                                                            <th><span id="thCourseComments">Comentarios</span></th>
+                                                                            <th width="100"><span id="thActions">Acciones</span></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="trainingTableBody">
+                                                                        <!-- Rows will be added dynamically -->
+                                                                        <tr id="emptyTrainingRow">
+                                                                            <td colspan="5" class="text-center text-muted">
+                                                                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                                                <span id="lblNoTraining">No hay cursos registrados. Agregue el primero usando el formulario arriba.</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                            <!-- Hidden input to store training data -->
+                                                            <input type="hidden" name="training_data" id="training_data" value="[]">
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -574,7 +651,6 @@ if (!isset($empleado)) {
                     btnSave: t.save || 'Guardar',
                     btnCancel: t.cancel || 'Cancelar',
                     btnViewMode: t.view_mode || 'Ver sin editar',
-                    btnBackToList: t.back_to_list || 'Volver a la lista',
                     btnChangePhoto: t.change_photo || 'Cambiar Foto',
                     lblPhoto: t.photo || 'Fotografía',
                     
@@ -708,6 +784,205 @@ if (!isset($empleado)) {
             // Initial update
             updateTabBadges();
         }
+
+        // ==================== TRAINING TAB FUNCTIONALITY ====================
+        
+        let trainingData = [];
+        let editingTrainingIndex = -1;
+
+        // Load existing training data from employee
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize training data from employee if exists
+            if (empleadoData.training_data) {
+                try {
+                    trainingData = typeof empleadoData.training_data === 'string' 
+                        ? JSON.parse(empleadoData.training_data) 
+                        : empleadoData.training_data;
+                    renderTrainingTable();
+                } catch(e) {
+                    console.error('Error loading training data:', e);
+                    trainingData = [];
+                }
+            }
+
+            // Add Course Button
+            document.getElementById('btnAddCourse').addEventListener('click', addTrainingRow);
+
+            // Allow Enter key to add row
+            ['curso_nombre', 'curso_fecha', 'curso_recursos', 'curso_comentarios'].forEach(id => {
+                document.getElementById(id).addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTrainingRow();
+                    }
+                });
+            });
+        });
+
+        function addTrainingRow() {
+            const nombre = document.getElementById('curso_nombre').value.trim();
+            const fecha = document.getElementById('curso_fecha').value;
+            const recursos = document.getElementById('curso_recursos').value;
+            const comentarios = document.getElementById('curso_comentarios').value.trim();
+
+            // Validation - using i18n
+            if (!nombre) {
+                alert(window.i18n ? window.i18n.t('alertCourseName') : 'Por favor ingrese el nombre del curso');
+                document.getElementById('curso_nombre').focus();
+                return;
+            }
+
+            if (!fecha) {
+                alert(window.i18n ? window.i18n.t('alertCourseDate') : 'Por favor seleccione la fecha');
+                document.getElementById('curso_fecha').focus();
+                return;
+            }
+
+            const training = {
+                nombre: nombre,
+                fecha: fecha,
+                recursos: parseFloat(recursos) || 0,
+                comentarios: comentarios
+            };
+
+            if (editingTrainingIndex >= 0) {
+                // Update existing row
+                trainingData[editingTrainingIndex] = training;
+                editingTrainingIndex = -1;
+                // Update button text using i18n
+                const btnText = window.i18n ? window.i18n.t('lblAddButton') : 'Agregar';
+                document.getElementById('btnAddCourse').innerHTML = '<i class="bi bi-plus-circle"></i> <span id="lblAddButton">' + btnText + '</span>';
+            } else {
+                // Add new row
+                trainingData.push(training);
+            }
+
+            // Clear form
+            document.getElementById('curso_nombre').value = '';
+            document.getElementById('curso_fecha').value = '';
+            document.getElementById('curso_recursos').value = '';
+            document.getElementById('curso_comentarios').value = '';
+
+            // Update table and hidden input
+            renderTrainingTable();
+            updateTrainingHiddenInput();
+
+            // Focus back to first field
+            document.getElementById('curso_nombre').focus();
+        }
+
+        function renderTrainingTable() {
+            const tbody = document.getElementById('trainingTableBody');
+            const emptyRow = document.getElementById('emptyTrainingRow');
+
+            if (trainingData.length === 0) {
+                emptyRow.style.display = '';
+                return;
+            }
+
+            emptyRow.style.display = 'none';
+
+            // Clear existing rows (except empty row)
+            while (tbody.children.length > 1) {
+                tbody.removeChild(tbody.lastChild);
+            }
+
+            trainingData.forEach((training, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHtml(training.nombre)}</td>
+                    <td>${formatDate(training.fecha)}</td>
+                    <td class="text-end">$${parseFloat(training.recursos).toFixed(2)}</td>
+                    <td>${escapeHtml(training.comentarios || '-')}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="editTrainingRow(${index})" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteTrainingRow(${index})" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function editTrainingRow(index) {
+            const training = trainingData[index];
+            
+            document.getElementById('curso_nombre').value = training.nombre;
+            document.getElementById('curso_fecha').value = training.fecha;
+            document.getElementById('curso_recursos').value = training.recursos;
+            document.getElementById('curso_comentarios').value = training.comentarios || '';
+
+            editingTrainingIndex = index;
+            // Update button text using i18n
+            const btnText = window.i18n ? window.i18n.t('lblUpdateButton') : 'Actualizar';
+            document.getElementById('btnAddCourse').innerHTML = '<i class="bi bi-check-circle"></i> <span id="lblUpdateButton">' + btnText + '</span>';
+            document.getElementById('curso_nombre').focus();
+        }
+
+        function deleteTrainingRow(index) {
+            const confirmMsg = window.i18n ? window.i18n.t('confirmDeleteCourse') : '¿Está seguro de eliminar este curso?';
+            if (confirm(confirmMsg)) {
+                trainingData.splice(index, 1);
+                renderTrainingTable();
+                updateTrainingHiddenInput();
+            }
+        }
+
+        function updateTrainingHiddenInput() {
+            document.getElementById('training_data').value = JSON.stringify(trainingData);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== TAB SCROLL ARROWS FOR EDIT PAGE ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabContainer = document.querySelector('#employeeTabs')?.closest('.tab-container-wrapper');
+            const leftBtn = document.getElementById('editTabScrollLeft');
+            const rightBtn = document.getElementById('editTabScrollRight');
+            
+            if (!tabContainer || !leftBtn || !rightBtn) return;
+            
+            function updateScrollArrows() {
+                const scrollLeft = tabContainer.scrollLeft;
+                const scrollWidth = tabContainer.scrollWidth;
+                const clientWidth = tabContainer.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                
+                if (maxScroll <= 1) {
+                    leftBtn.style.display = 'none';
+                    rightBtn.style.display = 'none';
+                } else {
+                    leftBtn.style.display = scrollLeft > 5 ? 'flex' : 'none';
+                    rightBtn.style.display = scrollLeft < maxScroll - 5 ? 'flex' : 'none';
+                }
+            }
+            
+            function scrollTabs(direction) {
+                const scrollAmount = 200;
+                const targetScroll = tabContainer.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
+                tabContainer.scrollTo({ left: targetScroll, behavior: 'smooth' });
+            }
+            
+            leftBtn.addEventListener('click', () => scrollTabs('left'));
+            rightBtn.addEventListener('click', () => scrollTabs('right'));
+            tabContainer.addEventListener('scroll', updateScrollArrows);
+            window.addEventListener('resize', updateScrollArrows);
+            
+            setTimeout(updateScrollArrows, 100);
+        });
     </script>
 </body>
 </html>

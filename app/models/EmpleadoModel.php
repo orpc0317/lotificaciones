@@ -495,4 +495,143 @@ class EmpleadoModel
         return true;
     }
 
+    // ==================== TRAINING METHODS ====================
+
+    /**
+     * Get all training records for an employee
+     * 
+     * @param int $empleadoId
+     * @return array
+     */
+    public function getTrainingByEmpleado($empleadoId)
+    {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT 
+                    id,
+                    empleado_id,
+                    nombre_curso as nombre,
+                    fecha_aprobado as fecha,
+                    recursos_aprobados as recursos,
+                    comentarios,
+                    created_at,
+                    updated_at
+                FROM empleado_capacitacion 
+                WHERE empleado_id = :empleado_id 
+                ORDER BY fecha_aprobado DESC
+            ");
+            
+            $stmt->execute([':empleado_id' => $empleadoId]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Format numeric values
+            foreach ($results as &$row) {
+                $row['recursos'] = (float) $row['recursos'];
+            }
+            
+            return $results;
+        } catch (Exception $e) {
+            error_log("Error getting training data: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Save training records for an employee
+     * Deletes existing records and inserts new ones
+     * 
+     * @param int $empleadoId
+     * @param array $trainingData
+     * @return bool
+     */
+    public function saveTraining($empleadoId, $trainingData)
+    {
+        try {
+            // Start transaction
+            $this->db->beginTransaction();
+            
+            // Delete existing records
+            $stmt = $this->db->prepare("DELETE FROM empleado_capacitacion WHERE empleado_id = :empleado_id");
+            $stmt->execute([':empleado_id' => $empleadoId]);
+            
+            // Insert new records
+            if (!empty($trainingData) && is_array($trainingData)) {
+                $stmt = $this->db->prepare("
+                    INSERT INTO empleado_capacitacion 
+                    (empleado_id, nombre_curso, fecha_aprobado, recursos_aprobados, comentarios)
+                    VALUES (:empleado_id, :nombre_curso, :fecha_aprobado, :recursos_aprobados, :comentarios)
+                ");
+                
+                foreach ($trainingData as $training) {
+                    // Skip invalid entries
+                    if (empty($training['nombre']) || empty($training['fecha'])) {
+                        continue;
+                    }
+                    
+                    $stmt->execute([
+                        ':empleado_id' => $empleadoId,
+                        ':nombre_curso' => $training['nombre'],
+                        ':fecha_aprobado' => $training['fecha'],
+                        ':recursos_aprobados' => $training['recursos'] ?? 0,
+                        ':comentarios' => !empty($training['comentarios']) ? $training['comentarios'] : null
+                    ]);
+                }
+            }
+            
+            // Commit transaction
+            $this->db->commit();
+            
+            return true;
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->db->rollBack();
+            error_log("Error saving training data: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Count training records for an employee
+     * 
+     * @param int $empleadoId
+     * @return int
+     */
+    public function countTrainingByEmpleado($empleadoId)
+    {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as total 
+                FROM empleado_capacitacion 
+                WHERE empleado_id = :empleado_id
+            ");
+            
+            $stmt->execute([':empleado_id' => $empleadoId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return (int) ($result['total'] ?? 0);
+        } catch (Exception $e) {
+            error_log("Error counting training data: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Delete all training records for an employee
+     * 
+     * @param int $empleadoId
+     * @return bool
+     */
+    public function deleteTrainingByEmpleado($empleadoId)
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM empleado_capacitacion WHERE empleado_id = :empleado_id");
+            $stmt->execute([':empleado_id' => $empleadoId]);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Error deleting training data: " . $e->getMessage());
+            return false;
+        }
+    }
+
 }

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Tab - Standalone Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        .thumb-sm {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        /* Theme-compatible table header */
+        #trainingTable thead {
+            background: linear-gradient(135deg, #1e6fb3 0%, #1557a0 100%);
+            color: #ffffff;
+        }
+        #trainingTable thead th {
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2><i class="bi bi-book-fill"></i> Training Tab Test</h2>
+        <p class="text-muted">Test the master-detail functionality for employee training courses</p>
+        <hr>
+
+        <!-- Training Form -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h5>Add Training Course</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="curso_nombre" class="form-label">Course Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="curso_nombre" placeholder="e.g., Industrial Safety">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="curso_fecha" class="form-label">Date Approved <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="curso_fecha">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="curso_recursos" class="form-label">Budget ($)</label>
+                        <input type="number" class="form-control" id="curso_recursos" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary w-100" id="btnAddTraining" onclick="addTrainingRow()">
+                            <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-10">
+                        <label for="curso_comentarios" class="form-label">Comments</label>
+                        <textarea class="form-control" id="curso_comentarios" rows="2" placeholder="Additional notes..."></textarea>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-secondary w-100" onclick="clearTrainingForm()">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Training Table -->
+        <div class="row">
+            <div class="col-md-12">
+                <h5>Training Courses List</h5>
+                <div id="trainingTableContainer"></div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Debug Info -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h5>Debug Information</h5>
+                <div class="alert alert-info">
+                    <strong>Hidden Input Value:</strong>
+                    <pre id="debugHiddenInput" class="mb-0 mt-2" style="background: #f8f9fa; padding: 10px; border-radius: 4px;"></pre>
+                </div>
+                <div class="alert alert-secondary">
+                    <strong>JavaScript Array:</strong>
+                    <pre id="debugArray" class="mb-0 mt-2" style="background: #f8f9fa; padding: 10px; border-radius: 4px;"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden input for data storage -->
+        <input type="hidden" id="training_data" value="[]">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Training data array
+        let trainingData = [];
+        let editingTrainingIndex = -1;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTrainingTable();
+            updateDebugInfo();
+        });
+
+        // Add or update training row
+        function addTrainingRow() {
+            const nombre = document.getElementById('curso_nombre').value.trim();
+            const fecha = document.getElementById('curso_fecha').value;
+            const recursos = parseFloat(document.getElementById('curso_recursos').value) || 0;
+            const comentarios = document.getElementById('curso_comentarios').value.trim();
+
+            // Validation
+            if (!nombre || !fecha) {
+                alert('Please complete all required fields (Course Name and Date)');
+                return;
+            }
+
+            const trainingItem = {
+                nombre: nombre,
+                fecha: fecha,
+                recursos: recursos,
+                comentarios: comentarios
+            };
+
+            if (editingTrainingIndex >= 0) {
+                // Update existing
+                trainingData[editingTrainingIndex] = trainingItem;
+                editingTrainingIndex = -1;
+                document.getElementById('btnAddTraining').innerHTML = '<i class="bi bi-plus-circle"></i> Add';
+            } else {
+                // Add new
+                trainingData.push(trainingItem);
+            }
+
+            clearTrainingForm();
+            renderTrainingTable();
+            updateTrainingHiddenInput();
+            updateDebugInfo();
+        }
+
+        // Clear form
+        function clearTrainingForm() {
+            document.getElementById('curso_nombre').value = '';
+            document.getElementById('curso_fecha').value = '';
+            document.getElementById('curso_recursos').value = '';
+            document.getElementById('curso_comentarios').value = '';
+            editingTrainingIndex = -1;
+            document.getElementById('btnAddTraining').innerHTML = '<i class="bi bi-plus-circle"></i> Add';
+        }
+
+        // Render training table
+        function renderTrainingTable() {
+            const container = document.getElementById('trainingTableContainer');
+            
+            if (trainingData.length === 0) {
+                container.innerHTML = '<div class="empty-state">No training courses registered. Add a course using the form above.</div>';
+                return;
+            }
+
+            let html = `
+                <table class="table table-striped table-hover" id="trainingTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Course</th>
+                            <th style="width: 15%">Date Approved</th>
+                            <th style="width: 15%">Budget</th>
+                            <th style="width: 30%">Comments</th>
+                            <th style="width: 10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            trainingData.forEach((training, index) => {
+                const formattedDate = formatDate(training.fecha);
+                const formattedRecursos = formatCurrency(training.recursos);
+                
+                html += `
+                    <tr>
+                        <td>${escapeHtml(training.nombre)}</td>
+                        <td>${formattedDate}</td>
+                        <td>${formattedRecursos}</td>
+                        <td>${escapeHtml(training.comentarios) || '-'}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="editTrainingRow(${index})" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteTrainingRow(${index})" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Edit training row
+        function editTrainingRow(index) {
+            const training = trainingData[index];
+            document.getElementById('curso_nombre').value = training.nombre;
+            document.getElementById('curso_fecha').value = training.fecha;
+            document.getElementById('curso_recursos').value = training.recursos;
+            document.getElementById('curso_comentarios').value = training.comentarios;
+            
+            editingTrainingIndex = index;
+            document.getElementById('btnAddTraining').innerHTML = '<i class="bi bi-check-circle"></i> Update';
+            document.getElementById('curso_nombre').focus();
+        }
+
+        // Delete training row
+        function deleteTrainingRow(index) {
+            if (confirm('Are you sure you want to delete this course?')) {
+                trainingData.splice(index, 1);
+                renderTrainingTable();
+                updateTrainingHiddenInput();
+                updateDebugInfo();
+                
+                if (editingTrainingIndex === index) {
+                    clearTrainingForm();
+                }
+            }
+        }
+
+        // Update hidden input
+        function updateTrainingHiddenInput() {
+            document.getElementById('training_data').value = JSON.stringify(trainingData);
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return '$' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Update debug information
+        function updateDebugInfo() {
+            const hiddenValue = document.getElementById('training_data').value;
+            document.getElementById('debugHiddenInput').textContent = hiddenValue || '[]';
+            document.getElementById('debugArray').textContent = JSON.stringify(trainingData, null, 2);
+        }
+
+        // Test data loader
+        function loadTestData() {
+            trainingData = [
+                {
+                    nombre: "Industrial Safety",
+                    fecha: "2024-01-15",
+                    recursos: 1500.00,
+                    comentarios: "Mandatory course completed successfully"
+                },
+                {
+                    nombre: "First Aid",
+                    fecha: "2024-03-20",
+                    recursos: 800.00,
+                    comentarios: "Certificate valid until 2026"
+                },
+                {
+                    nombre: "Defensive Driving",
+                    fecha: "2024-06-10",
+                    recursos: 1200.00,
+                    comentarios: "Includes practical sessions"
+                }
+            ];
+            renderTrainingTable();
+            updateTrainingHiddenInput();
+            updateDebugInfo();
+        }
+    </script>
+
+    <!-- Test Controls -->
+    <div class="test-container mt-3">
+        <h5>Test Controls</h5>
+        <button class="btn btn-success" onclick="loadTestData()">
+            <i class="bi bi-file-earmark-arrow-down"></i> Load Sample Data
+        </button>
+        <button class="btn btn-warning" onclick="trainingData = []; renderTrainingTable(); updateTrainingHiddenInput(); updateDebugInfo();">
+            <i class="bi bi-trash"></i> Clear All Data
+        </button>
+        <button class="btn btn-info" onclick="console.log('Training Data:', trainingData); console.log('Hidden Input:', document.getElementById('training_data').value);">
+            <i class="bi bi-terminal"></i> Log to Console
+        </button>
+    </div>
+</body>
+</html>

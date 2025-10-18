@@ -296,7 +296,54 @@ table.dataTable td img {
     }
 }
 
-/* Palette swatches (visual previews that read colors from CSS variables) */
+/* Palette Dropdown Styling */
+#paletteDropdown {
+    min-width: 120px;
+}
+
+#paletteDropdown .bi-palette {
+    font-size: 1rem;
+}
+
+#currentPaletteName {
+    font-size: 0.875rem;
+}
+
+.palette-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.5rem 1rem;
+}
+
+.palette-option:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.palette-option.active {
+    background-color: var(--primary-600);
+    color: white;
+}
+
+.palette-option.active:hover {
+    background-color: var(--primary-700);
+    color: white;
+}
+
+.palette-color-dot {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.palette-option.active .palette-color-dot {
+    border-color: white;
+}
+
+/* Legacy palette swatches (kept for backward compatibility if needed) */
 .palette-swatch { width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; display:inline-block; margin-left:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 .palette-swatch[data-palette="blue"] { background: var(--swatch-blue); }
 .palette-swatch[data-palette="teal"] { background: var(--swatch-teal); }
@@ -530,4 +577,354 @@ table.dataTable td img {
     width: 1rem;
     height: 1rem;
     border-width: 0.15em;
+}
+
+/* ==================== TRAINING TABLE STYLES ==================== */
+/* Theme-compatible styling for training/courses table */
+
+#trainingTable {
+    border: 1px solid var(--border, #e6edf6);
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#trainingTable thead {
+    background: linear-gradient(135deg, var(--primary-600, #1e6fb3) 0%, var(--primary-700, #1557a0) 100%) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--primary-800, #0f4482) !important;
+}
+
+#trainingTable thead tr:first-child th:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+#trainingTable thead tr:first-child th:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+#trainingTable tbody {
+    background-color: var(--card-bg, #ffffff);
+}
+
+#trainingTable tbody td {
+    background-color: transparent;
+}
+
+#trainingTable thead th {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    padding: 0.875rem 0.75rem !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+#trainingTable tbody tr {
+    transition: background-color 0.15s ease;
+    background-color: var(--card-bg, #ffffff);
+}
+
+/* Striped rows - alternating background */
+#trainingTable tbody tr:nth-child(even) {
+    background-color: rgba(var(--primary-600-rgb, 30, 111, 179), 0.03);
+}
+
+#trainingTable tbody tr:hover {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.12) !important;
+}
+
+/* Empty state styling */
+#emptyTrainingRow {
+    background-color: var(--bg, #f5f7fb);
+}
+
+#emptyTrainingRow td {
+    padding: 2.5rem 1rem;
+}
+
+#emptyTrainingRow i {
+    opacity: 0.3;
+}
+
+/* Action buttons in table */
+#trainingTable .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.813rem;
+}
+
+/* ==================== EMPLOYEE LIST TABLE STYLES ==================== */
+/* Theme-compatible styling for main employee list (Lista de Empleados) */
+
+#tablaEmpleados {
+    border: 1px solid var(--border, #e6edf6);
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#tablaEmpleados thead {
+    background: linear-gradient(135deg, var(--primary-600, #1e6fb3) 0%, var(--primary-700, #1557a0) 100%) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--primary-800, #0f4482) !important;
+}
+
+#tablaEmpleados thead tr:first-child th:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+#tablaEmpleados thead tr:first-child th:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+#tablaEmpleados thead th {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    padding: 0.875rem 0.75rem !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+#tablaEmpleados tbody {
+    background-color: var(--card-bg, #ffffff);
+}
+
+#tablaEmpleados tbody tr {
+    transition: background-color 0.15s ease;
+    background-color: var(--card-bg, #ffffff);
+}
+
+#tablaEmpleados tbody tr:nth-child(even) {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.03);
+}
+
+#tablaEmpleados tbody tr:hover {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.12) !important;
+}
+
+/* ==================== NEW EMPLOYEE MODAL TRAINING TABLE ==================== */
+#newTrainingTable {
+    border: 1px solid var(--border, #e6edf6);
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#newTrainingTable thead {
+    background: linear-gradient(135deg, var(--primary-600, #1e6fb3) 0%, var(--primary-700, #1557a0) 100%) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--primary-800, #0f4482) !important;
+}
+
+#newTrainingTable thead tr:first-child th:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+#newTrainingTable thead tr:first-child th:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+#newTrainingTable thead th {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    padding: 0.875rem 0.75rem !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+#newTrainingTable tbody {
+    background-color: var(--card-bg, #ffffff);
+}
+
+#newTrainingTable tbody tr {
+    transition: background-color 0.15s ease;
+    background-color: var(--card-bg, #ffffff);
+}
+
+#newTrainingTable tbody tr:nth-child(even) {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.03);
+}
+
+#newTrainingTable tbody tr:hover {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.12) !important;
+}
+
+#emptyNewTrainingRow {
+    background-color: var(--bg, #f5f7fb);
+}
+
+/* ==================== VIEW PAGE TRAINING TABLE ==================== */
+#viewTrainingTable {
+    border: 1px solid var(--border, #e6edf6);
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#viewTrainingTable thead {
+    background: linear-gradient(135deg, var(--primary-600, #1e6fb3) 0%, var(--primary-700, #1557a0) 100%) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--primary-800, #0f4482) !important;
+}
+
+#viewTrainingTable thead tr:first-child th:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+#viewTrainingTable thead tr:first-child th:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+#viewTrainingTable thead th {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    padding: 0.875rem 0.75rem !important;
+    border-bottom: none !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+#viewTrainingTable tbody {
+    background-color: var(--card-bg, #ffffff);
+}
+
+#viewTrainingTable tbody tr {
+    transition: background-color 0.15s ease;
+    background-color: var(--card-bg, #ffffff);
+}
+
+#viewTrainingTable tbody tr:nth-child(even) {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.03);
+}
+
+#viewTrainingTable tbody tr:hover {
+    background-color: rgba(var(--primary-400-rgb, 77, 154, 224), 0.12) !important;
+}
+
+/* ==================== TAB SCROLL ARROWS ==================== */
+/* Navigation arrows for horizontal tab scrolling */
+
+.card-header.section-accent {
+    position: relative;
+}
+
+.tab-container-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.tab-container-wrapper::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.tab-container-wrapper .nav-tabs {
+    flex-wrap: nowrap !important;
+    border-bottom: none;
+    width: max-content; /* Force tabs to take their full width */
+    min-width: 100%;
+}
+
+.tab-container-wrapper .nav-tabs .nav-item {
+    flex-shrink: 0; /* Don't allow tabs to shrink */
+}
+
+.tab-container-wrapper .nav-tabs .nav-link {
+    white-space: nowrap !important; /* Prevent text wrapping */
+    padding: 0.5rem 0.75rem !important;
+}
+
+/* Ensure icons and text stay visible */
+.tab-container-wrapper .nav-tabs .nav-link i {
+    display: inline-block !important;
+}
+
+.tab-container-wrapper .nav-tabs .nav-link .label-text {
+    display: inline !important;
+    margin-left: 0.25rem;
+}
+
+.tab-scroll-btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 45px;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+    color: white !important;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    display: flex; /* Default to flex, JS will control visibility */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    opacity: 0.9;
+}
+
+.tab-scroll-btn:hover {
+    background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    opacity: 1;
+}
+
+.tab-scroll-btn:active {
+    transform: scale(0.95);
+}
+
+.tab-scroll-left {
+    left: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+}
+
+.tab-scroll-left:hover {
+    background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+
+.tab-scroll-right {
+    right: 0;
+    background: linear-gradient(270deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+}
+
+.tab-scroll-right:hover {
+    background: linear-gradient(270deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+
+.tab-scroll-btn i {
+    pointer-events: none;
+}
+
+/* Pulse animation to draw attention to scroll arrows */
+@keyframes pulse-arrow {
+    0%, 100% { 
+        opacity: 0.7; 
+        transform: scale(1); 
+    }
+    50% { 
+        opacity: 1; 
+        transform: scale(1.15); 
+    }
+}
+
+.tab-scroll-btn.pulse {
+    animation: pulse-arrow 1.5s ease-in-out 3;
 }

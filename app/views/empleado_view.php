@@ -128,13 +128,17 @@ if (!isset($empleado)) {
                                 <div class="col-12 col-md-8 mt-3 mt-md-0">
                                     <div class="card">
                                         <!-- Tab Header with Theme Color -->
-                                        <div class="card-header section-accent" style="padding:0;">
-                                            <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
-                                                <li class="nav-item" role="presentation">
-                                                    <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                                        <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
-                                                    </button>
-                                                </li>
+                                        <div class="card-header section-accent" style="padding:0; position: relative;">
+                                            <button type="button" class="tab-scroll-btn tab-scroll-left" id="viewTabScrollLeft">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                            <div class="tab-container-wrapper">
+                                                <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
+                                                    <li class="nav-item" role="presentation">
+                                                        <button class="nav-link active rounded-0" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                                            <i class="bi bi-person-fill"></i> <span id="tabGeneral">General</span>
+                                                        </button>
+                                                    </li>
                                                 <li class="nav-item" role="presentation">
                                                     <button class="nav-link rounded-0" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
                                                         <i class="bi bi-telephone-fill"></i> <span id="tabContact">Contacto</span>
@@ -160,12 +164,21 @@ if (!isset($empleado)) {
                                                         <i class="bi bi-three-dots"></i> <span id="tabOther">Otros</span>
                                                     </button>
                                                 </li>
-                                            </ul>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-0" id="training-tab" data-bs-toggle="tab" data-bs-target="#training" type="button" role="tab">
+                                                        <i class="bi bi-book-fill"></i> <span id="tabTraining">Capacitación</span>
+                                                    </button>
+                                                </li>
+                                                </ul>
+                                            </div>
+                                            <button type="button" class="tab-scroll-btn tab-scroll-right" id="viewTabScrollRight">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
                                         </div>
 
                                         <!-- Tab Content -->
                                         <div class="card-body">
-                                            <div class="tab-content" id="employeeTabContent"
+                                            <div class="tab-content" id="employeeTabContent">
                                         <!-- General Tab -->
                                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                                             <div class="row g-3">
@@ -272,6 +285,40 @@ if (!isset($empleado)) {
                                                     <p class="form-control-plaintext"><?= htmlspecialchars($empleado['comentarios'] ?? 'N/A') ?></p>
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        <!-- Training Tab (Read-Only) -->
+                                        <div class="tab-pane fade" id="training" role="tabpanel">
+                                            <h6 class="mb-3"><i class="bi bi-book-fill me-2"></i><span id="lblTrainingTitle">Cursos y Capacitaciones</span></h6>
+                                            
+                                            <?php if (isset($empleado['training_data']) && !empty($empleado['training_data'])): ?>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped table-hover" id="viewTrainingTable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th><span id="thCourseName">Curso</span></th>
+                                                                <th><span id="thCourseDate">Fecha</span></th>
+                                                                <th><span id="thCourseResources">Recursos</span></th>
+                                                                <th><span id="thCourseComments">Comentarios</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($empleado['training_data'] as $training): ?>
+                                                                <tr>
+                                                                    <td><?= htmlspecialchars($training['nombre'] ?? '') ?></td>
+                                                                    <td><?= htmlspecialchars($training['fecha'] ?? '') ?></td>
+                                                                    <td class="text-end">$<?= number_format($training['recursos'] ?? 0, 2) ?></td>
+                                                                    <td><?= htmlspecialchars($training['comentarios'] ?? '') ?></td>
+                                                                </tr>
+                                                            <?php endforeach; ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i> <span id="lblNoTrainingData">No hay cursos de capacitación registrados para este empleado.</span>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -505,6 +552,43 @@ if (!isset($empleado)) {
                 console.error('Error loading translations:', error);
             }
         }
+
+        // ==================== TAB SCROLL ARROWS FOR VIEW PAGE ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabContainer = document.querySelector('#employeeTabs')?.closest('.tab-container-wrapper');
+            const leftBtn = document.getElementById('viewTabScrollLeft');
+            const rightBtn = document.getElementById('viewTabScrollRight');
+            
+            if (!tabContainer || !leftBtn || !rightBtn) return;
+            
+            function updateScrollArrows() {
+                const scrollLeft = tabContainer.scrollLeft;
+                const scrollWidth = tabContainer.scrollWidth;
+                const clientWidth = tabContainer.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                
+                if (maxScroll <= 1) {
+                    leftBtn.style.display = 'none';
+                    rightBtn.style.display = 'none';
+                } else {
+                    leftBtn.style.display = scrollLeft > 5 ? 'flex' : 'none';
+                    rightBtn.style.display = scrollLeft < maxScroll - 5 ? 'flex' : 'none';
+                }
+            }
+            
+            function scrollTabs(direction) {
+                const scrollAmount = 200;
+                const targetScroll = tabContainer.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
+                tabContainer.scrollTo({ left: targetScroll, behavior: 'smooth' });
+            }
+            
+            leftBtn.addEventListener('click', () => scrollTabs('left'));
+            rightBtn.addEventListener('click', () => scrollTabs('right'));
+            tabContainer.addEventListener('scroll', updateScrollArrows);
+            window.addEventListener('resize', updateScrollArrows);
+            
+            setTimeout(updateScrollArrows, 100);
+        });
     </script>
 </body>
 </html>

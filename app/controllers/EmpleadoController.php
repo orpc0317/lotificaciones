@@ -3,19 +3,45 @@
 namespace App\Controllers;
 
 use App\Models\EmpleadoModel;
+use App\Services\ApiService;
 use App\Security\CsrfProtection;
 use App\Security\InputValidator;
 
 class EmpleadoController
 {
+    private $api;
+    private $useApi;
+
+    public function __construct()
+    {
+        // Check if API should be used
+        $env = parse_ini_file(__DIR__ . '/../../config/.env');
+        $this->useApi = isset($env['API_BASE_URL']) && !empty($env['API_BASE_URL']);
+        
+        if ($this->useApi) {
+            $this->api = new ApiService();
+        }
+    }
+
     public function index()
     {
         // Cargar datos necesarios para el formulario (puestos, departamentos)
         try {
-            $model = new EmpleadoModel();
-            $puestos = $model->getPuestos();
-            $departamentos = $model->getDepartamentos();
+            if ($this->useApi) {
+                // Use API
+                $puestosResponse = $this->api->get('/puestos');
+                $departamentosResponse = $this->api->get('/departamentos');
+                
+                $puestos = $puestosResponse['data'] ?? [];
+                $departamentos = $departamentosResponse['data'] ?? [];
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $puestos = $model->getPuestos();
+                $departamentos = $model->getDepartamentos();
+            }
         } catch (\Exception $e) {
+            $this->logError($e);
             $puestos = [];
             $departamentos = [];
         }
@@ -26,23 +52,36 @@ class EmpleadoController
     public function ajaxList()
     {
         try {
-            $model = new EmpleadoModel();
-            
             // Check if DataTables is requesting server-side processing
             $isServerSide = isset($_GET['draw']) || isset($_POST['draw']);
             
             if ($isServerSide) {
                 // Server-side processing mode
                 $params = array_merge($_GET, $_POST);
-                $response = $model->getServerSide($params);
+                
+                if ($this->useApi) {
+                    // Use API with query parameters
+                    $response = $this->api->get('/empleados', $params);
+                    $data = $response['data'] ?? $response;
+                } else {
+                    // Use direct model (fallback)
+                    $model = new EmpleadoModel();
+                    $data = $model->getServerSide($params);
+                }
                 
                 header('Content-Type: application/json', true, 200);
-                echo json_encode($response);
+                echo json_encode($data);
                 return;
             }
             
             // Legacy client-side mode (for initial column setup)
-            $data = $model->getAll();
+            if ($this->useApi) {
+                $response = $this->api->get('/empleados');
+                $data = $response['data'] ?? [];
+            } else {
+                $model = new EmpleadoModel();
+                $data = $model->getAll();
+            }
 
             // Support language for column titles (es / en)
             $lang = isset($_GET['lang']) && $_GET['lang'] === 'en' ? 'en' : 'es';
@@ -129,13 +168,53 @@ class EmpleadoController
             // Merge with other POST data (like codigo which is generated server-side)
             $data = array_merge($_POST, $sanitizedData);
             
-            $model = new EmpleadoModel();
-            $result = $model->create($data, $_FILES);
+            // Extract training data if present
+            $trainingData = null;
+            if (isset($data['training_data'])) {
+                $trainingData = json_decode($data['training_data'], true);
+                unset($data['training_data']); // Remove from employee data
+            }
+            
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->post('/empleados', $data, $_FILES);
+                $success = isset($response['success']) ? $response['success'] : false;
+                $message = $response['message'] ?? 'No se pudo crear el empleado';
+                
+                // If employee created successfully and has training data, save it
+                if ($success && $trainingData !== null && !empty($trainingData)) {
+                    $empleadoId = $response['data']['id'] ?? null;
+                    if ($empleadoId) {
+                        try {
+                            $this->api->put("/empleados/$empleadoId/training", ['training_data' => $trainingData]);
+                        } catch (\Exception $e) {
+                            error_log("Failed to save training data for new employee $empleadoId: " . $e->getMessage());
+                            // Don't fail the whole operation, just log it
+                        }
+                    }
+                }
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $result = $model->create($data, $_FILES);
+                $success = (bool)$result;
+                $message = $result ? 'Empleado creado exitosamente' : 'No se pudo crear el empleado';
+                
+                // If employee created successfully and has training data, save it
+                if ($success && $trainingData !== null && !empty($trainingData)) {
+                    try {
+                        $model->saveTraining($result, $trainingData);
+                    } catch (\Exception $e) {
+                        error_log("Failed to save training data for new employee $result: " . $e->getMessage());
+                        // Don't fail the whole operation, just log it
+                    }
+                }
+            }
             
             header('Content-Type: application/json', true, 200);
             echo json_encode([
-                'success' => (bool)$result, 
-                'message' => $result ? 'Empleado creado exitosamente' : 'No se pudo crear el empleado'
+                'success' => $success, 
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             $this->logError($e);
@@ -187,13 +266,59 @@ class EmpleadoController
             // Merge with other POST data
             $data = array_merge($_POST, $sanitizedData);
             
-            $model = new EmpleadoModel();
-            $result = $model->update($data, $_FILES);
+            // Extract training data if present
+            $trainingData = null;
+            if (isset($data['training_data'])) {
+                $trainingData = json_decode($data['training_data'], true);
+                unset($data['training_data']); // Remove from main data
+            }
+            
+            if ($this->useApi) {
+                // Use API
+                $id = $data['id'];
+                if (!empty($_FILES['foto']['name'])) {
+                    // Photo upload - use upload endpoint
+                    $response = $this->api->post("/empleados/$id/upload", [], $_FILES);
+                    // Then update other fields
+                    unset($data['foto']);
+                    unset($data['foto_actual']);
+                    if (count($data) > 1) { // More than just ID
+                        $response = $this->api->put("/empleados/$id", $data);
+                    }
+                } else {
+                    // Regular update
+                    $response = $this->api->put("/empleados/$id", $data);
+                }
+                
+                // Save training data via API if present
+                if ($trainingData !== null) {
+                    try {
+                        $this->api->put("/empleados/$id/training", ['training_data' => $trainingData]);
+                    } catch (\Exception $e) {
+                        error_log("Error saving training data via API: " . $e->getMessage());
+                    }
+                }
+                
+                $success = isset($response['success']) ? $response['success'] : false;
+                $message = $response['message'] ?? 'No se realizaron cambios';
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $result = $model->update($data, $_FILES);
+                
+                // Save training data via model if present
+                if ($trainingData !== null) {
+                    $model->saveTraining((int)$data['id'], $trainingData);
+                }
+                
+                $success = (bool)$result;
+                $message = $result ? 'Empleado actualizado exitosamente' : 'No se realizaron cambios';
+            }
             
             header('Content-Type: application/json; charset=utf-8', true, 200);
             echo json_encode([
-                'success' => (bool)$result, 
-                'message' => $result ? 'Empleado actualizado exitosamente' : 'No se realizaron cambios'
+                'success' => $success, 
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             $this->logError($e);
@@ -222,13 +347,25 @@ class EmpleadoController
                 return;
             }
             
-            $model = new EmpleadoModel();
-            $result = $model->delete($validator->get('id'));
+            $id = $validator->get('id');
+            
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->delete("/empleados/$id");
+                $success = isset($response['success']) ? $response['success'] : false;
+                $message = $response['message'] ?? 'No se pudo eliminar el empleado';
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $result = $model->delete($id);
+                $success = $result;
+                $message = $result ? 'Empleado eliminado exitosamente' : 'No se pudo eliminar el empleado';
+            }
             
             header('Content-Type: application/json', true, 200);
             echo json_encode([
-                'success' => $result,
-                'message' => $result ? 'Empleado eliminado exitosamente' : 'No se pudo eliminar el empleado'
+                'success' => $success,
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             $this->logError($e);
@@ -259,15 +396,32 @@ class EmpleadoController
         }
 
         try {
-            $model = new EmpleadoModel();
-            $count = $model->countAll();
-            $db = $model->getDatabaseName();
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->get('/stats');
+                $data = $response['data'] ?? [];
+                $count = $data['total'] ?? 0;
+                $db = $data['database'] ?? 'unknown';
+                $source = 'API';
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $count = $model->countAll();
+                $db = $model->getDatabaseName();
+                $source = 'Direct Model';
+            }
+            
             header('Content-Type: application/json', true, 200);
-            echo json_encode(['db' => $db, 'empleados_count' => $count]);
+            echo json_encode([
+                'db' => $db, 
+                'empleados_count' => $count,
+                'source' => $source,
+                'api_enabled' => $this->useApi
+            ]);
         } catch (\Exception $e) {
             $this->logError($e);
             header('Content-Type: application/json', true, 500);
-            echo json_encode(['error' => 'Debug error']);
+            echo json_encode(['error' => 'Debug error: ' . $e->getMessage()]);
         }
     }
 
@@ -282,8 +436,16 @@ class EmpleadoController
                 return;
             }
 
-            $model = new EmpleadoModel();
-            $empleado = $model->getById($id);
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->get("/empleados/$id");
+                $empleado = $response['data'] ?? null;
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $empleado = $model->getById($id);
+            }
+
             if (!$empleado) {
                 header('Content-Type: application/json', true, 404);
                 echo json_encode(['error' => 'Empleado no encontrado']);
@@ -303,8 +465,31 @@ class EmpleadoController
     public function view($id)
     {
         try {
-            $model = new EmpleadoModel();
-            $empleado = $model->getById((int)$id);
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->get("/empleados/" . (int)$id);
+                $empleado = $response['data'] ?? null;
+                
+                // Load training data via API
+                $trainingResponse = $this->api->get("/empleados/" . (int)$id . "/training");
+                $empleado['training_data'] = $trainingResponse['data'] ?? [];
+                
+                $puestosResponse = $this->api->get('/puestos');
+                $departamentosResponse = $this->api->get('/departamentos');
+                
+                $puestos = $puestosResponse['data'] ?? [];
+                $departamentos = $departamentosResponse['data'] ?? [];
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $empleado = $model->getById((int)$id);
+                
+                // Load training data via model
+                $empleado['training_data'] = $model->getTrainingByEmpleado((int)$id);
+                
+                $puestos = $model->getPuestos();
+                $departamentos = $model->getDepartamentos();
+            }
             
             if (!$empleado) {
                 http_response_code(404);
@@ -314,10 +499,6 @@ class EmpleadoController
 
             // Debug: Log that we found the employee
             error_log("EmpleadoController::view - Found employee ID: " . $id . ", Name: " . $empleado['nombres']);
-
-            // Load departments and positions for display
-            $puestos = $model->getPuestos();
-            $departamentos = $model->getDepartamentos();
 
             // Debug: Verify view file exists
             $viewPath = __DIR__ . '/../views/empleado_view.php';
@@ -337,18 +518,34 @@ class EmpleadoController
     public function edit($id)
     {
         try {
-            $model = new EmpleadoModel();
-            $empleado = $model->getById((int)$id);
+            if ($this->useApi) {
+                // Use API
+                $response = $this->api->get("/empleados/" . (int)$id);
+                $empleado = $response['data'] ?? null;
+                
+                // Load training data via API
+                $trainingResponse = $this->api->get("/empleados/" . (int)$id . "/training");
+                $empleado['training_data'] = $trainingResponse['data'] ?? [];
+                
+                $puestosResponse = $this->api->get('/puestos');
+                $departamentosResponse = $this->api->get('/departamentos');
+                
+                $puestos = $puestosResponse['data'] ?? [];
+                $departamentos = $departamentosResponse['data'] ?? [];
+            } else {
+                // Use direct model (fallback)
+                $model = new EmpleadoModel();
+                $empleado = $model->getById((int)$id);
+                $empleado['training_data'] = $model->getTrainingByEmpleado((int)$id);
+                $puestos = $model->getPuestos();
+                $departamentos = $model->getDepartamentos();
+            }
             
             if (!$empleado) {
                 http_response_code(404);
                 echo "Empleado no encontrado";
                 return;
             }
-
-            // Load departments and positions for dropdowns
-            $puestos = $model->getPuestos();
-            $departamentos = $model->getDepartamentos();
 
             include_once __DIR__ . '/../views/empleado_edit.php';
         } catch (\Exception $e) {

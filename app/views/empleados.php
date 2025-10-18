@@ -95,14 +95,35 @@
                         </button>
                     </div>
                     <div class="d-flex align-items-center">
-                        <!-- Theme palette swatches -->
-                        <button class="btn btn-sm btn-outline-secondary me-2 d-flex align-items-center" id="btnPaletteHint" title="Palette">
-                            <i class="bi bi-palette"></i>
-                        </button>
-                        <div class="palette-swatch" data-palette="blue" title="Blue" role="button" aria-pressed="false"></div>
-                        <div class="palette-swatch" data-palette="teal" title="Teal" role="button" aria-pressed="false"></div>
-                        <div class="palette-swatch" data-palette="violet" title="Violet" role="button" aria-pressed="false"></div>
-                        <select id="langSelect" class="form-select form-select-sm ms-3" style="width:auto;">
+                        <!-- Theme palette dropdown -->
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="paletteDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-palette me-1"></i>
+                                <span id="currentPaletteName" data-i18n="theme_blue">Blue</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="paletteDropdown">
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="blue">
+                                        <span class="palette-color-dot" style="background: var(--swatch-blue);"></span>
+                                        <span data-i18n="theme_blue">Blue</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="teal">
+                                        <span class="palette-color-dot" style="background: var(--swatch-teal);"></span>
+                                        <span data-i18n="theme_teal">Verde</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="violet">
+                                        <span class="palette-color-dot" style="background: var(--swatch-violet);"></span>
+                                        <span data-i18n="theme_violet">Violet</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Language selector -->
+                        <select id="langSelect" class="form-select form-select-sm" style="width:auto;">
                             <option value="es">Español</option>
                             <option value="en">English</option>
                         </select>
@@ -272,11 +293,15 @@
                 </div>
                 <div class="col-12 col-md-8">
                     <div class="tab-card card">
-                        <div class="card-header section-accent" style="padding:0;">
-                            <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
-                                </li>
+                        <div class="card-header section-accent" style="padding:0; position: relative;">
+                            <button type="button" class="tab-scroll-btn tab-scroll-left" id="newTabScrollLeft">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <div class="tab-container-wrapper">
+                                <ul class="nav nav-tabs" id="newFormTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active rounded-0" id="new-generals-tab" data-bs-toggle="tab" data-bs-target="#new-generals" type="button" role="tab" aria-controls="new-generals" aria-selected="true"><i class="bi bi-person-fill"></i> <span class="label-text" data-i18n="tab_generals">Generals</span> <span class="badge-tab ms-2" data-tab="new-generals" style="display:none;"></span></button>
+                                    </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="new-personal-tab" data-bs-toggle="tab" data-bs-target="#new-personal" type="button" role="tab" aria-controls="new-personal" aria-selected="false"><i class="bi bi-person-badge"></i> <span class="label-text">Personal</span> <span class="badge-tab ms-2" data-tab="new-personal" style="display:none;"></span></button>
                                 </li>
@@ -292,7 +317,14 @@
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link rounded-0" id="new-others-tab" data-bs-toggle="tab" data-bs-target="#new-others" type="button" role="tab" aria-controls="new-others" aria-selected="false"><i class="bi bi-three-dots"></i> <span class="label-text" data-i18n="tab_others">Others</span> <span class="badge-tab ms-2" data-tab="new-others" style="display:none;"></span></button>
                                 </li>
-                            </ul>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-0" id="new-training-tab" data-bs-toggle="tab" data-bs-target="#new-training" type="button" role="tab" aria-controls="new-training" aria-selected="false"><i class="bi bi-book-fill"></i> <span class="label-text" data-i18n="tabTraining">Capacitación</span> <span class="badge-tab ms-2" data-tab="new-training" style="display:none;"></span></button>
+                                </li>
+                                </ul>
+                            </div>
+                            <button type="button" class="tab-scroll-btn tab-scroll-right" id="newTabScrollRight">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
                         </div>
                         <div class="card-body">
                             <div class="tab-content pt-2" id="newFormTabsContent">
@@ -364,6 +396,66 @@
                                     <div class="mb-3">
                                         <label for="nuevo_comentarios" class="form-label"><span class="label-text" data-i18n="comments">Comentarios</span></label>
                                         <textarea name="comentarios" id="nuevo_comentarios" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <!-- Training Tab -->
+                                <div class="tab-pane fade" id="new-training" role="tabpanel" aria-labelledby="new-training-tab">
+                                    <input type="hidden" name="training_data" id="nuevo_training_data" value="[]">
+                                    
+                                    <h6 class="mb-3"><i class="bi bi-book-fill me-2"></i><span id="lblTrainingTitle">Cursos y Capacitaciones</span></h6>
+                                    
+                                    <!-- Training Form -->
+                                    <div class="border rounded p-3 mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label for="nuevo_curso_nombre" class="form-label"><span id="lblCourseName">Nombre del Curso</span></label>
+                                                <input type="text" class="form-control form-control-sm" id="nuevo_curso_nombre" placeholder="">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="nuevo_curso_fecha" class="form-label"><span id="lblCourseDate">Fecha Aprobado</span></label>
+                                                <input type="date" class="form-control form-control-sm" id="nuevo_curso_fecha">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="nuevo_curso_recursos" class="form-label"><span id="lblCourseResources">Recursos Aprobados</span></label>
+                                                <input type="number" class="form-control form-control-sm" id="nuevo_curso_recursos" placeholder="0.00" step="0.01">
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="nuevo_curso_comentarios" class="form-label"><span id="lblCourseComments">Comentarios</span></label>
+                                                <textarea class="form-control form-control-sm" id="nuevo_curso_comentarios" rows="2"></textarea>
+                                            </div>
+                                            <div class="col-12 mt-2">
+                                                <button type="button" class="btn btn-sm btn-primary" onclick="addNewTrainingRow()" id="btnAddNewTraining">
+                                                    <i class="bi bi-plus-circle"></i> <span id="lblAddButton">Agregar</span>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary d-none" onclick="cancelNewTrainingEdit()" id="btnCancelNewTraining">
+                                                    <i class="bi bi-x-circle"></i> <span id="lblCancelButton">Cancelar</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Training Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="newTrainingTable">
+                                            <thead>
+                                                <tr>
+                                                    <th><span id="thCourseName">Curso</span></th>
+                                                    <th><span id="thCourseDate">Fecha</span></th>
+                                                    <th><span id="thCourseResources">Recursos</span></th>
+                                                    <th><span id="thCourseComments">Comentarios</span></th>
+                                                    <th width="100"><span id="thActions">Acciones</span></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="newTrainingTableBody">
+                                                <tr id="emptyNewTrainingRow">
+                                                    <td colspan="5" class="text-center text-muted">
+                                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                        <span id="lblNoTraining">No hay cursos registrados. Agregue el primero usando el formulario arriba.</span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

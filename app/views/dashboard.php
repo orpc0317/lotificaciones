@@ -95,14 +95,35 @@
                         </button>
                     </div>
                     <div class="d-flex align-items-center">
-                        <!-- Theme palette swatches -->
-                        <button class="btn btn-sm btn-outline-secondary me-2 d-flex align-items-center" id="btnPaletteHint" title="Palette">
-                            <i class="bi bi-palette"></i>
-                        </button>
-                        <div class="palette-swatch" data-palette="blue" title="Blue" role="button" aria-pressed="false"></div>
-                        <div class="palette-swatch" data-palette="teal" title="Teal" role="button" aria-pressed="false"></div>
-                        <div class="palette-swatch" data-palette="violet" title="Violet" role="button" aria-pressed="false"></div>
-                        <select id="langSelect" class="form-select form-select-sm ms-3" style="width:auto;">
+                        <!-- Theme palette dropdown -->
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="paletteDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-palette me-1"></i>
+                                <span id="currentPaletteName" data-i18n="theme_blue">Blue</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="paletteDropdown">
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="blue">
+                                        <span class="palette-color-dot" style="background: var(--swatch-blue);"></span>
+                                        <span data-i18n="theme_blue">Blue</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="teal">
+                                        <span class="palette-color-dot" style="background: var(--swatch-teal);"></span>
+                                        <span data-i18n="theme_teal">Verde</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item palette-option" href="#" data-palette="violet">
+                                        <span class="palette-color-dot" style="background: var(--swatch-violet);"></span>
+                                        <span data-i18n="theme_violet">Violet</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Language selector -->
+                        <select id="langSelect" class="form-select form-select-sm" style="width:auto;">
                             <option value="es">Español</option>
                             <option value="en">English</option>
                         </select>
@@ -171,6 +192,8 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- Bootstrap 5 -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- i18n Module -->
+    <script src="assets/js/modules/i18n.js"></script>
     <!-- Theme Manager (must load before layout) -->
     <script src="assets/js/theme.js"></script>
     <!-- Layout Script -->
